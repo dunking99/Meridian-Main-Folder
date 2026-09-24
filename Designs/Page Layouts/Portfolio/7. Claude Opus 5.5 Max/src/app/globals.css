@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink-950: #05070a;
+  --color-ink-900: #090b10;
+  --color-ink-850: #0c0f15;
+  --color-ink-800: #10141b;
+  --color-ink-750: #151a23;
+  --color-ink-700: #1b212c;
+  --color-ink-600: #252c39;
+  --color-ink-500: #343c4c;
+  --color-mist-500: #5d6575;
+  --color-mist-400: #7d8595;
+  --color-mist-300: #9ba3b2;
+  --color-mist-200: #c4cad5;
+  --color-mist-100: #e7eaef;
+  --color-gold-200: #ffe2b0;
+  --color-gold-300: #ffd08a;
+  --color-gold-400: #f5bd62;
+  --color-gold-500: #e8a33d;
+  --color-gold-600: #b87a22;
+  --color-up: #3ee0a1;
+  --color-down: #ff6b6b;
+  --color-sky: #7cc4ff;
+  --color-violet: #b69cff;
+}
+
+@theme inline {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+}
+
+html {
+  color-scheme: dark;
+  background: var(--color-ink-950);
+}
+body {
+  font-family: var(--font-sans);
+  color: var(--color-mist-100);
+  background:
+    radial-gradient(1100px 560px at 8% -8%, rgba(245, 189, 98, 0.075), transparent 60%),
+    radial-gradient(900px 520px at 100% -4%, rgba(124, 196, 255, 0.055), transparent 62%),
+    radial-gradient(1200px 800px at 50% 120%, rgba(182, 156, 255, 0.04), transparent 60%),
+    var(--color-ink-950);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+}
+::selection {
+  background: rgba(245, 189, 98, 0.35);
+  color: #fff;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-500) transparent;
+}
+
+/* faint chart-paper grid that fades out down the page */
+.gridpaper {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 520px);
+}
+
+/* ———————————————————— cards: glass edge + registration ticks on hover */
+.card {
+  position: relative;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.008) 38%, rgba(255, 255, 255, 0.004)),
+    rgba(9, 11, 16, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.066);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.045) inset,
+    0 24px 60px -36px rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(6px);
+}
+.card::after {
+  --t: rgba(245, 189, 98, 0.45);
+  content: "";
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--t), var(--t)) top left / 8px 1px no-repeat,
+    linear-gradient(var(--t), var(--t)) top left / 1px 8px no-repeat,
+    linear-gradient(var(--t), var(--t)) top right / 8px 1px no-repeat,
+    linear-gradient(var(--t), var(--t)) top right / 1px 8px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom left / 8px 1px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom left / 1px 8px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom right / 8px 1px no-repeat,
+    linear-gradient(var(--t), var(--t)) bottom right / 1px 8px no-repeat;
+  opacity: 0;
+  transform: scale(1.01);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.card:hover::after {
+  opacity: 1;
+  transform: scale(1);
+}
+.card-hero {
+  background:
+    radial-gradient(600px 240px at 0% 0%, rgba(245, 189, 98, 0.07), transparent 70%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.006) 45%),
+    rgba(9, 11, 16, 0.85);
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-mist-400);
+}
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums slashed-zero;
+  letter-spacing: -0.01em;
+}
+.serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* privacy mode: blur every monetary figure */
+.money {
+  transition: filter 0.25s ease;
+}
+html[data-privacy="on"] .money {
+  filter: blur(7px);
+  user-select: none;
+}
+
+/* ticker tape */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee {
+  animation: marquee 110s linear infinite;
+}
+.marquee:hover {
+  animation-play-state: paused;
+}
+
+/* entrance + line drawing */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.rise {
+  animation: rise 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+.draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 1.4s cubic-bezier(0.3, 0.6, 0.2, 1) forwards;
+}
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fadein {
+  animation: fadein 0.9s ease both;
+}
+@keyframes sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.sweep {
+  animation: sweep 14s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.hatch {
+  background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0 2px, transparent 2px 6px);
+}
+.fade-r {
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+}

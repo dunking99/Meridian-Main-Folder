@@ -1,0 +1,127 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #05070d;
+  --color-bg2: #080b14;
+  --color-panel: #0c1018;
+  --color-panel2: #10151f;
+  --color-line: #1c2430;
+  --color-line2: #283040;
+  --color-ink: #e8edf5;
+  --color-ink-dim: #9aa7bd;
+  --color-ink-faint: #64748b;
+
+  --color-accent: #34e0c4;
+  --color-accent2: #7c9bff;
+  --color-gold: #e8c489;
+  --color-pos: #34d399;
+  --color-neg: #fb7185;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+body {
+  background-image:
+    radial-gradient(1100px 700px at 82% -8%, rgba(52, 224, 196, 0.08), transparent 60%),
+    radial-gradient(900px 640px at 8% 4%, rgba(124, 155, 255, 0.07), transparent 55%);
+  background-attachment: fixed;
+}
+
+.tabnum {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  letter-spacing: -0.01em;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Glass card */
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.024), rgba(255, 255, 255, 0)) , var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-radius: 16px;
+  position: relative;
+}
+.card-hover {
+  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+.card-hover:hover {
+  border-color: var(--color-line2);
+  background: var(--color-panel2);
+}
+
+.hairline {
+  border-color: var(--color-line);
+}
+
+.glow-accent {
+  box-shadow: 0 0 0 1px rgba(52, 224, 196, 0.25), 0 0 32px -8px rgba(52, 224, 196, 0.35);
+}
+
+/* subtle scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e2735;
+  border-radius: 8px;
+  border: 2px solid var(--color-bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2b3547;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-up {
+  animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.grid-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.text-pos {
+  color: var(--color-pos);
+}
+.text-neg {
+  color: var(--color-neg);
+}

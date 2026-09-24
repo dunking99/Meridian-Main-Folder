@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Meridian — Portfolio</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #07090d;
+    --bg-2: #0b0e14;
+    --panel: #0f131c;
+    --panel-2: #141925;
+    --panel-3: #1a2030;
+    --line: #232a3d;
+    --line-2: #2d364d;
+    --text: #e6e8ee;
+    --muted: #8a93a8;
+    --muted-2: #5b6478;
+    --accent: #7cf1b0;
+    --accent-2: #4ade80;
+    --up: #34d399;
+    --down: #f87171;
+    --gold: #e5c07b;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --orange: #fb923c;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-feature-settings: "cv11", "ss01", "tnum";
+    letter-spacing: -0.01em;
+  }
+  body {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(124,241,176,0.06), transparent 60%),
+      radial-gradient(900px 500px at 90% 0%, rgba(96,165,250,0.05), transparent 60%),
+      var(--bg);
+    min-height: 100vh;
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
+  .panel {
+    background: linear-gradient(180deg, var(--panel) 0%, var(--bg-2) 100%);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .panel-hover { transition: border-color .2s, transform .2s, box-shadow .2s; }
+  .panel-hover:hover { border-color: var(--line-2); box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--line) 20%, var(--line) 80%, transparent); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px; border-radius: 6px; font-size: 11px;
+    font-weight: 500; letter-spacing: 0.02em;
+  }
+  .chip-up { background: rgba(52,211,153,0.1); color: var(--up); border: 1px solid rgba(52,211,153,0.2); }
+  .chip-down { background: rgba(248,113,113,0.1); color: var(--down); border: 1px solid rgba(248,113,113,0.2); }
+  .chip-neutral { background: rgba(138,147,168,0.08); color: var(--muted); border: 1px solid var(--line); }
+  .chip-accent { background: rgba(124,241,176,0.08); color: var(--accent); border: 1px solid rgba(124,241,176,0.2); }
+  .tab-btn {
+    position: relative;
+    padding: 10px 4px;
+    font-size: 13px; font-weight: 500;
+    color: var(--muted);
+    transition: color .15s;
+    cursor: pointer;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--text); }
+  .tab-btn.active::after {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--blue));
+    border-radius: 2px;
+  }
+  .sub-tab {
+    padding: 6px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 500;
+    color: var(--muted); cursor: pointer; transition: all .15s;
+    border: 1px solid transparent;
+  }
+  .sub-tab:hover { color: var(--text); background: var(--panel-2); }
+  .sub-tab.active {
+    color: var(--text);
+    background: var(--panel-3);
+    border-color: var(--line-2);
+    box-shadow: inset 0 0 0 1px rgba(124,241,176,0.05);
+  }
+  .period-btn {
+    padding: 5px 11px; border-radius: 6px; font-size: 11.5px; font-weight: 500;
+    color: var(--muted); cursor: pointer; transition: all .15s;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .period-btn:hover { color: var(--text); }
+  .period-btn.active { background: var(--panel-3); color: var(--accent); }
+  table.holdings { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.holdings thead th {
+    text-align: right; font-weight: 500; font-size: 11px;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 10px 12px; border-bottom: 1px solid var(--line);
+    cursor: pointer; user-select: none;
+  }
+  table.holdings thead th:first-child { text-align: left; }
+  table.holdings thead th:hover { color: var(--text); }
+  table.holdings tbody tr {
+    border-bottom: 1px solid rgba(35,42,61,0.6);
+    transition: background .15s;
+    cursor: pointer;
+  }
+  table.holdings tbody tr:hover { background: rgba(26,32,48,0.5); }
+  table.holdings tbody tr.expanded-row { background: rgba(26,32,48,0.4); }
+  table.holdings td {
+    padding: 12px;
+    text-align: right;
+    vertical-align: middle;
+  }
+  table.holdings td:first-child { text-align: left; }
+  .ticker-cell { display: flex; align-items: center; gap: 10px; }
+  .ticker-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .row-details {
+    display: none;
+    background: var(--bg-2);
+  }
+  .row-details.open { display: table-row; }
+  .row-details td { padding: 16px 20px; text-align: left; }
+  .btn {
+    padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 500;
+    cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line-2); background: var(--panel-2); color: var(--text);
+  }
+  .btn:hover { background: var(--panel-3); border-color: #3b4460; }
+  .btn-primary {
+    background: linear-gradient(180deg, #1f2937, #111827);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn-primary:hover { background: linear-gradient(180deg, #263243, #161e2b); }
+  .btn-icon {
+    width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 8px; border: 1px solid var(--line-2); background: var(--panel-2);
+    color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .btn-icon:hover { color: var(--text); background: var(--panel-3); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .progress {
+    height: 4px; background: var(--panel-3); border-radius: 2px; overflow: hidden;
+  }
+  .progress > div { height: 100%; border-radius: 2px; }
+  .search-input {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 7px 12px 7px 32px; font-size: 12.5px; color: var(--text); width: 240px;
+    outline: none; transition: border-color .15s;
+  }
+  .search-input:focus { border-color: var(--line-2); }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+  .stat-value { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-top: 2px; }
+  .kpi-change { font-size: 12px; font-weight: 500; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; }
+  .up { color: var(--up); }
+  .down { color: var(--down); }
+  .muted { color: var(--muted); }
+  .heat-cell {
+    width: 100%; aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; font-size: 10px; font-weight: 600; color: #0b0e14;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .donut-legend-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 12px; }
+  .tooltip-custom {
+    position: absolute; pointer-events: none; background: #0a0d14; border: 1px solid var(--line-2);
+    border-radius: 8px; padding: 8px 12px; font-size: 12px; z-index: 50;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    opacity: 0; transition: opacity .12s;
+  }
+  .spark { width: 80px; height: 28px; }
+  .mini-bar { width: 60px; height: 4px; background: var(--panel-3); border-radius: 2px; overflow: hidden; }
+  .scroll-hide::-webkit-scrollbar { display: none; }
+  .checkbox {
+    appearance: none; width: 14px; height: 14px; border-radius: 4px;
+    border: 1px solid var(--line-2); background: var(--panel-2); cursor: pointer;
+    position: relative;
+  }
+  .checkbox:checked { background: var(--accent); border-color: var(--accent); }
+  .checkbox:checked::after {
+    content: ""; position: absolute; left: 3px; top: 1px;
+    width: 4px; height: 8px; border: solid #0b0e14; border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  select.custom-select {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 6px 28px 6px 10px; font-size: 12px; color: var(--text); outline: none;
+    appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a93a8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+  }
+  .pulse-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--up);
+    box-shadow: 0 0 0 0 rgba(52,211,153,0.6);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.5); }
+    70% { box-shadow: 0 0 0 8px rgba(52,211,153,0); }
+    100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+  }
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px; color: var(--muted);
+    transition: all .15s; cursor: pointer;
+  }
+  .icon-btn:hover { background: var(--panel-2); color: var(--text); }
+  .bar-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .bar-label { width: 110px; color: var(--muted); }
+  .bar-track { flex: 1; height: 8px; background: var(--panel-3); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width .8s cubic-bezier(.2,.7,.2,1); }
+  .bar-val { width: 70px; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; }
+  .glow-green { box-shadow: 0 0 0 1px rgba(52,211,153,0.3), 0 0 20px rgba(52,211,153,0.08); }
+  .glow-red { box-shadow: 0 0 0 1px rgba(248,113,113,0.3), 0 0 20px rgba(248,113,113,0.08); }
+  .segmented { display: inline-flex; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 2px; gap: 2px; }
+  .segmented button {
+    padding: 4px 10px; font-size: 11.5px; border-radius: 6px; color: var(--muted);
+    background: transparent; border: none; cursor: pointer; transition: all .15s;
+    font-weight: 500;
+  }
+  .segmented button.active { background: var(--panel-3); color: var(--text); }
+  .segmented button:hover:not(.active) { color: var(--text); }
+  .fade-in { animation: fadeIn .35s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .nav-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 8px; font-size: 13px;
+    color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .nav-link:hover { background: var(--panel-2); color: var(--text); }
+  .nav-link.active {
+    background: linear-gradient(90deg, rgba(124,241,176,0.08), transparent);
+    color: var(--text);
+    border-left: 2px solid var(--accent);
+    padding-left: 10px;
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <!-- Sidebar -->
+  <aside class="w-60 border-r flex-shrink-0 flex flex-col" style="border-color: var(--line); background: var(--bg-2);">
+    <div class="px-5 py-5 flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #7cf1b0, #60a5fa);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0b0e14" stroke-width="2.5" stroke-linecap="round"><path d="M12 2 L2 22 L12 16 L22 22 Z"/></svg>
+      </div>
+      <div>
+        <div class="font-semibold text-[15px] tracking-tight">Meridian</div>
+        <div class="text-[10px] uppercase tracking-widest" style="color: var(--muted-2)">Terminal</div>
+      </div>
+    </div>
+
+    <div class="px-3 mt-2">
+      <div class="text-[10px] uppercase tracking-widest px-3 py-2" style="color: var(--muted-2)">Workspace</div>
+      <div class="nav-link active">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Portfolio
+      </div>
+      <div class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        Research
+      </div>
+      <div class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+        Markets
+      </div>
+      <div class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        Watchlist
+      </div>
+      <div class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Calendar
+      </div>
+      <div class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Documents
+      </div>
+    </div>
+
+    <div class="px-3 mt-4">
+      <div class="text-[10px] uppercase tracking-widest px-3 py-2" style="color: var(--muted-2)">Insights</div>
+      <div class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        Screener
+      </div>
+      <div class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        Alerts
+        <span class="ml-auto chip chip-up" style="padding: 1px 6px; font-size: 10px;">3</span>
+      </div>
+      <div class="nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Messages
+      </div>
+    </div>
+
+    <div class="mt-auto p-3">
+      <div class="panel p-3" style="background: linear-gradient(180deg, #141925, #0f131c);">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="pulse-dot"></div>
+          <div class="text-[11px] font-medium">Market Open</div>
+          <div class="ml-auto mono text-[10px]" style="color: var(--muted)" id="clock">--:--:--</div>
+        </div>
+        <div class="text-[10px] muted">NYSE · 3h 42m to close</div>
+      </div>
+      <div class="flex items-center gap-2 mt-3 px-2">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-semibold" style="background: linear-gradient(135deg, #a78bfa, #60a5fa);">AH</div>
+        <div class="flex-1">
+          <div class="text-[12px] font-medium">Ava Hartmann</div>
+          <div class="text-[10px] muted">Investor · Tier III</div>
+        </div>
+        <button class="btn-icon" style="width:28px;height:28px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 min-w-0">
+    <!-- Top bar -->
+    <header class="flex items-center gap-4 px-8 py-4 border-b" style="border-color: var(--line);">
+      <div>
+        <div class="flex items-center gap-2 text-[11px] uppercase tracking-widest" style="color: var(--muted-2)">
+          <span>Portfolio</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          <span id="crumbPage">Overview</span>
+        </div>
+        <div class="flex items-baseline gap-3 mt-0.5">
+          <h1 class="text-[22px] font-semibold tracking-tight" id="pageTitle">Portfolio Overview</h1>
+          <span class="chip chip-neutral">Q4 2025</span>
+        </div>
+      </div>
+
+      <div class="relative ml-4">
+        <svg class="absolute left-2.5 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a93a8" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="search-input" placeholder="Search tickers, sectors, tags…" id="globalSearch"/>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <div class="segmented" id="viewMode">
+        <button class="active" data-mode="chart">Chart</button>
+        <button data-mode="table">Table</button>
+      </div>
+
+      <button class="btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+      <button class="btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Rebalance
+      </button>
+      <button class="btn-icon" title="Notifications">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      </button>
+    </header>
+
+    <!-- Sub-tabs -->
+    <div class="px-8 border-b flex items-center justify-between" style="border-color: var(--line);">
+      <nav class="flex gap-6" id="subTabs">
+        <div class="tab-btn active" data-page="overview">Overview</div>
+        <div class="tab-btn" data-page="holdings">Holdings <span class="mono text-[11px] ml-1" style="color: var(--muted-2)">32</span></div>
+        <div class="tab-btn" data-page="performance">Performance</div>
+        <div class="tab-btn" data-page="analysis">Analysis</div>
+      </nav>
+      <div class="flex items-center gap-2 py-2">
+        <span class="text-[11px] mr-1" style="color: var(--muted)">As of</span>
+        <select class="custom-select">
+          <option>Today · Nov 18, 2025</option>
+          <option>Previous close · Nov 17</option>
+          <option>Custom range…</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Content area -->
+    <div class="p-8">
+
+      <!-- ===================== OVERVIEW ===================== -->
+      <section id="page-overview" class="page fade-in">
+        <!-- KPI Row -->
+        <div class="grid grid-cols-4 gap-4 mb-5">
+          <div class="panel p-5 panel-hover">
+            <div class="flex items-center justify-between">
+              <div class="stat-label">Total Value</div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a93a8" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="stat-value mono" id="kpiTotal">$2,847,392.18</div>
+            <div class="flex items-center gap-2 mt-2">
+              <span class="chip chip-up mono">+$34,281.04</span>
+              <span class="text-[11.5px] up mono">+1.22%</span>
+              <span class="text-[11px] muted">today</span>
+            </div>
+            <canvas id="kpiSpark1" class="mt-3" height="32"></canvas>
+          </div>
+
+          <div class="panel p-5 panel-hover">
+            <div class="flex items-center justify-between">
+              <div class="stat-label">Day P/L</div>
+              <span class="chip chip-up">Live</span>
+            </div>
+            <div class="stat-value mono up">+$34,281</div>
+            <div class="text-[11.5px] muted mt-2">vs S&P 500 <span class="up mono">+0.84%</span></div>
+            <canvas id="kpiSpark2" class="mt-3" height="32"></canvas>
+          </div>
+
+          <div class="panel p-5 panel-hover">
+            <div class="flex items-center justify-between">
+              <div class="stat-label">Total Return</div>
+              <span class="chip chip-neutral">All time</span>
+            </div>
+            <div class="stat-value mono up">+$612,478</div>
+            <div class="text-[11.5px] muted mt-2">Cost basis <span class="mono">$2,234,914</span></div>
+            <canvas id="kpiSpark3" class="mt-3" height="32"></canvas>
+          </div>
+
+          <div class="panel p-5 panel-hover">
+            <div class="flex items-center justify-between">
+              <div class="stat-label">Risk Profile</div>
+              <span class="chip chip-accent">Moderate-Aggressive</span>
+            </div>
+            <div class="stat-value">Sharpe <span class="mono">1.42</span></div>
+            <div class="text-[11.5px] muted mt-2">Beta <span class="mono">0.94</span> · Vol <span class="mono">14.8%</span></div>
+            <div class="flex gap-1 mt-3">
+              <div class="h-1 flex-1 rounded-full" style="background: var(--up); opacity:.25"></div>
+              <div class="h-1 flex-1 rounded-full" style="background: var(--up); opacity:.5"></div>
+              <div class="h-1 flex-1 rounded-full" style="background: var(--up); opacity:.75"></div>
+              <div class="h-1 flex-1 rounded-full" style="background: var(--up);"></div>
+              <div class="h-1 flex-1 rounded-full" style="background: var(--panel-3);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main grid -->
+        <div class="grid grid-cols-12 gap-4">
+          <!-- Performance chart -->
+          <div class="col-span-8 panel p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="text-[13px] font-semibold">Portfolio Performance</div>
+                <div class="text-[11px] muted mt-0.5">Net value · USD · Benchmarked</div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3 text-[11.5px]">
+                  <label class="flex items-center gap-1.5 cursor-pointer"><span class="dot" style="background: var(--accent)"></span>You</label>
+                  <label class="flex items-center gap-1.5 cursor-pointer muted"><span class="dot" style="background: var(--muted-2)"></span>S&P 500</label>
+                  <label class="flex items-center gap-1.5 cursor-pointer muted"><span class="dot" style="background: var(--gold)"></span>NAV</label>
+                </div>
+                <div class="flex gap-1" id="overviewPeriod" style="background: var(--panel-2); padding: 2px; border-radius: 8px; border: 1px solid var(--line);">
+                  <div class="period-btn" data-p="1W">1W</div>
+                  <div class="period-btn" data-p="1M">1M</div>
+                  <div class="period-btn active" data-p="3M">3M</div>
+                  <div class="period-btn" data-p="YTD">YTD</div>
+                  <div class="period-btn" data-p="1Y">1Y</div>
+                  <div class="period-btn" data-p="ALL">ALL</div>
+                </div>
+              </div>
+            </div>
+            <div style="height: 320px; position: relative;">
+              <canvas id="overviewPerfChart"></canvas>
+            </div>
+            <div class="divider my-4"></div>
+            <div class="grid grid-cols-5 gap-4 text-[12px]">
+              <div><div class="stat-label mb-1">Best Day</div><div class="mono up">+2.84%</div><div class="mono text-[10.5px] muted">Oct 8</div></div>
+              <div><div class="stat-label mb-1">Worst Day</div><div class="mono down">-1.92%</div><div class="mono text-[10.5px] muted">Sep 23</div></div>
+              <div><div class="stat-label mb-1">Win Rate</div><div class="mono">58.3%</div><div class="text-[10.5px] muted">35 of 60 days</div></div>
+              <div><div class="stat-label mb-1">Avg Gain</div><div class="mono up">+0.92%</div><div class="text-[10.5px] muted">up days</div></div>
+              <div><div class="stat-label mb-1">Avg Loss</div><div class="mono down">-0.68%</div><div class="text-[10.5px] muted">down days</div></div>
+            </div>
+          </div>
+
+          <!-- Allocation donut -->
+          <div class="col-span-4 panel p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <div class="text-[13px] font-semibold">Asset Allocation</div>
+                <div class="text-[11px] muted mt-0.5">By market value</div>
+              </div>
+              <div class="segmented" style="padding: 2px;">
+                <button class="active" data-alloc="asset">Asset</button>
+                <button data-alloc="sector">Sector</button>
+                <button data-alloc="region">Region</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-center my-2" style="height: 200px; position: relative;">
+              <canvas id="allocDonut"></canvas>
+              <div class="absolute text-center pointer-events-none">
+                <div class="text-[10px] uppercase tracking-widest muted">Total</div>
+                <div class="mono text-[18px] font-semibold">$2.85M</div>
+              </div>
+            </div>
+            <div id="allocLegend" class="mt-2 space-y-0.5"></div>
+          </div>
+
+          <!-- Top movers / gainers losers -->
+          <div class="col-span-5 panel p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-[13px] font-semibold">Top Movers Today</div>
+              <div class="segmented" style="padding: 2px;">
+                <button class="active" data-mover="gainers">Gainers</button>
+                <button data-mover="losers">Losers</button>
+                <button data-mover="volume">Volume</button>
+              </div>
+            </div>
+            <div id="moversList" class="space-y-2"></div>
+          </div>
+
+          <!-- Recent activity + cash flow -->
+          <div class="col-span-4 panel p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-[13px] font-semibold">Cash & Liquidity</div>
+              <span class="chip chip-neutral">Sweep: FDRXX</span>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <div class="flex justify-between text-[12px] mb-1.5">
+                  <span class="muted">Available Cash</span>
+                  <span class="mono font-medium">$182,430</span>
+                </div>
+                <div class="progress"><div style="width: 22%; background: var(--blue);"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-[12px] mb-1.5">
+                  <span class="muted">Invested</span>
+                  <span class="mono font-medium">$2,494,962</span>
+                </div>
+                <div class="progress"><div style="width: 88%; background: var(--accent);"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-[12px] mb-1.5">
+                  <span class="muted">Margin Utilization</span>
+                  <span class="mono font-medium">$170,000</span>
+                </div>
+                <div class="progress"><div style="width: 18%; background: var(--orange);"></div></div>
+              </div>
+            </div>
+            <div class="divider my-4"></div>
+            <div class="text-[12px] font-semibold mb-2">Recent Activity</div>
+            <div class="space-y-2.5 text-[12px]">
+              <div class="flex items-start gap-2.5">
+                <div class="w-1.5 h-1.5 rounded-full mt-1.5" style="background: var(--up)"></div>
+                <div class="flex-1">
+                  <div><span class="font-medium">Bought 240</span> <span class="mono">NVDA</span> <span class="muted">@ $138.42</span></div>
+                  <div class="text-[10.5px] muted mono mt-0.5">Nov 18, 10:42 AM · $33,220.80</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <div class="w-1.5 h-1.5 rounded-full mt-1.5" style="background: var(--down)"></div>
+                <div class="flex-1">
+                  <div><span class="font-medium">Sold 500</span> <span class="mono">INTC</span> <span class="muted">@ $22.18</span></div>
+                  <div class="text-[10.5px] muted mono mt-0.5">Nov 17, 3:14 PM · $11,090.00</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <div class="w-1.5 h-1.5 rounded-full mt-1.5" style="background: var(--blue)"></div>
+                <div class="flex-1">
+                  <div><span class="font-medium">Dividend</span> <span class="mono">MSFT</span></div>
+                  <div class="text-[10.5px] muted mono mt-0.5">Nov 14 · $412.00</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <div class="w-1.5 h-1.5 rounded-full mt-1.5" style="background: var(--gold)"></div>
+                <div class="flex-1">
+                  <div><span class="font-medium">Options expiry</span> <span class="mono">SPY 580 C</span></div>
+                  <div class="text-[10.5px] muted mono mt-0.5">Nov 13 · Settled in cash</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Watchlist quick card -->
+          <div class="col-span-3 panel p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-[13px] font-semibold">Watchlist</div>
+              <button class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
+            <div id="watchlist" class="space-y-2"></div>
+          </div>
+
+          <!-- Benchmark gauge / Goals -->
+          <div class="col-span-4 panel p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="text-[13px] font-semibold">2025 Goal Tracker</div>
+              <span class="chip chip-accent">On track</span>
+            </div>
+            <div class="flex items-center gap-4 mt-2">
+              <div class="relative w-24 h-24 flex-shrink-0">
+                <canvas id="goalGauge"></canvas>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <div class="mono text-[15px] font-semibold" style="color: var(--accent)">78%</div>
+                  <div class="text-[9px] uppercase tracking-widest muted">of goal</div>
+                </div>
+              </div>
+              <div class="flex-1 space-y-2">
+                <div>
+                  <div class="flex justify-between text-[11.5px]"><span class="muted">Target</span><span class="mono">$3.00M</span></div>
+                  <div class="flex justify-between text-[11.5px] mt-1"><span class="muted">Current</span><span class="mono">$2.85M</span></div>
+                  <div class="flex justify-between text-[11.5px] mt-1"><span class="muted">Remaining</span><span class="mono down">$153K</span></div>
+                </div>
+                <div class="text-[10.5px] muted pt-1">Projected to hit target by <span class="mono" style="color: var(--text)">Dec 22, 2025</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sector heatmap mini -->
+          <div class="col-span-5 panel p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <div class="text-[13px] font-semibold">Sector Performance · Today</div>
+                <div class="text-[11px] muted mt-0.5">Weighted by position size</div>
+              </div>
+              <div class="flex items-center gap-2 text-[10.5px]">
+                <span class="down">-2%</span>
+                <div class="flex h-2 w-24 rounded overflow-hidden" style="background: linear-gradient(90deg, #f87171, #2a2f42, #34d399);"></div>
+                <span class="up">+2%</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-6 gap-1.5" id="sectorHeat"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===================== HOLDINGS ===================== -->
+      <section id="page-holdings" class="page hidden fade-in">
+        <!-- Holdings summary tiles -->
+        <div class="grid grid-cols-6 gap-3 mb-4">
+          <div class="panel p-3.5">
+            <div class="stat-label">Positions</div>
+            <div class="text-[20px] font-semibold mono mt-0.5">32</div>
+            <div class="text-[11px] muted mt-0.5">across <span class="mono">6</span> sectors</div>
+          </div>
+          <div class="panel p-3.5">
+            <div class="stat-label">Long</div>
+            <div class="text-[20px] font-semibold mono mt-0.5 up">$2.61M</div>
+            <div class="text-[11px] muted mt-0.5">28 positions</div>
+          </div>
+          <div class="panel p-3.5">
+            <div class="stat-label">Short</div>
+            <div class="text-[20px] font-semibold mono mt-0.5 down">$128K</div>
+            <div class="text-[11px] muted mt-0.5">2 positions</div>
+          </div>
+          <div class="panel p-3.5">
+            <div class="stat-label">Cash</div>
+            <div class="text-[20px] font-semibold mono mt-0.5">$182K</div>
+            <div class="text-[11px] muted mt-0.5">6.4% of portfolio</div>
+          </div>
+          <div class="panel p-3.5">
+            <div class="stat-label">Div Yield</div>
+            <div class="text-[20px] font-semibold mono mt-0.5">2.14%</div>
+            <div class="text-[11px] muted mt-0.5">TTM · $60.9K</div>
+          </div>
+          <div class="panel p-3.5">
+            <div class="stat-label">P/E (avg)</div>
+            <div class="text-[20px] font-semibold mono mt-0.5">24.6</div>
+            <div class="text-[11px] muted mt-0.5">Weighted</div>
+          </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="panel p-3 mb-4 flex items-center gap-2 flex-wrap">
+          <div class="flex gap-1" id="assetClassFilter" style="background: var(--panel-2); padding: 2px; border-radius: 8px; border: 1px solid var(--line);">
+            <div class="sub-tab active" data-filter="all">All</div>
+            <div class="sub-tab" data-filter="equity">Equities</div>
+            <div class="sub-tab" data-filter="etf">ETFs</div>
+            <div class="sub-tab" data-filter="fixed">Fixed Income</div>
+            <div class="sub-tab" data-filter="crypto">Crypto</div>
+            <div class="sub-tab" data-filter="option">Options</div>
+            <div class="sub-tab" data-filter="cash">Cash</div>
+          </div>
+
+          <div class="flex-1"></div>
+
+          <div class="relative">
+            <svg class="absolute left-2.5 top-1/2 -translate-y-1/2" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8a93a8" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input class="search-input" id="holdingsSearch" placeholder="Filter holdings…" style="width: 220px; padding-left: 30px;"/>
+          </div>
+
+          <select class="custom-select">
+            <option>Sort: % Weight</option>
+            <option>Sort: Market Value</option>
+            <option>Sort: Today's Change</option>
+            <option>Sort: Total Return</option>
+            <option>Sort: Ticker</option>
+          </select>
+
+          <button class="btn-icon" title="Group by sector"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></button>
+          <button class="btn-icon" title="Columns"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+        </div>
+
+        <!-- Table -->
+        <div class="panel overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="holdings" id="holdingsTable">
+              <thead>
+                <tr>
+                  <th style="width: 32px; text-align: center !important;"><input type="checkbox" class="checkbox" id="selectAll"></th>
+                  <th class="text-left">Ticker</th>
+                  <th>Asset</th>
+                  <th>Sector</th>
+                  <th>Last Price</th>
+                  <th>Day Chg</th>
+                  <th>Market Value</th>
+                  <th>Weight</th>
+                  <th>Cost Basis</th>
+                  <th>Unrealized P/L</th>
+                  <th>Return</th>
+                  <th style="width: 120px;">90D Trend</th>
+                  <th style="width: 32px;"></th>
+                </tr>
+              </thead>
+              <tbody id="holdingsBody"></tbody>
+              <tfoot id="holdingsFoot"></tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== PERFORMANCE ===================== -->
+      <section id="page-performance" class="page hidden fade-in">
+        <!-- Period controls + summary -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="flex gap-1" id="perfPeriod" style="background: var(--panel-2); padding: 3px; border-radius: 8px; border: 1px solid var(--line);">
+              <div class="period-btn" data-p="1M">1M</div>
+              <div class="period-btn" data-p="3M">3M</div>
+              <div class="period-btn active" data-p="YTD">YTD</div>
+              <div class="period-btn" data-p="1Y">1Y</div>
+              <div class="period-btn" data-p="3Y">3Y</div>
+              <div class="period-btn" data-p="5Y">5Y</div>
+              <div class="period-btn" data-p="ALL">ALL</div>
+            </div>
+            <div class="text-[11px] muted">Jan 1, 2025 — Nov 18, 2025</div>
+          </div>
+          <div class="segmented" style="padding: 2px;" id="chartType">
+            <button class="active" data-type="area">Area</button>
+            <button data-type="line">Line</button>
+            <button data-type="candles">Candles</button>
+          </div>
+        </div>
+
+        <!-- Main perf chart -->
+        <div class="panel p-5 mb-4">
+          <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-8">
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <div class="text-[13px] font-semibold">Total Return</div>
+                  <div class="flex items-baseline gap-3 mt-1">
+                    <div class="mono text-[28px] font-semibold up">+24.83%</div>
+                    <div class="mono text-[15px] up">+$563,920</div>
+                  </div>
+                  <div class="text-[11.5px] muted mt-1">vs S&P 500 <span class="up mono">+17.12%</span> · Excess <span class="up mono">+7.71%</span></div>
+                </div>
+                <div class="flex gap-4 text-[11px]">
+                  <label class="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" class="checkbox" checked id="chkYou"><span>Portfolio</span></label>
+                  <label class="flex items-center gap-1.5 cursor-pointer muted"><input type="checkbox" class="checkbox" checked id="chkSPX"><span>S&P 500</span></label>
+                  <label class="flex items-center gap-1.5 cursor-pointer muted"><input type="checkbox" class="checkbox" id="chkNDX"><span>Nasdaq</span></label>
+                  <label class="flex items-center gap-1.5 cursor-pointer muted"><input type="checkbox" class="checkbox" id="chkAG"><span>Agg Bond</span></label>
+                </div>
+              </div>
+              <div style="height: 340px; position: relative;">
+                <canvas id="perfMainChart"></canvas>
+              </div>
+            </div>
+
+            <div class="col-span-4 space-y-3">
+              <div class="text-[11px] uppercase tracking-widest muted">Period Stats</div>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 rounded-lg" style="background: var(--panel-2); border: 1px solid var(--line);">
+                  <div class="stat-label">Total Return</div>
+                  <div class="mono text-[17px] font-semibold up mt-1">+24.8%</div>
+                </div>
+                <div class="p-3 rounded-lg" style="background: var(--panel-2); border: 1px solid var(--line);">
+                  <div class="stat-label">Ann. Return</div>
+                  <div class="mono text-[17px] font-semibold up mt-1">+28.3%</div>
+                </div>
+                <div class="p-3 rounded-lg" style="background: var(--panel-2); border: 1px solid var(--line);">
+                  <div class="stat-label">Volatility</div>
+                  <div class="mono text-[17px] font-semibold mt-1">14.8%</div>
+                </div>
+                <div class="p-3 rounded-lg" style="background: var(--panel-2); border: 1px solid var(--line);">
+                  <div class="stat-label">Max DD</div>
+                  <div class="mono text-[17px] font-semibold down mt-1">-6.2%</div>
+                </div>
+                <div class="p-3 rounded-lg" style="background: var(--panel-2); border: 1px solid var(--line);">
+                  <div class="stat-label">Sharpe</div>
+                  <div class="mono text-[17px] font-semibold mt-1" style="color: var(--accent)">1.42</div>
+                </div>
+                <div class="p-3 rounded-lg" style="background: var(--panel-2); border: 1px solid var(--line);">
+                  <div class="stat-label">Sortino</div>
+                  <div class="mono text-[17px] font-semibold mt-1" style="color: var(--accent)">1.87</div>
+                </div>
+                <div class="p-3 rounded-lg" style="background: var(--panel-2); border: 1px solid var(--line);">
+                  <div class="stat-label">Alpha</div>
+                  <div class="mono text-[17px] font-semibold up mt-1">+6.1%</div>
+                </div>
+                <div class="p-3 rounded-lg" style="background: var(--panel-2); border: 1px solid var(--line);">
+                  <div class="stat-label">Beta</div>
+                  <div class="mono text-[17px] font-semibold mt-1">0.94</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Second row: returns by period + drawdown + monthly -->
+        <div class="grid grid-cols-12 gap-4">
+          <!-- Period returns bar chart -->
+          <div class="col-span-5 panel p-5">
+            <div class="text-[13px] font-semibold mb-1">Periodic Returns</div>
+            <div class="text-[11px] muted mb-4">Portfolio vs benchmark</div>
+            <div style="height: 230px; position: relative;">
+              <canvas id="periodReturns"></canvas>
+            </div>
+          </div>
+
+          <!-- Drawdown chart -->
+          <div class="col-span-7 panel p-5">
+            <div class="flex items-center justify-between mb-1">
+              <div class="text-[13px] font-semibold">Drawdown</div>
+              <div class="text-[11px] muted">Current: <span class="mono down">-2.1%</span></div>
+            </div>
+            <div class="text-[11px] muted mb-4">Peak-to-trough decline over period</div>
+            <div style="height: 230px; position: relative;">
+              <canvas id="drawdownChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Monthly returns heatmap -->
+          <div class="col-span-8 panel p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="text-[13px] font-semibold">Monthly Returns</div>
+                <div class="text-[11px] muted mt-0.5">Last 36 months · color scaled</div>
+              </div>
+              <div class="flex items-center gap-2 text-[10.5px]">
+                <span class="down">-5%</span>
+                <div class="flex h-2 w-28 rounded overflow-hidden" style="background: linear-gradient(90deg, #b91c1c, #f87171, #2a2f42, #34d399, #065f46);"></div>
+                <span class="up">+5%</span>
+              </div>
+            </div>
+            <div id="monthlyHeat" class="space-y-1"></div>
+          </div>
+
+          <!-- Contribution to return -->
+          <div class="col-span-4 panel p-5">
+            <div class="text-[13px] font-semibold mb-1">Contribution to Return</div>
+            <div class="text-[11px] muted mb-4">YTD · by position</div>
+            <div id="contribList" class="space-y-2"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== ANALYSIS ===================== -->
+      <section id="page-analysis" class="page hidden fade-in">
+        <!-- Top: Risk metrics -->
+        <div class="grid grid-cols-4 gap-4 mb-4">
+          <div class="panel p-5">
+            <div class="stat-label">Value at Risk (95%)</div>
+            <div class="mono text-[22px] font-semibold down mt-1">-$42,810</div>
+            <div class="text-[11px] muted mt-1">1-day · parametric</div>
+            <div class="progress mt-2"><div style="width: 32%; background: var(--down);"></div></div>
+          </div>
+          <div class="panel p-5">
+            <div class="stat-label">Expected Shortfall</div>
+            <div class="mono text-[22px] font-semibold down mt-1">-$58,240</div>
+            <div class="text-[11px] muted mt-1">Average tail loss</div>
+            <div class="progress mt-2"><div style="width: 44%; background: var(--orange);"></div></div>
+          </div>
+          <div class="panel p-5">
+            <div class="stat-label">Tracking Error</div>
+            <div class="mono text-[22px] font-semibold mt-1" style="color: var(--blue)">3.82%</div>
+            <div class="text-[11px] muted mt-1">vs S&P 500</div>
+            <div class="progress mt-2"><div style="width: 28%; background: var(--blue);"></div></div>
+          </div>
+          <div class="panel p-5">
+            <div class="stat-label">Information Ratio</div>
+            <div class="mono text-[22px] font-semibold mt-1" style="color: var(--accent)">1.68</div>
+            <div class="text-[11px] muted mt-1">Excess return / TE</div>
+            <div class="flex gap-1 mt-2">
+              <div class="h-1 flex-1 rounded-full" style="background: var(--up); opacity: 0.3"></div>
+              <div class="h-1 flex-1 rounded-full" style="background: var(--up); opacity: 0.6"></div>
+              <div class="h-1 flex-1 rounded-full" style="background: var(--up); opacity: 0.9"></div>
+              <div class="h-1 flex-1 rounded-full" style="background: var(--up);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-4">
+          <!-- Correlation matrix -->
+          <div class="col-span-6 panel p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="text-[13px] font-semibold">Correlation Matrix</div>
+                <div class="text-[11px] muted mt-0.5">60-day pairwise correlations</div>
+              </div>
+              <div class="flex items-center gap-2 text-[10.5px]">
+                <span class="muted">-1</span>
+                <div class="flex h-2 w-24 rounded overflow-hidden" style="background: linear-gradient(90deg, #f87171, #2a2f42 50%, #34d399);"></div>
+                <span class="up">+1</span>
+              </div>
+            </div>
+            <div id="corrMatrix"></div>
+          </div>
+
+          <!-- Factor exposure -->
+          <div class="col-span-6 panel p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="text-[13px] font-semibold">Factor Exposure</div>
+                <div class="text-[11px] muted mt-0.5">Fama-French 5-factor + momentum</div>
+              </div>
+              <select class="custom-select">
+                <option>60-day rolling</option>
+                <option>90-day</option>
+                <option>1-year</option>
+              </select>
+            </div>
+            <div id="factorBars" class="space-y-3.5 mt-6"></div>
+          </div>
+
+          <!-- Risk / return scatter -->
+          <div class="col-span-7 panel p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <div class="text-[13px] font-semibold">Risk vs Return · Holdings</div>
+                <div class="text-[11px] muted mt-0.5">Bubble size = position weight</div>
+              </div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="dot" style="background: var(--up)"></span> Outperformer
+                <span class="dot ml-2" style="background: var(--down)"></span> Underperformer
+              </div>
+            </div>
+            <div style="height: 320px; position: relative;">
+              <canvas id="scatterChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Concentration + top positions -->
+          <div class="col-span-5 panel p-5">
+            <div class="text-[13px] font-semibold mb-1">Concentration Analysis</div>
+            <div class="text-[11px] muted mb-4">Effective diversification score: <span class="mono" style="color: var(--gold)">Medium</span></div>
+
+            <div class="mb-5">
+              <div class="flex justify-between text-[11.5px] mb-1.5">
+                <span class="muted">Top 5 positions</span>
+                <span class="mono">41.2% of AUM</span>
+              </div>
+              <div class="progress h-2"><div style="width: 41.2%; background: var(--accent);"></div></div>
+            </div>
+            <div class="mb-5">
+              <div class="flex justify-between text-[11.5px] mb-1.5">
+                <span class="muted">Top 10 positions</span>
+                <span class="mono">64.8% of AUM</span>
+              </div>
+              <div class="progress h-2"><div style="width: 64.8%; background: var(--blue);"></div></div>
+            </div>
+            <div class="mb-6">
+              <div class="flex justify-between text-[11.5px] mb-1.5">
+                <span class="muted">Largest sector (Tech)</span>
+                <span class="mono">34.7% of AUM</span>
+              </div>
+              <div class="progress h-2"><div style="width: 34.7%; background: var(--purple);"></div></div>
+            </div>
+
+            <div class="text-[12px] font-semibold mb-2">Diversification Metrics</div>
+            <div class="space-y-2 text-[12px]">
+              <div class="flex justify-between"><span class="muted">Herfindahl Index</span><span class="mono">0.062</span></div>
+              <div class="flex justify-between"><span class="muted">Effective N (positions)</span><span class="mono">16.1</span></div>
+              <div class="flex justify-between"><span class="muted">Sector concentration</span><span class="mono" style="color: var(--orange)">Elevated</span></div>
+              <div class="flex justify-between"><span class="muted">Idiosyncratic risk</span><span class="mono">62.4%</span></div>
+            </div>
+          </div>
+
+          <!-- Scenario analysis -->
+          <div class="col-span-12 panel p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <div class="text-[13px] font-semibold">Scenario & Stress Testing</div>
+                <div class="text-[11px] muted mt-0.5">Estimated portfolio impact under hypothetical shocks</div>
+              </div>
+              <button class="btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Scenario</button>
+            </div>
+            <div class="grid grid-cols-6 gap-3" id="scenarioGrid"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+// ============== SAMPLE DATA ==============
+const colors = {
+  up: '#34d399', down: '#f87171', accent: '#7cf1b0', blue: '#60a5fa', gold: '#e5c07b',
+  purple: '#a78bfa', orange: '#fb923c', muted: '#8a93a8', line: '#232a3d'
+};
+
+const tickers = [
+  { t: 'AAPL', n: 'Apple Inc.', s: 'Technology', c: '#333', asset: 'equity', price: 224.18, chg: 1.32, qty: 380, cost: 178.40, spark: [1,2,1,3,2,3,4,3,5,4,5,6] },
+  { t: 'MSFT', n: 'Microsoft Corp.', s: 'Technology', c: '#00a4ef', asset: 'equity', price: 428.64, chg: 0.84, qty: 240, cost: 362.10, spark: [3,4,3,4,5,4,5,6,5,6,7,6] },
+  { t: 'NVDA', n: 'NVIDIA Corp.', s: 'Technology', c: '#76b900', asset: 'equity', price: 138.42, chg: 2.84, qty: 620, cost: 94.82, spark: [1,2,3,2,4,3,5,4,6,7,8,9] },
+  { t: 'GOOGL', n: 'Alphabet Inc. A', s: 'Comm. Services', c: '#4285f4', asset: 'equity', price: 172.36, chg: -0.42, qty: 440, cost: 148.20, spark: [4,3,4,3,4,3,3,4,3,4,5,4] },
+  { t: 'AMZN', n: 'Amazon.com', s: 'Consumer Disc.', c: '#ff9900', asset: 'equity', price: 198.52, chg: 0.56, qty: 300, cost: 156.40, spark: [2,3,2,3,4,3,4,5,4,5,6,5] },
+  { t: 'META', n: 'Meta Platforms', s: 'Comm. Services', c: '#0668E1', asset: 'equity', price: 568.20, chg: -1.12, qty: 120, cost: 482.60, spark: [5,4,5,6,5,6,7,6,5,6,5,4] },
+  { t: 'BRK.B', n: 'Berkshire Hathaway B', s: 'Financials', c: '#444', asset: 'equity', price: 442.18, chg: 0.28, qty: 180, cost: 408.00, spark: [3,3,4,4,4,5,5,5,6,6,5,6] },
+  { t: 'JPM', n: 'JPMorgan Chase', s: 'Financials', c: '#0060a8', asset: 'equity', price: 234.82, chg: 0.92, qty: 260, cost: 198.20, spark: [2,3,3,4,4,5,5,4,5,6,6,7] },
+  { t: 'V', n: 'Visa Inc.', s: 'Financials', c: '#1a1f71', asset: 'equity', price: 286.40, chg: 0.34, qty: 200, cost: 262.18, spark: [3,4,4,4,5,5,4,5,5,6,6,6] },
+  { t: 'LLY', n: 'Eli Lilly & Co.', s: 'Health Care', c: '#d61a25', asset: 'equity', price: 892.40, chg: 1.84, qty: 60, cost: 612.80, spark: [1,2,2,3,4,5,6,7,7,8,9,10] },
+  { t: 'UNH', n: 'UnitedHealth Group', s: 'Health Care', c: '#002677', asset: 'equity', price: 548.20, chg: -0.62, qty: 80, cost: 498.40, spark: [4,4,5,5,5,4,4,5,4,4,3,4] },
+  { t: 'XOM', n: 'Exxon Mobil', s: 'Energy', c: '#ed1c24', asset: 'equity', price: 118.42, chg: -0.28, qty: 340, cost: 108.60, spark: [5,5,4,4,4,5,4,5,4,5,4,4] },
+  { t: 'CVX', n: 'Chevron Corp.', s: 'Energy', c: '#005eb8', asset: 'equity', price: 158.24, chg: -0.48, qty: 180, cost: 152.30, spark: [4,5,5,4,4,4,4,5,4,4,4,3] },
+  { t: 'TSLA', n: 'Tesla Inc.', s: 'Consumer Disc.', c: '#cc0000', asset: 'equity', price: 342.18, chg: 3.24, qty: 140, cost: 228.40, spark: [1,2,1,2,3,2,4,3,5,4,6,7] },
+  { t: 'HD', n: 'Home Depot', s: 'Consumer Disc.', c: '#f96302', asset: 'equity', price: 386.40, chg: 0.18, qty: 100, cost: 352.10, spark: [3,3,4,4,4,5,5,5,6,6,5,5] },
+  { t: 'PG', n: 'Procter & Gamble', s: 'Consumer Staples', c: '#003da6', asset: 'equity', price: 168.24, chg: 0.42, qty: 220, cost: 158.60, spark: [4,4,5,5,5,5,5,6,6,6,6,6] },
+  { t: 'KO', n: 'Coca-Cola Co.', s: 'Consumer Staples', c: '#f40009', asset: 'equity', price: 71.82, chg: 0.22, qty: 520, cost: 62.40, spark: [3,4,4,4,5,5,5,5,6,6,6,7] },
+  { t: 'JNJ', n: 'Johnson & Johnson', s: 'Health Care', c: '#d71b2b', asset: 'equity', price: 158.40, chg: -0.12, qty: 180, cost: 152.80, spark: [4,4,5,5,5,4,5,5,5,4,4,5] },
+  { t: 'BA', n: 'Boeing Co.', s: 'Industrials', c: '#0039a6', asset: 'equity', price: 148.62, chg: -2.14, qty: 180, cost: 182.40, spark: [5,4,4,3,4,3,4,3,2,3,2,1] },
+  { t: 'CAT', n: 'Caterpillar Inc.', s: 'Industrials', c: '#e2aa00', asset: 'equity', price: 386.18, chg: 0.72, qty: 90, cost: 348.20, spark: [2,3,3,4,4,5,5,6,5,6,7,7] },
+  { t: 'SPY', n: 'SPDR S&P 500 ETF', s: 'Index', c: '#222', asset: 'etf', price: 578.42, chg: 0.84, qty: 220, cost: 502.40, spark: [3,3,4,4,5,5,5,6,6,6,7,7] },
+  { t: 'QQQ', n: 'Invesco QQQ Trust', s: 'Index', c: '#555', asset: 'etf', price: 498.24, chg: 1.12, qty: 180, cost: 428.60, spark: [2,3,3,4,5,4,5,6,6,7,8,8] },
+  { t: 'IWM', n: 'iShares Russell 2000', s: 'Index', c: '#222', asset: 'etf', price: 228.40, chg: 0.62, qty: 260, cost: 212.80, spark: [3,4,4,4,5,5,5,5,6,6,6,7] },
+  { t: 'AGG', n: 'iShares Core US Agg Bond', s: 'Fixed Income', c: '#222', asset: 'etf', price: 107.24, chg: 0.08, qty: 800, cost: 102.60, spark: [4,4,5,5,5,5,6,6,6,6,6,6] },
+  { t: 'TLT', n: 'iShares 20+ Treasury', s: 'Fixed Income', c: '#222', asset: 'etf', price: 98.62, chg: -0.14, qty: 600, cost: 94.20, spark: [5,5,5,4,4,5,5,4,4,5,5,4] },
+  { t: 'BTC', n: 'Bitcoin', s: 'Crypto', c: '#f7931a', asset: 'crypto', price: 89240.00, chg: 2.18, qty: 1.2, cost: 62400, spark: [1,2,2,3,3,4,5,4,6,7,8,9] },
+  { t: 'ETH', n: 'Ethereum', s: 'Crypto', c: '#627eea', asset: 'crypto', price: 3240.00, chg: -0.84, qty: 12, cost: 2840, spark: [3,4,4,3,4,5,4,5,4,3,4,4] },
+  { t: 'GLD', n: 'SPDR Gold Shares', s: 'Commodity', c: '#bfa24f', asset: 'etf', price: 248.62, chg: 0.32, qty: 180, cost: 218.40, spark: [4,5,5,5,6,6,6,7,7,7,7,8] },
+  { t: 'SPY 580 C', n: 'SPY Dec 580 Call', s: 'Derivatives', c: '#222', asset: 'option', price: 4.82, chg: 12.4, qty: 20, cost: 3.20, spark: [1,1,2,2,3,2,4,3,5,4,7,9] },
+  { t: 'US Treasury 4.25%', n: 'T-Bond 2032', s: 'Fixed Income', c: '#333', asset: 'fixed', price: 102.4, chg: 0.04, qty: 200, cost: 100, spark: [5,5,5,5,5,5,6,6,6,6,6,6] },
+  { t: 'SQQQ', n: 'ProShares UltraShort QQQ', s: 'Derivatives', c: '#222', asset: 'etf', price: 8.42, chg: -3.84, qty: -2400, cost: 9.80, spark: [7,6,6,5,6,5,4,5,4,3,3,2] },
+  { t: 'Cash', n: 'Cash Sweep (FDRXX)', s: 'Cash', c: '#0a7', asset: 'cash', price: 1, chg: 0, qty: 182430, cost: 1, spark: [] }
+];
+
+// compute values
+tickers.forEach(t => {
+  t.mv = t.qty * t.price;
+  t.costTotal = t.qty * t.cost;
+  t.pl = t.mv - t.costTotal;
+  t.ret = (t.pl / t.costTotal) * 100;
+});
+
+// ============== UTILITIES ==============
+const fmt$ = n => {
+  if (Math.abs(n) >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+  if (Math.abs(n) >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return '$' + (n/1e3).toFixed(1) + 'K';
+  return '$' + n.toFixed(2);
+};
+const fmtPct = n => (n>=0?'+':'') + n.toFixed(2) + '%';
+const fmtNum = n => n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+Chart.defaults.color = '#8a93a8';
+Chart.defaults.borderColor = 'rgba(35,42,61,0.4)';
+Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+
+function gradient(ctx, chartArea, c1, c2) {
+  const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+  g.addColorStop(0, c1); g.addColorStop(1, c2);
+  return g;
+}
+
+function hexToRgba(hex, a) {
+  const r = parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ============== CLOCK ==============
+function updateClock() {
+  const d = new Date();
+  const el = document.getElementById('clock');
+  if (el) el.textContent = d.toLocaleTimeString('en-US', { hour12: false });
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ============== TAB SWITCHING ==============
+const pageTitles = { overview: 'Portfolio Overview', holdings: 'All Holdings', performance: 'Performance Attribution', analysis: 'Risk & Analysis' };
+document.querySelectorAll('#subTabs .tab-btn').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('#subTabs .tab-btn').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const p = t.dataset.page;
+    document.querySelectorAll('.page').forEach(pg => pg.classList.add('hidden'));
+    const target = document.getElementById('page-'+p);
+    target.classList.remove('hidden');
+    target.classList.remove('fade-in'); void target.offsetWidth; target.classList.add('fade-in');
+    document.getElementById('pageTitle').textContent = pageTitles[p];
+    document.getElementById('crumbPage').textContent = p.charAt(0).toUpperCase() + p.slice(1);
+    // lazily init charts
+    if (p === 'performance' && !window._perfInit) { initPerformance(); window._perfInit = true; }
+    if (p === 'analysis' && !window._analysisInit) { initAnalysis(); window._analysisInit = true; }
+    if (p === 'holdings' && !window._holdInit) { initHoldings(); window._holdInit = true; }
+  });
+});
+
+// ============== OVERVIEW ==============
+function miniSpark(id, baseColor, data) {
+  const ctx = document.getElementById(id).getContext('2d');
+  return new Chart(ctx, {
+    type: 'line',
+    data: { labels: data.map((_,i)=>i), datasets: [{
+      data: data, borderColor: baseColor, borderWidth: 1.5,
+      fill: true, pointRadius: 0, tension: 0.35,
+      backgroundColor: ctx => {
+        const g = ctx.chart.ctx.createLinearGradient(0,0,0,40);
+        g.addColorStop(0, hexToRgba(baseColor, 0.25));
+        g.addColorStop(1, hexToRgba(baseColor, 0));
+        return g;
+      }
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false } }
+    }
+  });
+}
+
+function genPerfData(months, startVal, growth, vol) {
+  const n = months * 21;
+  const out = []; let v = startVal;
+  for (let i=0; i<n; i++) {
+    v *= (1 + (growth/252) + (vol/100)*Math.sqrt(1/252)*(Math.random()-0.48)*2);
+    out.push(v);
+  }
+  return out;
+}
+
+let overviewChart;
+function initOverviewPerf() {
+  const ctx = document.getElementById('overviewPerfChart').getContext('2d');
+  const labels = Array.from({length: 63}, (_,i) => i);
+  const you = genPerfData(3, 100, 0.28, 14.8);
+  const spx = genPerfData(3, 100, 0.18, 13.2);
+  const nav = you.map((v,i) => v*0.995);
+  overviewChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'You', data: you, borderColor: colors.accent, borderWidth: 2, pointRadius: 0, tension: 0.25, fill: true,
+        backgroundColor: c => gradient(c.chart.ctx, c.chart.chartArea, hexToRgba(colors.accent, 0.18), hexToRgba(colors.accent, 0)),
+        yAxisID: 'y' },
+      { label: 'S&P 500', data: spx, borderColor: colors.muted, borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, tension: 0.25, fill: false },
+      { label: 'NAV', data: nav, borderColor: colors.gold, borderWidth: 1.2, pointRadius: 0, tension: 0.25, fill: false }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a0d14', borderColor: '#2d364d', borderWidth: 1,
+          titleColor: '#e6e8ee', bodyColor: '#e6e8ee', padding: 10,
+          callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}` }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { display: false } },
+        y: { grid: { color: 'rgba(35,42,61,0.4)' }, ticks: { color: '#5b6478', callback: v => v.toFixed(0) } }
+      }
+    }
+  });
+}
+
+let allocChart;
+const allocData = {
+  asset: {
+    labels: ['US Equities', 'Intl Equities', 'Fixed Income', 'Crypto', 'Commodities', 'Cash', 'Derivatives'],
+    values: [54.2, 14.8, 12.4, 6.2, 3.8, 6.4, 2.2],
+    colors: ['#7cf1b0', '#60a5fa', '#a78bfa', '#f7931a', '#e5c07b', '#8a93a8', '#fb923c']
+  },
+  sector: {
+    labels: ['Technology', 'Financials', 'Health Care', 'Consumer', 'Comm. Svc', 'Industrials', 'Energy', 'Other'],
+    values: [34.7, 13.2, 10.8, 9.4, 8.2, 6.1, 5.4, 12.2],
+    colors: ['#7cf1b0', '#60a5fa', '#a78bfa', '#fb923c', '#f87171', '#e5c07b', '#f472b6', '#8a93a8']
+  },
+  region: {
+    labels: ['United States', 'Europe', 'Emerging Mkts', 'Japan', 'Asia Pac ex-JP', 'Other'],
+    values: [72.4, 10.2, 8.4, 4.8, 2.8, 1.4],
+    colors: ['#7cf1b0', '#60a5fa', '#a78bfa', '#fb923c', '#e5c07b', '#8a93a8']
+  }
+};
+
+function renderAllocDonut(key) {
+  const d = allocData[key];
+  if (allocChart) allocChart.destroy();
+  const ctx = document.getElementById('allocDonut').getContext('2d');
+  allocChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels: d.labels, datasets: [{ data: d.values, backgroundColor: d.colors, borderColor: '#0f131c', borderWidth: 2, hoverOffset: 4 }]},
+    options: {
+      cutout: '70%', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a0d14', borderColor: '#2d364d', borderWidth: 1, padding: 10,
+          callbacks: { label: c => ` ${c.label}: ${c.parsed.toFixed(1)}%` }
+        }
+      }
+    }
+  });
+  // legend
+  const legend = document.getElementById('allocLegend');
+  legend.innerHTML = d.labels.map((l,i) => `
+    <div class="donut-legend-row">
+      <div class="flex items-center gap-2">
+        <span class="dot" style="background:${d.colors[i]}"></span>
+        <span>${l}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-16 progress"><div style="width:${d.values[i] * 2}%; background:${d.colors[i]}"></div></div>
+        <span class="mono text-[11px]" style="width:42px; text-align:right">${d.values[i].toFixed(1)}%</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderMovers(type='gainers') {
+  const list = document.getElementById('moversList');
+  let sorted = [...tickers].filter(t => t.asset === 'equity' || t.asset === 'etf' || t.asset === 'crypto');
+  if (type === 'gainers') sorted.sort((a,b) => b.chg - a.chg);
+  else if (type === 'losers') sorted.sort((a,b) => a.chg - b.chg);
+  else sorted.sort((a,b) => b.mv - a.mv);
+
+  list.innerHTML = sorted.slice(0,6).map((t, i) => {
+    const pct = type === 'gainers' || type === 'losers' ? t.chg : (t.chg * Math.random() + 1);
+    const isUp = pct >= 0;
+    return `
+      <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--panel-2)] transition cursor-pointer">
+        <div class="mono text-[10px] muted w-4">${String(i+1).padStart(2,'0')}</div>
+        <div class="ticker-icon" style="background: ${t.c};">${t.t.slice(0,2)}</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-baseline gap-2">
+            <span class="mono font-semibold text-[12.5px]">${t.t}</span>
+            <span class="text-[10.5px] muted truncate">${t.n}</span>
+          </div>
+          <div class="mono text-[10.5px] muted">${fmtNum(t.qty)} sh · ${fmt$(t.mv)}</div>
+        </div>
+        <canvas class="spark" width="80" height="28" data-spark="${t.t}"></canvas>
+        <div class="text-right" style="min-width: 70px;">
+          <div class="mono text-[12px] font-semibold">$${t.price.toFixed(2)}</div>
+          <div class="mono text-[11px] ${isUp?'up':'down'}">${fmtPct(pct)}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  // draw mini sparks
+  list.querySelectorAll('canvas[data-spark]').forEach(c => {
+    const t = tickers.find(x => x.t === c.dataset.spark);
+    if (!t) return;
+    const data = t.spark.map((v,i) => v + (Math.random()-0.5)*0.5);
+    const ctx = c.getContext('2d');
+    const col = t.chg >= 0 ? colors.up : colors.down;
+    new Chart(ctx, {
+      type: 'line',
+      data: { labels: data.map((_,i)=>i), datasets: [{ data, borderColor: col, borderWidth: 1.3, pointRadius: 0, tension: 0.4, fill: false }]},
+      options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
+    });
+  });
+}
+
+function renderWatchlist() {
+  const items = [
+    { t: 'AVGO', n: 'Broadcom', price: 162.40, chg: -1.24 },
+    { t: 'AMD', n: 'Adv. Micro Devices', price: 142.18, chg: 2.68 },
+    { t: 'NFLX', n: 'Netflix', price: 782.20, chg: 0.92 },
+    { t: 'CRM', n: 'Salesforce', price: 318.40, chg: -0.42 },
+    { t: 'SHOP', n: 'Shopify', price: 84.62, chg: 1.84 },
+    { t: 'COIN', n: 'Coinbase', price: 248.18, chg: 3.42 }
+  ];
+  document.getElementById('watchlist').innerHTML = items.map(i => `
+    <div class="flex items-center gap-2 text-[12px] p-1.5 rounded hover:bg-[var(--panel-2)] cursor-pointer">
+      <div class="mono font-semibold w-12">${i.t}</div>
+      <canvas class="spark" width="50" height="20" data-wl="${i.t}"></canvas>
+      <div class="flex-1 text-right mono text-[11px]">$${i.price.toFixed(2)}</div>
+      <div class="mono text-[11px] w-14 text-right ${i.chg>=0?'up':'down'}">${fmtPct(i.chg)}</div>
+    </div>
+  `).join('');
+  document.querySelectorAll('canvas[data-wl]').forEach(c => {
+    const i = items.find(x => x.t === c.dataset.wl);
+    const data = Array.from({length: 12}, () => Math.random()*10);
+    const ctx = c.getContext('2d');
+    const col = i.chg >= 0 ? colors.up : colors.down;
+    new Chart(ctx, {
+      type: 'line',
+      data: { labels: data.map((_,i)=>i), datasets: [{ data, borderColor: col, borderWidth: 1.2, pointRadius: 0, tension: 0.4, fill: false }]},
+      options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
+    });
+  });
+}
+
+function renderSectorHeat() {
+  const sectors = [
+    { n: 'Tech', chg: 2.14 }, { n: 'Fin', chg: 0.82 }, { n: 'Health', chg: -0.42 },
+    { n: 'Cons D', chg: 1.14 }, { n: 'Comm', chg: -0.84 }, { n: 'Ind', chg: 0.28 },
+    { n: 'Energy', chg: -0.38 }, { n: 'Staples', chg: 0.18 }, { n: 'Util', chg: -0.12 },
+    { n: 'REIT', chg: 0.64 }, { n: 'Crypto', chg: 2.48 }, { n: 'Bonds', chg: 0.08 }
+  ];
+  const el = document.getElementById('sectorHeat');
+  el.innerHTML = sectors.map(s => {
+    const mag = Math.min(Math.abs(s.chg)/3, 1);
+    let bg;
+    if (s.chg > 0) bg = `rgba(52,211,153,${0.15 + mag*0.75})`;
+    else bg = `rgba(248,113,113,${0.15 + mag*0.75})`;
+    return `<div class="rounded-md p-2 flex flex-col items-center justify-center text-center cursor-pointer transition hover:scale-[1.04]" style="background:${bg}; aspect-ratio: 1.3;">
+      <div class="text-[10px] font-semibold">${s.n}</div>
+      <div class="mono text-[10px] mt-0.5" style="color:#0b0e14">${fmtPct(s.chg)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderGoalGauge() {
+  const ctx = document.getElementById('goalGauge').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: { datasets: [{
+      data: [78, 22],
+      backgroundColor: [colors.accent, 'rgba(138,147,168,0.12)'],
+      borderWidth: 0, cutout: '78%'
+    }]},
+    options: { circumference: 270, rotation: 225, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+  });
+}
+
+// Overview period toggle
+document.querySelectorAll('#overviewPeriod .period-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#overviewPeriod .period-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    // regenerate chart data
+    const p = b.dataset.p;
+    const months = p === '1W' ? 0.25 : p === '1M' ? 1 : p === '3M' ? 3 : p === 'YTD' ? 11 : p === '1Y' ? 12 : 36;
+    const you = genPerfData(months, 100, 0.28, 14.8);
+    const spx = genPerfData(months, 100, 0.18, 13.2);
+    overviewChart.data.labels = you.map((_,i)=>i);
+    overviewChart.data.datasets[0].data = you;
+    overviewChart.data.datasets[1].data = spx;
+    overviewChart.data.datasets[2].data = you.map(v => v*0.995);
+    overviewChart.update();
+  });
+});
+
+// Allocation toggle
+document.querySelectorAll('[data-alloc]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-alloc]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    renderAllocDonut(b.dataset.alloc);
+  });
+});
+
+// Movers toggle
+document.querySelectorAll('[data-mover]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-mover]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    renderMovers(b.dataset.mover);
+  });
+});
+
+// init overview
+miniSpark('kpiSpark1', colors.accent, genPerfData(3, 100, 0.28, 14).slice(-40));
+miniSpark('kpiSpark2', colors.up, genPerfData(0.25, 100, 0.0, 12).slice(-20));
+miniSpark('kpiSpark3', colors.accent, genPerfData(36, 100, 0.22, 16).slice(-80));
+initOverviewPerf();
+renderAllocDonut('asset');
+renderMovers();
+renderWatchlist();
+renderSectorHeat();
+renderGoalGauge();
+
+// ============== HOLDINGS ==============
+function initHoldings() {
+  const body = document.getElementById('holdingsBody');
+  let currentFilter = 'all';
+  let currentSearch = '';
+
+  function rowHTML(t) {
+    const isUp = t.chg >= 0;
+    const plUp = t.pl >= 0;
+    const colorClass = isUp ? 'up' : 'down';
+    const plClass = plUp ? 'up' : 'down';
+    const sign = t.qty < 0 ? '-' : '';
+    const qty = Math.abs(t.qty);
+    const weight = ((t.mv / 2847392.18) * 100);
+    return `
+      <tr class="holding-row" data-ticker="${t.t}">
+        <td style="text-align: center;"><input type="checkbox" class="checkbox row-check"></td>
+        <td>
+          <div class="ticker-cell">
+            <div class="ticker-icon" style="background: ${t.c}">${t.t.slice(0,2)}</div>
+            <div>
+              <div class="mono font-semibold text-[13px]">${sign}${t.t}</div>
+              <div class="text-[11px] muted">${t.n}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="chip chip-neutral">${t.asset.toUpperCase()}</span></td>
+        <td class="text-[12px]">${t.s}</td>
+        <td class="mono">$${t.price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4})}</td>
+        <td class="mono ${colorClass}">${fmtPct(t.chg)}</td>
+        <td class="mono font-medium">${fmt$(t.mv)}</td>
+        <td>
+          <div class="flex items-center gap-2 justify-end">
+            <div class="mini-bar"><div style="width: ${Math.min(weight*3, 100)}%; background: ${weight>8? colors.accent : colors.blue}"></div></div>
+            <span class="mono text-[11.5px]" style="width: 38px; text-align:right">${weight.toFixed(2)}%</span>
+          </div>
+        </td>
+        <td class="mono muted">${fmt$(t.costTotal)}</td>
+        <td class="mono ${plClass}">${plUp?'+':''}${fmt$(t.pl)}</td>
+        <td class="mono ${plClass}">${fmtPct(t.ret)}</td>
+        <td><canvas class="spark" data-hspark="${t.t}" width="90" height="28"></canvas></td>
+        <td><button class="icon-btn expand-btn" data-t="${t.t}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button></td>
+      </tr>
+      <tr class="row-details" id="details-${t.t}">
+        <td colspan="13">
+          <div class="grid grid-cols-5 gap-6">
+            <div>
+              <div class="text-[11px] uppercase tracking-widest muted mb-2">Position Details</div>
+              <div class="space-y-1.5 text-[12px]">
+                <div class="flex justify-between"><span class="muted">Quantity</span><span class="mono">${sign}${fmtNum(qty)}</span></div>
+                <div class="flex justify-between"><span class="muted">Avg cost</span><span class="mono">$${t.cost.toFixed(2)}</span></div>
+                <div class="flex justify-between"><span class="muted">Market value</span><span class="mono">${fmt$(t.mv)}</span></div>
+                <div class="flex justify-between"><span class="muted">Cost basis</span><span class="mono">${fmt$(t.costTotal)}</span></div>
+                <div class="flex justify-between"><span class="muted">Today's change</span><span class="mono ${colorClass}">${fmtPct(t.chg)}</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="text-[11px] uppercase tracking-widest muted mb-2">Performance</div>
+              <div class="space-y-1.5 text-[12px]">
+                <div class="flex justify-between"><span class="muted">Total return</span><span class="mono ${plClass}">${fmtPct(t.ret)}</span></div>
+                <div class="flex justify-between"><span class="muted">1 month</span><span class="mono up">+${(Math.random()*8).toFixed(2)}%</span></div>
+                <div class="flex justify-between"><span class="muted">YTD</span><span class="mono up">+${(Math.random()*30+5).toFixed(1)}%</span></div>
+                <div class="flex justify-between"><span class="muted">1 year</span><span class="mono up">+${(Math.random()*40+10).toFixed(1)}%</span></div>
+                <div class="flex justify-between"><span class="muted">Volatility</span><span class="mono">${(Math.random()*20+10).toFixed(1)}%</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="text-[11px] uppercase tracking-widest muted mb-2">Fundamentals</div>
+              <div class="space-y-1.5 text-[12px]">
+                <div class="flex justify-between"><span class="muted">P/E</span><span class="mono">${(Math.random()*30+10).toFixed(1)}</span></div>
+                <div class="flex justify-between"><span class="muted">Market cap</span><span class="mono">${['$2.8T','$3.1T','$182B','$2.4T','$560B','$124B','$98B'][Math.floor(Math.random()*7)]}</span></div>
+                <div class="flex justify-between"><span class="muted">Div yield</span><span class="mono">${(Math.random()*2).toFixed(2)}%</span></div>
+                <div class="flex justify-between"><span class="muted">Beta</span><span class="mono">${(Math.random()*0.8+0.7).toFixed(2)}</span></div>
+                <div class="flex justify-between"><span class="muted">52-wk range</span><span class="mono text-[11px]">$${(t.price*0.7).toFixed(0)} – $${(t.price*1.15).toFixed(0)}</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="text-[11px] uppercase tracking-widest muted mb-2">Allocation</div>
+              <div class="space-y-1.5 text-[12px]">
+                <div class="flex justify-between"><span class="muted">% of portfolio</span><span class="mono">${weight.toFixed(2)}%</span></div>
+                <div class="flex justify-between"><span class="muted">Target</span><span class="mono">${(weight + (Math.random()-0.5)*2).toFixed(2)}%</span></div>
+                <div class="flex justify-between"><span class="muted">Drift</span><span class="mono ${Math.random()>0.5?'up':'down'}">${fmtPct((Math.random()-0.5)*2)}</span></div>
+                <div class="flex justify-between"><span class="muted">Div contribution</span><span class="mono">$${(Math.random()*2000).toFixed(0)}</span></div>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <div class="text-[11px] uppercase tracking-widest muted mb-1">Actions</div>
+              <button class="btn btn-primary justify-center">Buy / Sell</button>
+              <button class="btn justify-center">Add alert</button>
+              <button class="btn justify-center">View research</button>
+              <button class="btn justify-center">Adjust target</button>
+            </div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+
+  function render() {
+    let filtered = tickers.filter(t => {
+      if (currentFilter !== 'all' && t.asset !== currentFilter) return false;
+      if (currentSearch) {
+        const s = currentSearch.toLowerCase();
+        if (!t.t.toLowerCase().includes(s) && !t.n.toLowerCase().includes(s) && !t.s.toLowerCase().includes(s)) return false;
+      }
+      return true;
+    });
+    // sort by MV desc
+    filtered.sort((a,b) => Math.abs(b.mv) - Math.abs(a.mv));
+    body.innerHTML = filtered.map(rowHTML).join('');
+
+    // total row
+    const totalMV = filtered.reduce((s,t) => s + t.mv, 0);
+    const totalPL = filtered.reduce((s,t) => s + t.pl, 0);
+    const totalCost = filtered.reduce((s,t) => s + t.costTotal, 0);
+    document.getElementById('holdingsFoot').innerHTML = `
+      <tr style="border-top: 1px solid var(--line-2); background: var(--panel-2);">
+        <td></td>
+        <td class="text-[12px] font-semibold" colspan="3">${filtered.length} positions</td>
+        <td></td>
+        <td class="mono text-[12px]"></td>
+        <td class="mono font-semibold text-[12.5px]">${fmt$(totalMV)}</td>
+        <td class="mono text-[12px]">${((totalMV/2847392.18)*100).toFixed(1)}%</td>
+        <td class="mono muted text-[12px]">${fmt$(totalCost)}</td>
+        <td class="mono font-semibold text-[12px] ${totalPL>=0?'up':'down'}">${totalPL>=0?'+':''}${fmt$(totalPL)}</td>
+        <td class="mono font-semibold text-[12px] ${totalPL>=0?'up':'down'}">${fmtPct((totalPL/totalCost)*100)}</td>
+        <td colspan="2"></td>
+      </tr>
+    `;
+
+    // draw sparklines for rows
+    body.querySelectorAll('canvas[data-hspark]').forEach(c => {
+      const t = tickers.find(x => x.t === c.dataset.hspark);
+      const data = t.spark.map((v,i) => v + (Math.random()-0.5)*0.6);
+      const ctx = c.getContext('2d');
+      const col = t.ret >= 0 ? colors.up : colors.down;
+      new Chart(ctx, {
+        type: 'line',
+        data: { labels: data.map((_,i)=>i), datasets: [{ data, borderColor: col, borderWidth: 1.3, pointRadius: 0, tension: 0.4, fill: false }]},
+        options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
+      });
+    });
+
+    // expand/collapse
+    body.querySelectorAll('.expand-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const key = btn.dataset.t;
+        const det = document.getElementById('details-'+key);
+        det.classList.toggle('open');
+        btn.closest('tr').classList.toggle('expanded-row');
+        btn.innerHTML = det.classList.contains('open')
+          ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>'
+          : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>';
+      });
+    });
+  }
+
+  document.querySelectorAll('#assetClassFilter .sub-tab').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#assetClassFilter .sub-tab').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      currentFilter = b.dataset.filter;
+      render();
+    });
+  });
+  document.getElementById('holdingsSearch').addEventListener('input', e => {
+    currentSearch = e.target.value; render();
+  });
+  document.getElementById('selectAll').addEventListener('change', e => {
+    document.querySelectorAll('.row-check').forEach(c => c.checked = e.target.checked);
+  });
+  render();
+}
+
+// ============== PERFORMANCE ==============
+let perfMainChart;
+function initPerformance() {
+  const ctx = document.getElementById('perfMainChart').getContext('2d');
+  const n = 230;
+  const labels = Array.from({length: n}, (_,i) => i);
+  const you = genPerfData(11, 100, 0.28, 14.8);
+  const spx = genPerfData(11, 100, 0.18, 13.2);
+  const ndx = genPerfData(11, 100, 0.22, 18.4);
+  const agg = genPerfData(11, 100, 0.04, 4.2);
+
+  perfMainChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Portfolio', data: you, borderColor: colors.accent, borderWidth: 2, pointRadius: 0, tension: 0.25, fill: true,
+        backgroundColor: c => {
+          const {ctx, chartArea} = c.chart;
+          if (!chartArea) return;
+          return gradient(ctx, chartArea, hexToRgba(colors.accent, 0.22), hexToRgba(colors.accent, 0));
+        }},
+      { label: 'S&P 500', data: spx, borderColor: colors.muted, borderWidth: 1.5, borderDash: [4,4], pointRadius: 0, tension: 0.25, fill: false },
+      { label: 'Nasdaq', data: ndx, borderColor: colors.blue, borderWidth: 1.3, pointRadius: 0, tension: 0.25, fill: false, hidden: true },
+      { label: 'Agg Bond', data: agg, borderColor: colors.gold, borderWidth: 1.3, pointRadius: 0, tension: 0.25, fill: false, hidden: true }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a0d14', borderColor: '#2d364d', borderWidth: 1, padding: 10,
+          callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}` }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { display: false } },
+        y: { grid: { color: 'rgba(35,42,61,0.4)' }, ticks: { color: '#5b6478' } }
+      }
+    }
+  });
+
+  // checkboxes
+  ['chkYou','chkSPX','chkNDX','chkAG'].forEach((id, i) => {
+    document.getElementById(id).addEventListener('change', e => {
+      perfMainChart.data.datasets[i].hidden = !e.target.checked;
+      perfMainChart.update();
+    });
+  });
+
+  // period toggles
+  document.querySelectorAll('#perfPeriod .period-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#perfPeriod .period-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      const p = b.dataset.p;
+      const months = { '1M':1, '3M':3, 'YTD':11, '1Y':12, '3Y':36, '5Y':60, 'ALL':72 }[p];
+      const you = genPerfData(months, 100, 0.28, 14.8);
+      const spx = genPerfData(months, 100, 0.18, 13.2);
+      const ndx = genPerfData(months, 100, 0.22, 18.4);
+      const agg = genPerfData(months, 100, 0.04, 4.2);
+      perfMainChart.data.labels = you.map((_,i)=>i);
+      perfMainChart.data.datasets[0].data = you;
+      perfMainChart.data.datasets[1].data = spx;
+      perfMainChart.data.datasets[2].data = ndx;
+      perfMainChart.data.datasets[3].data = agg;
+      perfMainChart.update();
+    });
+  });
+
+  // chart type (visual only)
+  document.querySelectorAll('#chartType button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#chartType button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+
+  // Period returns
+  const pctx = document.getElementById('periodReturns').getContext('2d');
+  const periods = ['1W','1M','3M','YTD','1Y','3Y'];
+  const portR = [1.2, 3.8, 7.2, 24.8, 28.3, 68.4];
+  const benchR = [0.8, 2.6, 5.1, 17.1, 19.2, 48.2];
+  new Chart(pctx, {
+    type: 'bar',
+    data: { labels: periods, datasets: [
+      { label: 'Portfolio', data: portR, backgroundColor: hexToRgba(colors.accent, 0.75), borderColor: colors.accent, borderWidth: 1, borderRadius: 3 },
+      { label: 'S&P 500', data: benchR, backgroundColor: hexToRgba(colors.muted, 0.35), borderColor: colors.muted, borderWidth: 1, borderRadius: 3 }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { boxWidth: 10, padding: 12 } },
+        tooltip: { backgroundColor: '#0a0d14', borderColor: '#2d364d', borderWidth: 1, callbacks: { label: c => ` ${c.dataset.label}: ${fmtPct(c.parsed.y)}` }}
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(35,42,61,0.4)' }, ticks: { callback: v => v+'%' } }
+      }
+    }
+  });
+
+  // Drawdown
+  const dctx = document.getElementById('drawdownChart').getContext('2d');
+  const dpoints = 230;
+  const equity = genPerfData(11, 100, 0.28, 14.8);
+  let peak = 0;
+  const dd = equity.map(v => { peak = Math.max(peak, v); return ((v - peak)/peak)*100; });
+  new Chart(dctx, {
+    type: 'line',
+    data: { labels: equity.map((_,i)=>i), datasets: [{
+      data: dd, borderColor: colors.down, borderWidth: 1.5, pointRadius: 0, fill: true,
+      backgroundColor: c => {
+        const {ctx, chartArea} = c.chart;
+        if (!chartArea) return;
+        return gradient(ctx, chartArea, hexToRgba(colors.down, 0.35), hexToRgba(colors.down, 0));
+      }
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0a0d14', callbacks: { label: c => ` ${c.parsed.y.toFixed(2)}%` }}},
+      scales: {
+        x: { grid: { display: false }, ticks: { display: false } },
+        y: { grid: { color: 'rgba(35,42,61,0.4)' }, ticks: { callback: v => v+'%' } }
+      }
+    }
+  });
+
+  // Monthly heatmap
+  const years = [2023, 2024, 2025];
+  const months = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+  const heatEl = document.getElementById('monthlyHeat');
+  let html = `<div class="grid" style="grid-template-columns: 48px repeat(12, 1fr) 48px; gap: 3px; font-size: 11px;">`;
+  html += `<div></div>${months.map(m => `<div class="text-center text-[10px] muted mono">${m}</div>`).join('')}<div class="text-center text-[10px] muted mono">YTD</div>`;
+  years.forEach(y => {
+    html += `<div class="mono text-[10px] muted self-center">${y}</div>`;
+    let yearTotal = 0;
+    for (let m = 0; m < 12; m++) {
+      let val;
+      if (y === 2025 && m > 10) {
+        html += `<div class="rounded" style="background: var(--panel-3); aspect-ratio: 1.6; opacity: 0.3"></div>`;
+        continue;
+      }
+      val = (Math.random()-0.42) * 8;
+      if (y === 2025 && m <= 10) yearTotal += val;
+      const mag = Math.min(Math.abs(val)/5, 1);
+      let bg;
+      if (val > 0) {
+        bg = val > 2 ? `rgba(52,211,153,${0.2 + mag*0.8})` : `rgba(52,211,153,${0.1 + mag*0.5})`;
+      } else {
+        bg = val < -2 ? `rgba(248,113,113,${0.2 + mag*0.8})` : `rgba(248,113,113,${0.1 + mag*0.5})`;
+      }
+      html += `<div class="rounded mono font-semibold flex items-center justify-center text-[10px] cursor-pointer hover:scale-105 transition" style="background:${bg}; aspect-ratio: 1.6; color: #0b0e14" title="${y}-${m+1}: ${val.toFixed(2)}%">${val >= 0 ? '+' : ''}${val.toFixed(1)}</div>`;
+    }
+    const ytd = y === 2025 ? yearTotal : (Math.random()*30-5);
+    const cls = ytd >= 0 ? 'up' : 'down';
+    html += `<div class="mono text-[10px] ${cls} self-center text-right">${ytd>=0?'+':''}${ytd.toFixed(1)}%</div>`;
+  });
+  html += `</div>`;
+  heatEl.innerHTML = html;
+
+  // Contribution
+  const contribs = [
+    { t: 'NVDA', val: 6.8 }, { t: 'AAPL', val: 4.2 }, { t: 'MSFT', val: 3.8 },
+    { t: 'LLY', val: 3.2 }, { t: 'BTC', val: 2.8 }, { t: 'TSLA', val: 2.1 },
+    { t: 'AMZN', val: 1.8 }, { t: 'SPY', val: 1.4 }
+  ];
+  // detractor
+  const detract = [
+    { t: 'BA', val: -1.2 }, { t: 'SQQQ', val: -0.8 }, { t: 'META', val: -0.5 }
+  ];
+  const maxC = Math.max(...contribs.map(c => c.val));
+  const maxD = Math.max(...detract.map(c => Math.abs(c.val)));
+  const cEl = document.getElementById('contribList');
+  cEl.innerHTML = `
+    <div class="text-[10.5px] uppercase tracking-widest up mb-1">Contributors</div>
+    ${contribs.map(c => `
+      <div class="flex items-center gap-2 text-[12px]">
+        <span class="mono w-12 text-[11px]">${c.t}</span>
+        <div class="flex-1 h-5 rounded overflow-hidden relative" style="background: var(--panel-3);">
+          <div class="h-full rounded flex items-center justify-end pr-2 text-[10px] mono font-semibold" style="width:${(c.val/maxC)*100}%; background: linear-gradient(90deg, ${hexToRgba(colors.up,0.4)}, ${hexToRgba(colors.up,0.85)}); color:#0b0e14;">+${c.val.toFixed(1)}%</div>
+        </div>
+      </div>
+    `).join('')}
+    <div class="text-[10.5px] uppercase tracking-widest down mb-1 mt-3">Detractors</div>
+    ${detract.map(c => `
+      <div class="flex items-center gap-2 text-[12px]">
+        <span class="mono w-12 text-[11px]">${c.t}</span>
+        <div class="flex-1 h-5 rounded overflow-hidden relative flex justify-end" style="background: var(--panel-3);">
+          <div class="h-full rounded flex items-center justify-end pr-2 text-[10px] mono font-semibold" style="width:${(Math.abs(c.val)/maxC)*100}%; background: linear-gradient(90deg, ${hexToRgba(colors.down,0.4)}, ${hexToRgba(colors.down,0.85)}); color:#0b0e14;">${c.val.toFixed(1)}%</div>
+        </div>
+      </div>
+    `).join('')}
+    <div class="divider my-2"></div>
+    <div class="flex justify-between text-[11.5px]">
+      <span class="muted">Net contribution</span>
+      <span class="mono up font-semibold">+24.8%</span>
+    </div>
+  `;
+}
+
+// ============== ANALYSIS ==============
+function initAnalysis() {
+  // Correlation matrix
+  const corrTickers = ['AAPL','MSFT','NVDA','GOOGL','JPM','XOM','LLY','BTC','AGG','GLD'];
+  const corrMatrix = document.getElementById('corrMatrix');
+  // seed correlations - realistic
+  const seedCorr = {
+    'AAPL': [1.00, 0.72, 0.58, 0.64, 0.32, 0.18, 0.41, 0.24,-0.12, 0.08],
+    'MSFT': [0.72, 1.00, 0.62, 0.68, 0.28, 0.14, 0.38, 0.22,-0.08, 0.04],
+    'NVDA': [0.58, 0.62, 1.00, 0.54, 0.22, 0.08, 0.32, 0.38,-0.20,-0.02],
+    'GOOGL':[0.64, 0.68, 0.54, 1.00, 0.30, 0.12, 0.36, 0.20,-0.10, 0.06],
+    'JPM':  [0.32, 0.28, 0.22, 0.30, 1.00, 0.42, 0.18, 0.10,-0.04, 0.12],
+    'XOM':  [0.18, 0.14, 0.08, 0.12, 0.42, 1.00, 0.06,-0.08, 0.04, 0.28],
+    'LLY':  [0.41, 0.38, 0.32, 0.36, 0.18, 0.06, 1.00, 0.14,-0.02,-0.04],
+    'BTC':  [0.24, 0.22, 0.38, 0.20, 0.10,-0.08, 0.14, 1.00,-0.18, 0.10],
+    'AGG': [-0.12,-0.08,-0.20,-0.10,-0.04, 0.04,-0.02,-0.18, 1.00, 0.22],
+    'GLD':  [0.08, 0.04,-0.02, 0.06, 0.12, 0.28,-0.04, 0.10, 0.22, 1.00]
+  };
+  let ch = `<div class="inline-block"><div class="grid" style="grid-template-columns: 32px repeat(${corrTickers.length}, 42px); gap: 3px;">`;
+  ch += `<div></div>`;
+  corrTickers.forEach(t => ch += `<div class="text-[9px] mono text-center muted" style="writing-mode: vertical-rl; transform: rotate(180deg); height: 40px; margin: 0 auto;">${t}</div>`);
+  corrTickers.forEach(t => {
+    ch += `<div class="text-[9px] mono muted self-center">${t}</div>`;
+    seedCorr[t].forEach(v => {
+      let bg, col = '#0b0e14';
+      const abs = Math.abs(v);
+      if (v > 0) {
+        bg = `rgba(52,211,153,${0.08 + abs*0.75})`;
+      } else if (v < 0) {
+        bg = `rgba(248,113,113,${0.08 + abs*0.75})`;
+      } else {
+        bg = 'var(--panel-3)';
+      }
+      ch += `<div class="heat-cell cursor-pointer hover:scale-110 transition" style="background:${bg}; color:${v===1?'#fff':col}" title="${t}: ${v.toFixed(2)}">${v===1?'•':v.toFixed(1).replace('0.','.').replace('-0.','-.')}</div>`;
+    });
+  });
+  ch += `</div></div>`;
+  corrMatrix.innerHTML = ch;
+
+  // Factor bars
+  const factors = [
+    { n: 'Market (MKT)', val: 0.94 },
+    { n: 'Size (SMB)', val: -0.18 },
+    { n: 'Value (HML)', val: -0.32 },
+    { n: 'Profitability (RMW)', val: 0.28 },
+    { n: 'Investment (CMA)', val: -0.12 },
+    { n: 'Momentum (MOM)', val: 0.42 },
+    { n: 'Low Volatility', val: 0.08 },
+    { n: 'Quality', val: 0.34 }
+  ];
+  document.getElementById('factorBars').innerHTML = factors.map(f => {
+    const pct = (Math.abs(f.val) / 1.5) * 100;
+    const color = f.val > 0 ? colors.accent : colors.down;
+    return `
+      <div>
+        <div class="flex justify-between text-[12px] mb-1">
+          <span>${f.n}</span>
+          <span class="mono font-semibold" style="color: ${color}">${f.val > 0 ? '+' : ''}${f.val.toFixed(2)}</span>
+        </div>
+        <div class="relative h-2 rounded-full overflow-hidden" style="background: var(--panel-3);">
+          <div class="absolute left-1/2 top-0 h-full w-px" style="background: var(--line-2)"></div>
+          <div class="absolute top-0 h-full rounded-full" style="left: ${f.val >= 0 ? '50%' : (50 - pct/2) + '%'}; width: ${pct/2}%; background: ${color};"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Scatter chart risk vs return
+  const sctx = document.getElementById('scatterChart').getContext('2d');
+  const scatterData = tickers.filter(t => t.asset === 'equity' || t.asset === 'etf' || t.asset === 'crypto').map(t => ({
+    x: (Math.random() * 25 + 8),
+    y: (t.ret / 2.5) + (Math.random() * 20 - 5),
+    r: Math.max(Math.sqrt(Math.abs(t.mv)) / 180, 3),
+    t: t.t, mv: t.mv, col: t.c
+  }));
+  new Chart(sctx, {
+    type: 'bubble',
+    data: { datasets: [{
+      data: scatterData,
+      backgroundColor: scatterData.map(d => hexToRgba(d.y > 15 ? colors.up : (d.y < 0 ? colors.down : colors.blue), 0.55)),
+      borderColor: scatterData.map(d => d.y > 15 ? colors.up : (d.y < 0 ? colors.down : colors.blue)),
+      borderWidth: 1
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a0d14', borderColor: '#2d364d', borderWidth: 1,
+          callbacks: {
+            label: c => ` ${c.raw.t}: ${fmtPct(c.raw.y)} return · ${c.raw.x.toFixed(1)}% vol · ${fmt$(c.raw.mv)}`
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Annualized Volatility (%)', color: '#5b6478' }, grid: { color: 'rgba(35,42,61,0.4)' } },
+        y: { title: { display: true, text: 'Return YTD (%)', color: '#5b6478' }, grid: { color: 'rgba(35,42,61,0.4)' } }
+      }
+    }
+  });
+
+  // Scenario grid
+  const scenarios = [
+    { n: '2008 Crisis', p: -37.2, color: colors.down, desc: 'Global recession, credit freeze' },
+    { n: '2020 COVID Crash', p: -22.4, color: colors.down, desc: 'Pandemic selloff, vol shock' },
+    { n: 'Fed Hike +200bp', p: -8.4, color: colors.orange, desc: 'Rapid rate increase cycle' },
+    { n: 'Tech Correction -20%', p: -12.8, color: colors.orange, desc: 'Growth/multiple compression' },
+    { n: 'Soft Landing', p: 8.2, color: colors.up, desc: 'Disinflation, rates stable' },
+    { n: 'AI Boom Scenario', p: 24.6, color: colors.accent, desc: 'Productivity surge, tech rally' },
+    { n: 'Stagflation', p: -14.2, color: colors.down, desc: 'Low growth, high inflation' },
+    { n: 'China Hard Landing', p: -6.8, color: colors.orange, desc: 'EM stress, commodity shock' },
+    { n: 'Crypto Bull Run', p: 4.8, color: colors.up, desc: 'BTC > $150K, risk-on' },
+    { n: 'Bond Rally', p: 3.2, color: colors.blue, desc: 'Flight to quality, rates fall' },
+    { n: 'Energy Shock', p: -5.4, color: colors.orange, desc: 'Oil +40%, supply disruption' },
+    { n: 'Dollar Weakness', p: 6.4, color: colors.up, desc: 'FX tailwind for intl exposure' }
+  ];
+  document.getElementById('scenarioGrid').innerHTML = scenarios.map(s => {
+    const isUp = s.p > 0;
+    return `
+      <div class="rounded-lg p-3.5 cursor-pointer panel-hover transition" style="background: var(--panel-2); border: 1px solid var(--line);">
+        <div class="flex items-start justify-between mb-2">
+          <div class="text-[12px] font-semibold">${s.n}</div>
+          <div class="mono text-[13px] font-semibold ${isUp?'up':'down'}">${s.p>0?'+':''}${s.p.toFixed(1)}%</div>
+        </div>
+        <div class="text-[10.5px] muted mb-3 leading-snug">${s.desc}</div>
+        <div class="relative h-1.5 rounded-full overflow-hidden" style="background: var(--panel-3);">
+          <div class="absolute top-0 h-full rounded-full" style="left: ${isUp ? '50%' : Math.max(0, 50 - Math.abs(s.p))+'%'}; width: ${Math.min(Math.abs(s.p), 50)*0.8}%; background: ${isUp ? s.color : s.color};"></div>
+          <div class="absolute left-1/2 top-0 h-full w-px" style="background: var(--line-2)"></div>
+        </div>
+        <div class="flex justify-between mt-2 text-[10px] muted mono">
+          <span>-50%</span><span>0</span><span>+50%</span>
+        </div>
+        <div class="mt-2 text-[10.5px]">
+          <span class="muted">Est. P/L: </span>
+          <span class="mono ${isUp?'up':'down'}">${isUp?'+':''}${fmt$(2847392 * s.p / 100)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Global search quick filter
+document.getElementById('globalSearch').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    document.querySelector('[data-page="holdings"]').click();
+    setTimeout(() => {
+      document.getElementById('holdingsSearch').value = e.target.value;
+      document.getElementById('holdingsSearch').dispatchEvent(new Event('input'));
+    }, 100);
+  }
+});
+
+</script>
+</body>
+</html>

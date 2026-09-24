@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meridian — Component Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090C; --surface:#0F1216; --surface-2:#141821; --surface-3:#191E28;
+  --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.12);
+  --text:#E9ECF1; --muted:#8A93A3; --dim:#5A6272;
+  --brand:#8B7CFF; --brand-2:#5EEAD4; --up:#3FD68C; --down:#FF5C7A;
+  --amber:#FFB454; --blue:#6EA8FE; --pink:#FF7BA9; --orange:#F7931A;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);
+  font-family:Inter,system-ui,-apple-system,sans-serif;font-size:13.5px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;scroll-behavior:smooth}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(800px 500px at 15% -5%,rgba(139,124,255,.09),transparent 60%),
+             radial-gradient(700px 450px at 90% 5%,rgba(94,234,212,.06),transparent 60%)}
+::selection{background:rgba(139,124,255,.35)}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:8px;border:2px solid var(--bg)}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.mono{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums}
+.up{color:var(--up)} .down{color:var(--down)} .dim{color:var(--dim)} .muted{color:var(--muted)}
+
+/* ---------- layout ---------- */
+.app{display:flex;position:relative;z-index:1}
+.side{width:236px;flex:0 0 236px;position:sticky;top:0;height:100vh;overflow-y:auto;
+  border-right:1px solid var(--line);padding:22px 14px 40px;
+  background:linear-gradient(180deg,rgba(13,15,20,.92),rgba(8,9,12,.75));backdrop-filter:blur(20px)}
+.side-brand{display:flex;align-items:center;gap:10px;padding:0 8px 18px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+.side-brand .logo{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(150deg,rgba(139,124,255,.22),rgba(94,234,212,.10));border:1px solid rgba(139,124,255,.28)}
+.side-brand b{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.side-brand span{display:block;font-size:10.5px;color:var(--dim);margin-top:1px}
+.side-group{margin-bottom:14px}
+.side-group h4{margin:14px 8px 6px;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.side a{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;
+  color:var(--muted);text-decoration:none;font-size:12.5px;transition:.15s;border:1px solid transparent}
+.side a:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.side a.active{color:var(--text);background:rgba(139,124,255,.12);border-color:rgba(139,124,255,.2)}
+.side a .dot{width:5px;height:5px;border-radius:2px;background:var(--brand);opacity:.55;flex:0 0 auto}
+.main{flex:1;min-width:0;padding:34px 40px 100px;max-width:1500px}
+
+.top-hero{margin-bottom:46px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+.top-hero h1{margin:0;font-size:30px;font-weight:600;letter-spacing:-.03em}
+.top-hero p{margin:10px 0 0;color:var(--muted);font-size:14px;max-width:680px;line-height:1.6}
+.badge-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.badge{padding:5px 11px;border-radius:8px;font-size:11.5px;font-weight:600;letter-spacing:.02em;
+  border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted)}
+.badge.b{color:#C7BEFF;border-color:rgba(139,124,255,.3);background:rgba(139,124,255,.1)}
+.badge.g{color:#9FE8C4;border-color:rgba(63,214,140,.25);background:rgba(63,214,140,.08)}
+
+.sec{margin-bottom:64px;scroll-margin-top:20px}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.sec-h h2{margin:0;font-size:18px;font-weight:600;letter-spacing:-.02em}
+.sec-h .idx{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--dim);padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.04)}
+.sec-desc{margin:0 0 20px;color:var(--dim);font-size:12.5px;max-width:720px;line-height:1.55}
+.variants{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.variants.wide{grid-template-columns:repeat(auto-fit,minmax(420px,1fr))}
+.variants.full{grid-template-columns:1fr}
+.variant{position:relative;border-radius:var(--r);border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,255,255,.018),transparent),var(--surface);
+  padding:18px;overflow:hidden;display:flex;flex-direction:column;gap:14px}
+.variant::before{content:'';position:absolute;top:0;left:14%;right:14%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.13),transparent)}
+.vlabel{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700;
+  display:flex;align-items:center;gap:7px}
+.vlabel i{width:5px;height:5px;border-radius:2px;background:var(--brand);opacity:.7}
+.vlabel .tag{margin-left:auto;font-size:9.5px;letter-spacing:.06em;padding:2px 7px;border-radius:5px;
+  background:rgba(139,124,255,.12);color:#C7BEFF;border:1px solid rgba(139,124,255,.22);text-transform:none;font-weight:600}
+.vbody{flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px}
+
+/* ---------- generic card ---------- */
+.card{border-radius:var(--r);border:1px solid var(--line);padding:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.022),transparent),var(--surface)}
+.card.flush{padding:0;overflow:hidden}
+
+/* ---------- MetricTile ---------- */
+.mt-a .l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.mt-a .v{font-size:26px;font-weight:600;letter-spacing:-.03em;margin-top:6px}
+.mt-a .s{font-size:11.5px;color:var(--dim);margin-top:3px}
+.mt-b{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mt-b .l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.mt-b .v{font-size:24px;font-weight:600;letter-spacing:-.03em;margin-top:5px}
+.mt-b .s{font-size:11px;color:var(--dim);margin-top:2px}
+.mt-c{position:relative;padding-top:18px}
+.mt-c::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,var(--brand),var(--brand-2))}
+.mt-c .top{display:flex;justify-content:space-between;align-items:flex-start}
+.mt-c .l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.mt-c .v{font-size:24px;font-weight:600;letter-spacing:-.03em;margin-top:6px}
+.mt-c .s{font-size:11px;color:var(--dim);margin-top:3px}
+
+/* ---------- DeltaPill ---------- */
+.dp{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:7px;
+  font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.dp.fill.up{color:var(--up);background:rgba(63,214,140,.11)}
+.dp.fill.down{color:var(--down);background:rgba(255,92,122,.11)}
+.dp.outline{background:transparent;border:1px solid currentColor}
+.dp.outline.up{color:var(--up)} .dp.outline.down{color:var(--down)}
+.dp.dotup::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;display:block}
+.dp .arr{font-size:9px;line-height:1}
+
+/* ---------- RangeSelector ---------- */
+.rs-a{display:inline-flex;gap:2px;padding:3px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.rs-a button{padding:5px 11px;border-radius:7px;border:0;background:transparent;color:var(--dim);
+  font-family:inherit;font-size:11.5px;font-weight:500;cursor:pointer;transition:.15s}
+.rs-a button:hover{color:var(--text)}
+.rs-a button.on{background:rgba(255,255,255,.09);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.rs-b{display:flex;gap:0;border-bottom:1px solid var(--line)}
+.rs-b button{padding:8px 13px;background:none;border:0;border-bottom:2px solid transparent;
+  color:var(--dim);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:.15s}
+.rs-b button:hover{color:var(--muted)}
+.rs-b button.on{color:var(--text);border-bottom-color:var(--brand);box-shadow:0 2px 0 -1px var(--brand)}
+.rs-c{display:inline-flex;align-items:center;gap:6px}
+.rs-c button{padding:4px 9px;border-radius:7px;border:1px solid transparent;background:transparent;
+  color:var(--dim);font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;transition:.15s;letter-spacing:.02em}
+.rs-c button:hover{color:var(--text)}
+.rs-c button.on{color:#C7BEFF;background:rgba(139,124,255,.13);border-color:rgba(139,124,255,.28)}
+.rs-c .sep{width:1px;height:14px;background:var(--line)}
+
+/* ---------- SegmentedControl ---------- */
+.sc-a{display:inline-flex;gap:2px;padding:3px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.sc-a button{padding:5px 13px;border-radius:7px;border:0;background:transparent;color:var(--dim);
+  font-family:inherit;font-size:11.5px;font-weight:500;cursor:pointer;transition:.15s}
+.sc-a button:hover{color:var(--text)}
+.sc-a button.on{background:rgba(255,255,255,.09);color:var(--text)}
+.sc-b{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.sc-b button{padding:7px 14px;border:0;background:transparent;color:var(--dim);font-family:inherit;
+  font-size:11.5px;font-weight:500;cursor:pointer;transition:.15s;border-right:1px solid var(--line)}
+.sc-b button:last-child{border-right:0}
+.sc-b button:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.sc-b button.on{background:rgba(139,124,255,.14);color:#C7BEFF}
+
+/* ---------- PortfolioHero ---------- */
+.hero-label{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);font-weight:600;
+  display:flex;align-items:center;gap:7px}
+.hero-val{font-size:38px;font-weight:600;letter-spacing:-.035em;line-height:1.05;margin-top:8px}
+.hero-row{display:flex;align-items:center;gap:11px;margin-top:9px}
+
+/* ---------- Donut / Allocation ---------- */
+.donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.legend{display:flex;flex-direction:column;gap:6px;flex:1;min-width:150px}
+.leg{display:flex;align-items:center;gap:9px;font-size:12px;padding:3px 6px;border-radius:6px}
+.leg:hover{background:rgba(255,255,255,.04)}
+.leg .sw{width:8px;height:8px;border-radius:2.5px;flex:0 0 auto}
+.leg .n{color:var(--muted);flex:1}
+.leg .v{font-weight:600;font-variant-numeric:tabular-nums}
+.leg .p{color:var(--dim);font-size:11px;width:42px;text-align:right;font-variant-numeric:tabular-nums}
+.stackbar{display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px}
+.stackbar i{height:100%;display:block;transition:opacity .15s}
+.stackbar i:hover{opacity:.75}
+
+/* ---------- SignalCard ---------- */
+.sig{position:relative;border-radius:12px;border:1px solid var(--line);padding:13px 14px 13px 16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.024),transparent);overflow:hidden}
+.sig::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px}
+.sig.risk::before{background:linear-gradient(180deg,var(--down),rgba(255,92,122,.1))}
+.sig.warn::before{background:linear-gradient(180deg,var(--amber),rgba(255,180,84,.1))}
+.sig.info::before{background:linear-gradient(180deg,var(--brand),rgba(139,124,255,.1))}
+.sig.good::before{background:linear-gradient(180deg,var(--up),rgba(63,214,140,.1))}
+.sig-top{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.sig-ico{width:14px;height:14px;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sig.risk .sig-ico{stroke:var(--down)} .sig.warn .sig-ico{stroke:var(--amber)}
+.sig.info .sig-ico{stroke:var(--brand)} .sig.good .sig-ico{stroke:var(--up)}
+.sig-tag{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;font-weight:700;color:var(--dim)}
+.sig-body{font-size:12.5px;color:var(--muted);line-height:1.5}
+.sig-body b{color:var(--text);font-weight:600}
+.sig-foot{display:flex;align-items:center;gap:8px;margin-top:10px}
+.meter{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:3px}
+.sig-score{font-size:10.5px;color:var(--dim);font-weight:600}
+
+/* ---------- NewsItem ---------- */
+.news-a{display:flex;gap:11px;padding:9px 4px;border-bottom:1px dashed rgba(255,255,255,.055)}
+.news-a:last-child{border-bottom:0}
+.news-a .b{width:5px;height:5px;border-radius:50%;background:var(--brand);margin-top:6px;flex:0 0 auto}
+.news-a .t{font-size:12.5px;line-height:1.45;color:var(--text)}
+.news-a .m{font-size:10.5px;color:var(--dim);margin-top:3px}
+.news-b{border-radius:11px;border:1px solid var(--line);padding:12px 13px;
+  background:linear-gradient(180deg,rgba(255,255,255,.022),transparent)}
+.news-b .src{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.news-b .src b{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);font-weight:700}
+.news-b .src span{font-size:10.5px;color:var(--dim)}
+.news-b .t{font-size:12.5px;line-height:1.45}
+.news-c{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;transition:.15s}
+.news-c:hover{background:rgba(255,255,255,.035)}
+.news-c .t{flex:1;font-size:12px;color:var(--muted)}
+.news-c .time{font-size:10.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+
+/* ---------- Movers ---------- */
+.mover{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:8px 6px;border-radius:9px;transition:.15s}
+.mover:hover{background:rgba(255,255,255,.035)}
+.mover .l{display:flex;align-items:center;gap:9px;min-width:0}
+.mover .sym{font-size:12.5px;font-weight:600}
+.mover .nm{font-size:11px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
+.mover .bar{width:70px;height:4px;border-radius:4px;background:rgba(255,255,255,.06);position:relative;overflow:hidden}
+.mover .bar i{position:absolute;top:0;bottom:0;border-radius:4px}
+.mover .chg{font-size:12.5px;font-weight:600;width:60px;text-align:right;font-variant-numeric:tabular-nums}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* ---------- ActivityFeed ---------- */
+.act{display:flex;gap:11px;padding:9px 6px;border-radius:9px;transition:.15s}
+.act:hover{background:rgba(255,255,255,.035)}
+.act .ic{width:28px;height:28px;flex:0 0 auto;border-radius:9px;display:grid;place-items:center;
+  border:1px solid var(--line);background:rgba(255,255,255,.035)}
+.act .ic svg{width:13px;height:13px;stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.act .m{flex:1;min-width:0}
+.act .t{font-size:12.5px;line-height:1.4}
+.act .t b{font-weight:600}
+.act .s{font-size:11px;color:var(--dim);margin-top:2px}
+.act .v{font-size:12.5px;font-weight:600;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:1px;background:var(--line-2)}
+.tl-item{position:relative;padding:8px 0 14px}
+.tl-item::before{content:'';position:absolute;left:-19px;top:12px;width:9px;height:9px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--brand)}
+.tl-item.done::before{border-color:var(--up)}
+.tl-item .t{font-size:12.5px}
+.tl-item .m{font-size:11px;color:var(--dim);margin-top:3px}
+
+/* ---------- Table ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.tbl th{text-align:right;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
+  font-weight:700;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:10px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.045);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tbl td:first-child{text-align:left}
+.tbl tr.row{cursor:pointer;transition:.13s}
+.tbl tr.row:hover{background:rgba(255,255,255,.03)}
+.tbl tr.row.open{background:rgba(139,124,255,.06)}
+.tbl tr.grp td{background:rgba(255,255,255,.022);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+  font-weight:700;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--line)}
+.tbl tr.sub td{background:rgba(255,255,255,.012);font-size:11.5px;font-weight:600;color:var(--muted)}
+.tbl tr.detail td{padding:0;background:rgba(139,124,255,.03);border-bottom:1px solid var(--line)}
+.symcell{display:flex;align-items:center;gap:10px}
+.symdot{width:7px;height:7px;border-radius:2.5px;flex:0 0 auto}
+.symcell .sym{font-weight:600;font-size:12.5px;line-height:1.2}
+.symcell .nm{font-size:10.5px;color:var(--dim);margin-top:1px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:22px;padding:16px 18px 18px}
+.detail-grid h5{margin:0 0 9px;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.dkv{display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0}
+.dkv span:first-child{color:var(--dim)}
+.lot{display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px dashed rgba(255,255,255,.055)}
+.lot:last-child{border-bottom:0}
+
+/* ---------- StatStrip ---------- */
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.strip .t{border-radius:12px;border:1px solid var(--line);padding:13px 14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.024),transparent)}
+.strip .t .l{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.strip .t .v{font-size:20px;font-weight:600;letter-spacing:-.025em;margin-top:6px;font-variant-numeric:tabular-nums}
+.strip .t .s{font-size:10.5px;color:var(--dim);margin-top:3px}
+.strip-inline{display:flex;border-radius:12px;border:1px solid var(--line);overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)}
+.strip-inline .t{flex:1;padding:13px 16px;border-right:1px solid var(--line)}
+.strip-inline .t:last-child{border-right:0}
+.strip-inline .l{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.strip-inline .v{font-size:17px;font-weight:600;letter-spacing:-.02em;margin-top:5px;font-variant-numeric:tabular-nums}
+
+/* ---------- Heatmap ---------- */
+.heat{display:grid;grid-template-columns:44px repeat(12,1fr) 60px;gap:3px;font-size:10.5px}
+.heat .hh{font-size:9.5px;color:var(--dim);font-weight:700;display:grid;place-items:center;letter-spacing:.06em;padding-bottom:3px}
+.heat .hy{display:flex;align-items:center;font-size:11px;color:var(--muted);font-weight:600}
+.hc{border-radius:6px;display:grid;place-items:center;padding:7px 0;font-weight:600;
+  font-variant-numeric:tabular-nums;border:1px solid rgba(255,255,255,.04);transition:transform .15s;cursor:default}
+.hc:hover{transform:scale(1.1);z-index:2;border-color:rgba(255,255,255,.3)}
+.hc.yt{background:rgba(255,255,255,.05);color:var(--text);font-weight:700}
+
+/* ---------- Factor bars ---------- */
+.fbar{display:grid;grid-template-columns:96px 1fr 50px;align-items:center;gap:12px;padding:6px 0}
+.fbar .n{font-size:11.5px;color:var(--muted)}
+.ftrack{height:6px;border-radius:6px;background:rgba(255,255,255,.055);position:relative;overflow:hidden}
+.ftrack::before{content:'';position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:rgba(255,255,255,.16)}
+.ffill{position:absolute;top:0;bottom:0;border-radius:6px}
+.fbar .v{font-size:11.5px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.fbar2{display:grid;grid-template-columns:96px 1fr 50px;align-items:center;gap:12px;padding:6px 0}
+.fbar2 .n{font-size:11.5px;color:var(--muted)}
+.ftrack2{height:7px;border-radius:7px;background:rgba(255,255,255,.055);overflow:hidden}
+.ffill2{height:100%;border-radius:7px}
+
+/* ---------- Scenario ---------- */
+.scen{display:flex;flex-direction:column;gap:3px}
+.scen-row{display:grid;grid-template-columns:1fr 130px 84px;align-items:center;gap:14px;padding:8px 8px;border-radius:9px}
+.scen-row:hover{background:rgba(255,255,255,.03)}
+.scen-row .n{font-size:12px}
+.scen-row .n span{display:block;font-size:10.5px;color:var(--dim);margin-top:1px}
+.scen-bar{height:5px;border-radius:5px;background:rgba(255,255,255,.055);position:relative;overflow:hidden}
+.scen-bar i{position:absolute;top:0;bottom:0;border-radius:5px}
+.scen-row .v{font-size:12px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+
+/* ---------- Correlation matrix ---------- */
+.matrix{display:grid;gap:3px;font-size:10.5px}
+.mcell{aspect-ratio:1;border-radius:7px;display:grid;place-items:center;font-weight:600;
+  border:1px solid rgba(255,255,255,.045);transition:transform .15s;cursor:default;font-variant-numeric:tabular-nums}
+.mcell:hover{transform:scale(1.09);z-index:2;border-color:rgba(255,255,255,.25)}
+.mhead{font-size:9.5px;color:var(--dim);font-weight:700;display:grid;place-items:center;letter-spacing:.05em}
+.mrow{font-size:9.5px;color:var(--dim);font-weight:700;display:flex;align-items:center;justify-content:flex-end;padding-right:6px}
+
+/* ---------- Risk contribution ---------- */
+.rc{display:grid;grid-template-columns:58px 1fr 92px;align-items:center;gap:12px;padding:7px 0}
+.rc .n{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600}
+.rc .v{font-size:11.5px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* ---------- ImpactBadge ---------- */
+.ib-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:8px;
+  font-size:11.5px;font-weight:600;border:1px solid rgba(139,124,255,.28);
+  background:rgba(139,124,255,.1);color:#C7BEFF}
+.ib-chip i{width:6px;height:6px;border-radius:2px;background:var(--brand)}
+.ib-banner{display:flex;align-items:center;gap:13px;padding:13px 15px;border-radius:12px;
+  border:1px solid rgba(139,124,255,.25);background:linear-gradient(90deg,rgba(139,124,255,.13),rgba(139,124,255,.03))}
+.ib-banner .ic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;
+  background:rgba(139,124,255,.18);border:1px solid rgba(139,124,255,.3);flex:0 0 auto}
+.ib-banner .m{flex:1}
+.ib-banner .t{font-size:12.5px;font-weight:600}
+.ib-banner .s{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ---------- NotePin ---------- */
+.note{position:relative;border-radius:11px;border:1px solid rgba(255,180,84,.28);
+  background:linear-gradient(180deg,rgba(255,180,84,.09),rgba(255,180,84,.02));padding:12px 14px}
+.note::before{content:'';position:absolute;top:-5px;left:14px;width:10px;height:10px;border-radius:50%;
+  background:var(--amber);box-shadow:0 0 12px rgba(255,180,84,.7)}
+.note .t{font-size:12px;line-height:1.5;color:var(--text)}
+.note .m{font-size:10.5px;color:var(--dim);margin-top:6px}
+
+/* ---------- Drawer ---------- */
+.drawer-mock{display:flex;border-radius:12px;border:1px solid var(--line);overflow:hidden;height:250px;background:rgba(0,0,0,.2)}
+.drawer-mock .scrim{flex:1;background:rgba(0,0,0,.3)}
+.drawer-mock .panel{width:66%;background:var(--surface-2);border-left:1px solid var(--line-2);padding:15px;display:flex;flex-direction:column;gap:11px}
+.drawer-mock .ph{display:flex;align-items:center;gap:10px;padding-bottom:11px;border-bottom:1px solid var(--line)}
+.drawer-mock .ph .av{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+  background:linear-gradient(150deg,var(--brand),var(--brand-2));color:#0A0B0E;font-weight:700;font-size:11px}
+.drawer-mock .ph .n{font-size:13px;font-weight:600}
+.drawer-mock .ph .s{font-size:10.5px;color:var(--dim)}
+.drawer-mock .ph .x{margin-left:auto;color:var(--dim);font-size:16px;line-height:1}
+
+/* ---------- States ---------- */
+.state{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:36px 20px;text-align:center;gap:10px;border-radius:12px;border:1px dashed var(--line-2)}
+.state .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+  background:rgba(255,255,255,.035);border:1px solid var(--line)}
+.state .ic svg{width:19px;height:19px;stroke:var(--dim);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.state .t{font-size:13px;font-weight:600}
+.state .s{font-size:11.5px;color:var(--dim);max-width:230px;line-height:1.5}
+.skel{width:100%;height:9px;border-radius:5px;background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.1),rgba(255,255,255,.05));
+  background-size:200% 100%;animation:shim 1.4s infinite}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.err-box{border-radius:12px;border:1px solid rgba(255,92,122,.28);background:rgba(255,92,122,.06);padding:24px 20px;text-align:center}
+.err-box .ic{width:42px;height:42px;margin:0 auto 10px;border-radius:12px;display:grid;place-items:center;
+  background:rgba(255,92,122,.13);border:1px solid rgba(255,92,122,.3)}
+.err-box .t{font-size:13px;font-weight:600}
+.err-box .s{font-size:11.5px;color:var(--muted);margin-top:5px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9px;
+  border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--text);
+  font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:.16s}
+.btn:hover{background:rgba(255,255,255,.075)}
+.btn.primary{background:linear-gradient(180deg,rgba(139,124,255,.9),rgba(120,104,240,.85));
+  border-color:rgba(139,124,255,.5);color:#fff;box-shadow:0 5px 16px -6px rgba(139,124,255,.6)}
+
+@media(max-width:900px){.side{display:none}.main{padding:22px 18px 80px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side">
+    <div class="side-brand">
+      <div class="logo">
+        <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
+          <defs><linearGradient id="lg" x1="0" y1="0" x2="32" y2="32">
+            <stop offset="0" stop-color="#8B7CFF"/><stop offset="1" stop-color="#5EEAD4"/></linearGradient></defs>
+          <circle cx="16" cy="16" r="11" stroke="url(#lg)" stroke-width="1.6"/>
+          <ellipse cx="16" cy="16" rx="4.6" ry="11" stroke="url(#lg)" stroke-width="1.2" opacity=".7"/>
+          <path d="M5 16h22" stroke="url(#lg)" stroke-width="1.2" opacity=".7"/>
+          <circle cx="16" cy="5" r="1.6" fill="#5EEAD4"/>
+        </svg>
+      </div>
+      <div><b>Meridian</b><span>Component gallery</span></div>
+    </div>
+
+    <div class="side-group">
+      <h4>Shared</h4>
+      <a href="#metric-tile" class="active"><i class="dot"></i>MetricTile</a>
+      <a href="#delta-pill"><i class="dot"></i>DeltaPill</a>
+      <a href="#range"><i class="dot"></i>RangeSelector</a>
+      <a href="#segmented"><i class="dot"></i>SegmentedControl</a>
+      <a href="#spark"><i class="dot"></i>Sparkline</a>
+      <a href="#states"><i class="dot"></i>States</a>
+    </div>
+
+    <div class="side-group">
+      <h4>Overview</h4>
+      <a href="#hero"><i class="dot"></i>PortfolioHero</a>
+      <a href="#allocation"><i class="dot"></i>Allocation</a>
+      <a href="#signal"><i class="dot"></i>SignalCard</a>
+      <a href="#news"><i class="dot"></i>NewsItem</a>
+      <a href="#movers"><i class="dot"></i>Movers</a>
+      <a href="#activity"><i class="dot"></i>ActivityFeed</a>
+    </div>
+
+    <div class="side-group">
+      <h4>Holdings</h4>
+      <a href="#table"><i class="dot"></i>HoldingsTable</a>
+    </div>
+
+    <div class="side-group">
+      <h4>Performance</h4>
+      <a href="#strip"><i class="dot"></i>StatStrip</a>
+      <a href="#heat"><i class="dot"></i>Heatmap</a>
+    </div>
+
+    <div class="side-group">
+      <h4>Analysis</h4>
+      <a href="#factor"><i class="dot"></i>FactorBars</a>
+      <a href="#scenarios"><i class="dot"></i>Scenarios</a>
+      <a href="#corr"><i class="dot"></i>Correlation</a>
+      <a href="#risk"><i class="dot"></i>RiskContribution</a>
+      <a href="#exposure"><i class="dot"></i>Exposure</a>
+      <a href="#concentration"><i class="dot"></i>Concentration</a>
+    </div>
+
+    <div class="side-group">
+      <h4>Enrichment</h4>
+      <a href="#impact"><i class="dot"></i>ImpactBadge</a>
+      <a href="#note"><i class="dot"></i>NotePin</a>
+      <a href="#drawer"><i class="dot"></i>Drawer</a>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <header class="top-hero">
+      <h1>Meridian — component gallery</h1>
+      <p>Every component, 2–3 design directions. Pick the ones that fit the page, then compose. Colors, spacing and type are the real Meridian tokens.</p>
+      <div class="badge-row">
+        <span class="badge b">Dark theme</span>
+        <span class="badge g">Tabular numerals</span>
+        <span class="badge">Inter + JetBrains Mono</span>
+      </div>
+    </header>
+
+    <!-- ==================== 1. METRIC TILE ==================== -->
+    <section class="sec" id="metric-tile">
+      <div class="sec-h"><h2>MetricTile</h2><span class="idx">01</span></div>
+      <p class="sec-desc">The workhorse. Three directions: minimal, with inline sparkline, and with a top accent bar. Use minimal for dense grids, sparkline when the trend matters, accent when the metric has a story.</p>
+      <div class="variants">
+        <!-- A -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Minimal</span></div>
+          <div class="vbody">
+            <div class="card mt-a">
+              <div class="l">Cash balance</div>
+              <div class="v num">$84,320.55</div>
+              <div class="s">4.1% of book · USD</div>
+            </div>
+          </div>
+        </div>
+        <!-- B -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Sparkline</span></div>
+          <div class="vbody">
+            <div class="card mt-b">
+              <div>
+                <div class="l">Unrealized P&amp;L</div>
+                <div class="v num up">+$214,880</div>
+                <div class="s"><span class="up num">+34.2%</span> on cost</div>
+              </div>
+              <svg data-spark="100,104,102,110,118,115,126,131,128,140,148,152" data-color="#3FD68C" data-w="70" data-h="34"></svg>
+            </div>
+          </div>
+        </div>
+        <!-- C -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant C<span class="tag">Accent bar</span></div>
+          <div class="vbody">
+            <div class="card mt-c">
+              <div class="top">
+                <div class="l">Realized YTD</div>
+                <span class="dp fill up">+12.4%</span>
+              </div>
+              <div class="v num up">+$18,120</div>
+              <div class="s">4 closed lots · 2 trims</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. DELTA PILL ==================== -->
+    <section class="sec" id="delta-pill">
+      <div class="sec-h"><h2>DeltaPill</h2><span class="idx">02</span></div>
+      <p class="sec-desc">Sign-carrying chip for changes. Fill reads as primary, outline as secondary, dot+arrow for the most explicit read.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Filled</span></div>
+          <div class="vbody" style="flex-direction:row;gap:10px;flex-wrap:wrap">
+            <span class="dp fill up">+3.24%</span>
+            <span class="dp fill down">−1.24%</span>
+            <span class="dp fill up">+$2,410.88</span>
+            <span class="dp fill down">−$1,102.40</span>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Outline</span></div>
+          <div class="vbody" style="flex-direction:row;gap:10px;flex-wrap:wrap">
+            <span class="dp outline up">+3.24%</span>
+            <span class="dp outline down">−1.24%</span>
+            <span class="dp outline up">▲ 2.10</span>
+            <span class="dp outline down">▼ 0.82</span>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant C<span class="tag">Dot + arrow</span></div>
+          <div class="vbody" style="flex-direction:row;gap:10px;flex-wrap:wrap">
+            <span class="dp fill up dotup"><span class="arr">▲</span>+2.41%</span>
+            <span class="dp fill down dotup"><span class="arr">▼</span>−3.18%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. RANGE SELECTOR ==================== -->
+    <section class="sec" id="range">
+      <div class="sec-h"><h2>RangeSelector</h2><span class="idx">03</span></div>
+      <p class="sec-desc">Time-window control. Pill group for dense panels, underline tabs when it sits above a chart, compact for headers.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Pill group</span></div>
+          <div class="vbody">
+            <div class="rs-a">
+              <button>1D</button><button>1W</button><button>1M</button><button>3M</button>
+              <button class="on">1Y</button><button>ALL</button>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Underline</span></div>
+          <div class="vbody">
+            <div class="rs-b">
+              <button>1M</button><button>3M</button><button class="on">6M</button>
+              <button>YTD</button><button>1Y</button><button>ALL</button>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant C<span class="tag">Compact</span></div>
+          <div class="vbody" style="flex-direction:row;align-items:center;gap:8px">
+            <div class="rs-c">
+              <button>1D</button><button>1W</button><button>1M</button>
+              <span class="sep"></span>
+              <button class="on">1Y</button><button>ALL</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. SEGMENTED CONTROL ==================== -->
+    <section class="sec" id="segmented">
+      <div class="sec-h"><h2>SegmentedControl</h2><span class="idx">04</span></div>
+      <p class="sec-desc">Mode switch. Soft fill for dark backgrounds, hard-edged group for toolbars and tables.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Soft fill</span></div>
+          <div class="vbody">
+            <div class="sc-a">
+              <button class="on">Value</button><button>Return</button><button>Drawdown</button>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Hard group</span></div>
+          <div class="vbody">
+            <div class="sc-b">
+              <button class="on">By class</button><button>By sector</button><button>Flat</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. SPARKLINE ==================== -->
+    <section class="sec" id="spark">
+      <div class="sec-h"><h2>Sparkline</h2><span class="idx">05</span></div>
+      <p class="sec-desc">Inline trend. Area reads best next to a value, bars when the data is discrete, line+dot when you want to mark "now".</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Area</span></div>
+          <div class="vbody">
+            <svg data-spark="100,102,98,105,112,109,118,124,120,131,138,144" data-color="#3FD68C" data-w="200" data-h="56"></svg>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Bars</span></div>
+          <div class="vbody">
+            <svg data-spark-bars="100,96,104,101,108,112,109,116,120,118,126,131,128,136" data-color="#FF5C7A" data-w="200" data-h="56"></svg>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant C<span class="tag">Line + end dot</span></div>
+          <div class="vbody">
+            <svg data-spark-dot="120,118,124,119,128,133,130,138,142,139,148,152,149,158" data-color="#8B7CFF" data-w="200" data-h="56"></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 6. STATES ==================== -->
+    <section class="sec" id="states">
+      <div class="sec-h"><h2>States</h2><span class="idx">06</span></div>
+      <p class="sec-desc">Every data surface needs three. Empty invites, loading reassures, error explains and offers a way out.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Empty</div>
+          <div class="vbody">
+            <div class="state">
+              <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 8l8-5 8 5v10l-8 5-8-5z"/><path d="M4 8l8 5 8-5M12 13v10"/></svg></div>
+              <div class="t">No positions yet</div>
+              <div class="s">Add your first holding to start tracking performance.</div>
+              <button class="btn primary">Add transaction</button>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Loading</div>
+          <div class="vbody">
+            <div class="card" style="display:flex;flex-direction:column;gap:10px">
+              <div class="skel" style="width:38%"></div>
+              <div class="skel" style="width:62%;height:20px"></div>
+              <div class="skel" style="width:100%;height:60px;border-radius:10px"></div>
+              <div class="skel" style="width:82%"></div>
+              <div class="skel" style="width:70%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Error</div>
+          <div class="vbody">
+            <div class="err-box">
+              <div class="ic"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#FF5C7A;fill:none;stroke-width:1.8;stroke-linecap:round"><path d="M12 3.5L21.5 20H2.5z"/><path d="M12 9.5v5M12 17.2v.1"/></svg></div>
+              <div class="t">Couldn't load prices</div>
+              <div class="s">Market data provider returned an error. Last synced 4 minutes ago.</div>
+              <button class="btn" style="margin-top:12px">Retry</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 7. PORTFOLIO HERO ==================== -->
+    <section class="sec" id="hero">
+      <div class="sec-h"><h2>PortfolioHero</h2><span class="idx">07</span></div>
+      <p class="sec-desc">The top of the Overview. Three arrangements: value-then-chart, split with mini stats, and a compact horizontal bar.</p>
+      <div class="variants wide">
+        <!-- A -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Value + chart</span></div>
+          <div class="vbody">
+            <div class="card" style="padding:20px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+                <div>
+                  <div class="hero-label">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8B7CFF" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+                    Total portfolio value
+                  </div>
+                  <div class="hero-val num">$1,144,328.55</div>
+                  <div class="hero-row">
+                    <span class="dp fill up">▲ +$1,842.30 (+0.16%)</span>
+                    <span class="dim" style="font-size:12.5px">today</span>
+                  </div>
+                </div>
+                <div class="rs-a">
+                  <button>1D</button><button>1W</button><button>1M</button><button>3M</button>
+                  <button class="on">1Y</button><button>ALL</button>
+                </div>
+              </div>
+              <svg data-spark="100,103,99,106,112,108,116,124,121,132,141,138,148,156,152,164" data-color="#8B7CFF" data-w="700" data-h="120" style="margin-top:14px;display:block;width:100%"></svg>
+            </div>
+          </div>
+        </div>
+        <!-- B -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Split with stats</span></div>
+          <div class="vbody">
+            <div class="card" style="padding:20px">
+              <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:center">
+                <div>
+                  <div class="hero-label">Total value</div>
+                  <div class="hero-val num" style="font-size:32px">$1,144,328</div>
+                  <div class="hero-row"><span class="dp fill up">+0.16%</span><span class="dim" style="font-size:12px">today</span></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:9px">
+                  <div style="display:flex;justify-content:space-between;font-size:12px">
+                    <span class="dim">Invested</span><span class="num" style="font-weight:600">$1,060,008</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px">
+                    <span class="dim">Cash</span><span class="num" style="font-weight:600">$84,320</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px">
+                    <span class="dim">Unrealized</span><span class="num up" style="font-weight:600">+$214,880</span>
+                  </div>
+                </div>
+              </div>
+              <svg data-spark="100,104,101,108,115,111,119,126,122,133,142,139,149,157,153,165" data-color="#5EEAD4" data-w="700" data-h="80" style="margin-top:14px;display:block;width:100%"></svg>
+            </div>
+          </div>
+        </div>
+        <!-- C -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant C<span class="tag">Compact bar</span></div>
+          <div class="vbody">
+            <div class="card" style="padding:16px 18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+              <div>
+                <div class="hero-label">Total value</div>
+                <div class="num" style="font-size:26px;font-weight:600;letter-spacing:-.03em;margin-top:5px">$1,144,328</div>
+              </div>
+              <span class="dp fill up">+0.16%</span>
+              <svg data-spark="100,104,101,108,115,111,119,126,122,133,142,139,149,157" data-color="#8B7CFF" data-w="180" data-h="42"></svg>
+              <div style="margin-left:auto">
+                <div class="rs-c"><button>1D</button><button>1M</button><button class="on">1Y</button><button>ALL</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 8. ALLOCATION ==================== -->
+    <section class="sec" id="allocation">
+      <div class="sec-h"><h2>Allocation</h2><span class="idx">08</span></div>
+      <p class="sec-desc">Ring with center label, stacked bar for a compact read, and ring with a full legend list.</p>
+      <div class="variants">
+        <!-- A -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Ring + legend</span></div>
+          <div class="vbody">
+            <div class="donut-wrap">
+              <svg width="150" height="150" viewBox="0 0 150 150">
+                <circle cx="75" cy="75" r="56" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="17"/>
+                <circle cx="75" cy="75" r="56" fill="none" stroke="#8B7CFF" stroke-width="17" stroke-dasharray="158.3 193.6" transform="rotate(-90 75 75)"/>
+                <circle cx="75" cy="75" r="56" fill="none" stroke="#5EEAD4" stroke-width="17" stroke-dasharray="88.0 263.9" transform="rotate(72 75 75)"/>
+                <circle cx="75" cy="75" r="56" fill="none" stroke="#FFB454" stroke-width="17" stroke-dasharray="63.3 288.6" transform="rotate(162 75 75)"/>
+                <circle cx="75" cy="75" r="56" fill="none" stroke="#5A6272" stroke-width="17" stroke-dasharray="42.2 309.7" transform="rotate(226.8 75 75)"/>
+                <text x="75" y="71" text-anchor="middle" fill="#E9ECF1" font-size="17" font-weight="600" font-family="Inter" letter-spacing="-.5">$1.14M</text>
+                <text x="75" y="88" text-anchor="middle" fill="#5A6272" font-size="9" font-weight="600" font-family="Inter" letter-spacing="1">TOTAL</text>
+              </svg>
+              <div class="legend">
+                <div class="leg"><span class="sw" style="background:#8B7CFF"></span><span class="n">Equity</span><span class="v">$632,880</span><span class="p">55.3%</span></div>
+                <div class="leg"><span class="sw" style="background:#5EEAD4"></span><span class="n">ETF</span><span class="v">$351,940</span><span class="p">30.8%</span></div>
+                <div class="leg"><span class="sw" style="background:#FFB454"></span><span class="n">Crypto</span><span class="v">$75,187</span><span class="p">6.6%</span></div>
+                <div class="leg"><span class="sw" style="background:#5A6272"></span><span class="n">Cash</span><span class="v">$84,320</span><span class="p">7.4%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- B -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Stacked bar</span></div>
+          <div class="vbody">
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                <span style="font-size:12px;font-weight:600">Allocation by class</span>
+                <span class="dim" style="font-size:11px">4 buckets</span>
+              </div>
+              <div class="stackbar">
+                <i style="width:55.3%;background:#8B7CFF"></i>
+                <i style="width:30.8%;background:#5EEAD4"></i>
+                <i style="width:6.6%;background:#FFB454"></i>
+                <i style="width:7.4%;background:#5A6272"></i>
+              </div>
+              <div style="display:flex;gap:14px;margin-top:12px;flex-wrap:wrap">
+                <span style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:2px;background:#8B7CFF;display:block"></i>Equity 55.3%</span>
+                <span style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:2px;background:#5EEAD4;display:block"></i>ETF 30.8%</span>
+                <span style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:2px;background:#FFB454;display:block"></i>Crypto 6.6%</span>
+                <span style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:2px;background:#5A6272;display:block"></i>Cash 7.4%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- C -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant C<span class="tag">Ring + list</span></div>
+          <div class="vbody">
+            <div class="card" style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+              <svg width="110" height="110" viewBox="0 0 110 110">
+                <circle cx="55" cy="55" r="40" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="13"/>
+                <circle cx="55" cy="55" r="40" fill="none" stroke="#8B7CFF" stroke-width="13" stroke-dasharray="113.1 138.2" transform="rotate(-90 55 55)"/>
+                <circle cx="55" cy="55" r="40" fill="none" stroke="#5EEAD4" stroke-width="13" stroke-dasharray="62.8 188.5" transform="rotate(72 55 55)"/>
+                <circle cx="55" cy="55" r="40" fill="none" stroke="#FFB454" stroke-width="13" stroke-dasharray="45.2 206.1" transform="rotate(162 55 55)"/>
+                <circle cx="55" cy="55" r="40" fill="none" stroke="#5A6272" stroke-width="13" stroke-dasharray="30.1 221.2" transform="rotate(226.8 55 55)"/>
+              </svg>
+              <div style="flex:1;font-size:11.5px;display:flex;flex-direction:column;gap:5px">
+                <div style="display:flex;justify-content:space-between"><span class="dim">Equity</span><span class="num">55.3%</span></div>
+                <div style="display:flex;justify-content:space-between"><span class="dim">ETF</span><span class="num">30.8%</span></div>
+                <div style="display:flex;justify-content:space-between"><span class="dim">Crypto</span><span class="num">6.6%</span></div>
+                <div style="display:flex;justify-content:space-between"><span class="dim">Cash</span><span class="num">7.4%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 9. SIGNAL CARD ==================== -->
+    <section class="sec" id="signal">
+      <div class="sec-h"><h2>SignalCard</h2><span class="idx">09</span></div>
+      <p class="sec-desc">The cross-reference layer. Left stripe, icon badge, and compact — all carry severity via color.</p>
+      <div class="variants">
+        <!-- A -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Stripe + meter</span></div>
+          <div class="vbody">
+            <div class="sig risk">
+              <div class="sig-top">
+                <svg class="sig-ico" viewBox="0 0 24 24"><path d="M12 3.5L21.5 20H2.5z"/><path d="M12 9.5v5M12 17.2v.1"/></svg>
+                <span class="sig-tag">Concentration</span>
+              </div>
+              <div class="sig-body"><b>Digital assets are 30%</b> of the book and contribute <b>53.7%</b> of total risk — above your 25% guardrail.</div>
+              <div class="sig-foot">
+                <div class="meter"><i style="width:86%;background:linear-gradient(90deg,#FF5C7A,#FF7BA9)"></i></div>
+                <span class="sig-score">86/100</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- B -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Icon badge</span></div>
+          <div class="vbody">
+            <div class="sig info" style="padding-left:14px">
+              <div class="sig-top">
+                <span style="width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(139,124,255,.15);border:1px solid rgba(139,124,255,.28)">
+                  <svg class="sig-ico" viewBox="0 0 24 24" style="stroke:#8B7CFF"><path d="M4 5h11a1 1 0 011 1v13H5a1 1 0 01-1-1z"/><path d="M16 9h2.5a1 1 0 011 1v7a2 2 0 01-2 2"/><path d="M7 9h6M7 12.5h6M7 16h3.5"/></svg>
+                </span>
+                <span class="sig-tag">News ↔ Holdings</span>
+              </div>
+              <div class="sig-body"><b>4 stories in 24h</b> reference NVDA, your 8th-largest position. Aggregate sentiment <b>+0.62</b>.</div>
+            </div>
+          </div>
+        </div>
+        <!-- C -->
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant C<span class="tag">Compact</span></div>
+          <div class="vbody">
+            <div class="sig warn" style="padding:11px 12px 11px 14px">
+              <div class="sig-top" style="margin-bottom:4px">
+                <svg class="sig-ico" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+                <span class="sig-tag">Event risk</span>
+              </div>
+              <div class="sig-body" style="font-size:12px"><b>ASML reports Thursday.</b> 4.2% of portfolio · ±6.1% implied.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 10. NEWS ITEM ==================== -->
+    <section class="sec" id="news">
+      <div class="sec-h"><h2>NewsItem</h2><span class="idx">10</span></div>
+      <p class="sec-desc">List row for dense feeds, card for a featured story, compact for sidebars and expanded table rows.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">List</span></div>
+          <div class="vbody">
+            <div class="news-a">
+              <span class="b"></span>
+              <div>
+                <div class="t">Spot ETF inflows post fourth consecutive week of net creations</div>
+                <div class="m">CoinDesk · 48m ago</div>
+              </div>
+            </div>
+            <div class="news-a">
+              <span class="b" style="background:#5EEAD4"></span>
+              <div>
+                <div class="t">Foundry lead times tighten again on advanced packaging demand</div>
+                <div class="m">DigiTimes · 1h ago</div>
+              </div>
+            </div>
+            <div class="news-a">
+              <span class="b" style="background:#FFB454"></span>
+              <div>
+                <div class="t">Analysts raise cloud capex forecasts for the next two quarters</div>
+                <div class="m">Bloomberg · 6h ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Card</span></div>
+          <div class="vbody">
+            <div class="news-b">
+              <div class="src"><b>Reuters</b><span>· 2h ago · Technology</span></div>
+              <div class="t">Services margin hits record as on-device AI rollout widens across the installed base</div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant C<span class="tag">Compact</span></div>
+          <div class="vbody">
+            <div class="card" style="padding:6px">
+              <div class="news-c"><span class="t">Medical-cost trend pressures managed-care multiples</span><span class="time">3h</span></div>
+              <div class="news-c"><span class="t">Long-end auction tails; duration demand stays soft</span><span class="time">5h</span></div>
+              <div class="news-c"><span class="t">Breadth improves as equal-weight outpaces cap-weight</span><span class="time">3h</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 11. MOVERS ==================== -->
+    <section class="sec" id="movers">
+      <div class="sec-h"><h2>Movers</h2><span class="idx">11</span></div>
+      <p class="sec-desc">Single list with signed bars, or split winners/losers into two columns.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Signed bars</span></div>
+          <div class="vbody">
+            <div class="card" style="padding:12px">
+              <div class="mover"><div class="l"><span class="symdot" style="background:#FFB454"></span><span class="sym">BTC</span><span class="nm">Bitcoin</span></div><div class="bar"><i style="left:50%;width:50%;background:linear-gradient(90deg,#3FD68C,#5EEAD4)"></i></div><div class="chg up">+3.24%</div></div>
+              <div class="mover"><div class="l"><span class="symdot" style="background:#8B7CFF"></span><span class="sym">NVDA</span><span class="nm">NVIDIA</span></div><div class="bar"><i style="left:50%;width:37%;background:linear-gradient(90deg,#3FD68C,#5EEAD4)"></i></div><div class="chg up">+2.41%</div></div>
+              <div class="mover"><div class="l"><span class="symdot" style="background:#8B7CFF"></span><span class="sym">AAPL</span><span class="nm">Apple</span></div><div class="bar"><i style="left:50%;width:13%;background:linear-gradient(90deg,#3FD68C,#5EEAD4)"></i></div><div class="chg up">+0.82%</div></div>
+              <div style="height:1px;background:var(--line);margin:6px 0"></div>
+              <div class="mover"><div class="l"><span class="symdot" style="background:#8B7CFF"></span><span class="sym">TSLA</span><span class="nm">Tesla</span></div><div class="bar"><i style="right:50%;width:49%;background:linear-gradient(270deg,#FF5C7A,#FF7BA9)"></i></div><div class="chg down">−3.18%</div></div>
+              <div class="mover"><div class="l"><span class="symdot" style="background:#8B7CFF"></span><span class="sym">UNH</span><span class="nm">UnitedHealth</span></div><div class="bar"><i style="right:50%;width:19%;background:linear-gradient(270deg,#FF5C7A,#FF7BA9)"></i></div><div class="chg down">−1.24%</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Two columns</span></div>
+          <div class="vbody">
+            <div class="card" style="padding:12px">
+              <div class="cols2">
+                <div>
+                  <div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--up);font-weight:700;margin-bottom:6px">Winners</div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0"><span>BTC</span><span class="num up">+3.24%</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0"><span>NVDA</span><span class="num up">+2.41%</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0"><span>ETH</span><span class="num up">+2.10%</span></div>
+                </div>
+                <div>
+                  <div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--down);font-weight:700;margin-bottom:6px">Losers</div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0"><span>TSLA</span><span class="num down">−3.18%</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0"><span>UNH</span><span class="num down">−1.24%</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0"><span>TLT</span><span class="num down">−0.62%</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 12. ACTIVITY FEED ==================== -->
+    <section class="sec" id="activity">
+      <div class="sec-h"><h2>ActivityFeed</h2><span class="idx">12</span></div>
+      <p class="sec-desc">Icon + text + value rows, or a timeline when sequence matters.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Icon rows</span></div>
+          <div class="vbody">
+            <div class="card" style="padding:12px">
+              <div class="act">
+                <div class="ic" style="color:var(--muted)"><svg viewBox="0 0 24 24"><path d="M12 19V6M6.5 11.5L12 6l5.5 5.5"/></svg></div>
+                <div class="m"><div class="t">Bought <b>25 NVDA</b> @ $132.40</div><div class="s">2 days ago · Order filled</div></div>
+                <div class="v dim">−$3,310</div>
+              </div>
+              <div class="act">
+                <div class="ic" style="color:var(--up)"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="7" rx="7.5" ry="3.2"/><path d="M4.5 7v10c0 1.8 3.4 3.2 7.5 3.2s7.5-1.4 7.5-3.2V7"/></svg></div>
+                <div class="m"><div class="t">Dividend · <b>AAPL</b> $0.25/share</div><div class="s">5 days ago · Reinvested</div></div>
+                <div class="v up">+$105.00</div>
+              </div>
+              <div class="act">
+                <div class="ic" style="color:var(--up)"><svg viewBox="0 0 24 24"><path d="M7 8h11l-3-3M17 16H6l3 3"/></svg></div>
+                <div class="m"><div class="t">Sold <b>40 SHOP</b> @ $104.20</div><div class="s">1 week ago · Realized +$1,412</div></div>
+                <div class="v up">+$4,168</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Timeline</span></div>
+          <div class="vbody">
+            <div class="card" style="padding:16px 18px">
+              <div class="timeline">
+                <div class="tl-item done"><div class="t">Bought <b>25 NVDA</b> @ $132.40</div><div class="m">2 days ago · filled</div></div>
+                <div class="tl-item done"><div class="t">Dividend <b>AAPL</b> reinvested</div><div class="m">5 days ago · +$105.00</div></div>
+                <div class="tl-item"><div class="t">Sold <b>40 SHOP</b> @ $104.20</div><div class="m">1 week ago · realized +$1,412</div></div>
+                <div class="tl-item"><div class="t">Deposited <b>$15,000</b></div><div class="m">2 weeks ago · ACH</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 13. HOLDINGS TABLE ==================== -->
+    <section class="sec" id="table">
+      <div class="sec-h"><h2>HoldingsTable</h2><span class="idx">13</span></div>
+      <p class="sec-desc">Groupable, sortable, with an expandable detail row and a footer that closes the books.</p>
+      <div class="variants full">
+        <div class="variant">
+          <div class="vlabel"><i></i>Full table<span class="tag">Grouped + expandable</span></div>
+          <div class="vbody">
+            <div class="card flush">
+              <div style="overflow-x:auto">
+                <table class="tbl" style="min-width:860px">
+                  <thead>
+                    <tr>
+                      <th>Instrument</th><th>Qty</th><th>Avg cost</th><th>Last</th><th>Day</th>
+                      <th>Market value</th><th>Weight</th><th>Unrealized P&amp;L</th><th>30d</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="grp"><td colspan="9"><span class="symdot" style="background:#8B7CFF;display:inline-block;margin-right:8px"></span>Equity<span style="float:right;text-transform:none;letter-spacing:0;font-weight:500;color:var(--dim)">8 positions · $632,880 · 55.3%</span></td></tr>
+                    <tr class="row">
+                      <td><div class="symcell"><span class="symdot" style="background:#8B7CFF"></span><div><div class="sym">NVDA</div><div class="nm">NVIDIA Corp.</div></div></div></td>
+                      <td>310</td><td class="dim">61.40</td><td>138.07</td>
+                      <td class="up">+2.41%</td><td style="font-weight:600">$42,801</td><td>3.7%</td>
+                      <td class="up">+$23,768<div style="font-size:10.5px;color:var(--dim)">+124.9%</div></td>
+                      <td><svg data-spark="100,104,101,110,118,115,126,131,128,140,148,152" data-color="#3FD68C" data-w="66" data-h="20"></svg></td>
+                    </tr>
+                    <tr class="row open">
+                      <td><div class="symcell"><span class="symdot" style="background:#8B7CFF"></span><div><div class="sym">AAPL</div><div class="nm">Apple Inc.</div></div></div></td>
+                      <td>420</td><td class="dim">158.22</td><td>227.52</td>
+                      <td class="up">+0.82%</td><td style="font-weight:600">$95,558</td><td>8.4%</td>
+                      <td class="up">+$29,106<div style="font-size:10.5px;color:var(--dim)">+43.8%</div></td>
+                      <td><svg data-spark="100,102,105,103,108,112,110,116,120,118,124,131" data-color="#3FD68C" data-w="66" data-h="20"></svg></td>
+                    </tr>
+                    <tr class="detail"><td colspan="9">
+                      <div class="detail-grid">
+                        <div>
+                          <h5>Cost basis lots</h5>
+                          <div class="lot"><span class="num">180 sh</span><span class="num">@ 142.10</span><span class="dim num">Mar 12, 2024</span></div>
+                          <div class="lot"><span class="num">150 sh</span><span class="num">@ 168.45</span><span class="dim num">Aug 04, 2024</span></div>
+                          <div class="lot"><span class="num">90 sh</span><span class="num">@ 172.20</span><span class="dim num">Jan 22, 2025</span></div>
+                        </div>
+                        <div>
+                          <h5>Position detail</h5>
+                          <div class="dkv"><span>Cost basis</span><span class="num">$66,452</span></div>
+                          <div class="dkv"><span>Market value</span><span class="num">$95,558</span></div>
+                          <div class="dkv"><span>Realized (life)</span><span class="num up">+$3,241</span></div>
+                          <div class="dkv"><span>Weight</span><span class="num">8.35%</span></div>
+                          <div class="dkv"><span>Risk contribution</span><span class="num">6.2%</span></div>
+                        </div>
+                        <div>
+                          <h5>Linked coverage</h5>
+                          <div class="news-a" style="padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.055)">
+                            <span class="b"></span>
+                            <div><div class="t" style="font-size:11.5px">Services margin hits record as on-device AI rollout widens</div><div class="m">Reuters · 2h ago</div></div>
+                          </div>
+                          <div class="news-a" style="padding:6px 0;border-bottom:0">
+                            <span class="b" style="background:#5EEAD4"></span>
+                            <div><div class="t" style="font-size:11.5px">Analysts raise cloud capex forecasts for the next two quarters</div><div class="m">Bloomberg · 6h ago</div></div>
+                          </div>
+                        </div>
+                      </div>
+                    </td></tr>
+                    <tr class="row">
+                      <td><div class="symcell"><span class="symdot" style="background:#8B7CFF"></span><div><div class="sym">TSLA</div><div class="nm">Tesla Inc.</div></div></div></td>
+                      <td>150</td><td class="dim">244.80</td><td>218.44</td>
+                      <td class="down">−3.18%</td><td style="font-weight:600">$32,766</td><td>2.9%</td>
+                      <td class="down">−$3,954<div style="font-size:10.5px;color:var(--dim)">−10.8%</div></td>
+                      <td><svg data-spark="120,118,122,116,114,119,115,110,112,108,105,102" data-color="#FF5C7A" data-w="66" data-h="20"></svg></td>
+                    </tr>
+                    <tr class="sub"><td colspan="5">Subtotal — Equity</td><td>$632,880</td><td>55.3%</td><td class="up">+$186,220</td><td></td></tr>
+                    <tr class="grp"><td colspan="9"><span class="symdot" style="background:#5EEAD4;display:inline-block;margin-right:8px"></span>ETF<span style="float:right;text-transform:none;letter-spacing:0;font-weight:500;color:var(--dim)">4 positions · $351,940 · 30.8%</span></td></tr>
+                    <tr class="row">
+                      <td><div class="symcell"><span class="symdot" style="background:#5EEAD4"></span><div><div class="sym">VTI</div><div class="nm">Vanguard Total Stock Market</div></div></div></td>
+                      <td>260</td><td class="dim">218.90</td><td>282.14</td>
+                      <td class="up">+0.42%</td><td style="font-weight:600">$73,356</td><td>6.4%</td>
+                      <td class="up">+$16,442<div style="font-size:10.5px;color:var(--dim)">+28.9%</div></td>
+                      <td><svg data-spark="100,103,101,106,110,108,114,118,116,122,128,133" data-color="#3FD68C" data-w="66" data-h="20"></svg></td>
+                    </tr>
+                    <tr class="row">
+                      <td><div class="symcell"><span class="symdot" style="background:#5EEAD4"></span><div><div class="sym">TLT</div><div class="nm">iShares 20+ Yr Treasury</div></div></div></td>
+                      <td>400</td><td class="dim">96.70</td><td>88.15</td>
+                      <td class="down">−0.62%</td><td style="font-weight:600">$35,260</td><td>3.1%</td>
+                      <td class="down">−$3,420<div style="font-size:10.5px;color:var(--dim)">−8.8%</div></td>
+                      <td><svg data-spark="115,113,116,112,110,111,107,105,103,101,99,97" data-color="#FF5C7A" data-w="66" data-h="20"></svg></td>
+                    </tr>
+                    <tr class="sub"><td colspan="5">Subtotal — ETF</td><td>$351,940</td><td>30.8%</td><td class="up">+$62,180</td><td></td></tr>
+                    <tr class="grp"><td colspan="9"><span class="symdot" style="background:#FFB454;display:inline-block;margin-right:8px"></span>Crypto<span style="float:right;text-transform:none;letter-spacing:0;font-weight:500;color:var(--dim)">2 positions · $75,187 · 6.6%</span></td></tr>
+                    <tr class="row">
+                      <td><div class="symcell"><span class="symdot" style="background:#FFB454"></span><div><div class="sym">BTC</div><div class="nm">Bitcoin</div></div></div></td>
+                      <td>2.4</td><td class="dim">42,800</td><td>96,420</td>
+                      <td class="up">+3.24%</td><td style="font-weight:600">$231,408</td><td>20.2%</td>
+                      <td class="up">+$128,688<div style="font-size:10.5px;color:var(--dim)">+125.3%</div></td>
+                      <td><svg data-spark="100,108,112,110,120,128,124,136,144,140,152,164" data-color="#3FD68C" data-w="66" data-h="20"></svg></td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr class="sub" style="border-top:1px solid var(--line-2)"><td colspan="5" style="padding:12px 12px;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim)">14 positions shown</td><td>$1,060,008</td><td>92.6%</td><td class="up">+$214,880</td><td></td></tr>
+                    <tr class="sub"><td colspan="5" style="color:var(--dim)">Cash &amp; equivalents</td><td>$84,320</td><td>7.4%</td><td class="dim">—</td><td></td></tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 14. STAT STRIP ==================== -->
+    <section class="sec" id="strip">
+      <div class="sec-h"><h2>StatStrip</h2><span class="idx">14</span></div>
+      <p class="sec-desc">Tiles for a dashboard, inline row for a performance header.</p>
+      <div class="variants wide">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Tile grid</span></div>
+          <div class="vbody">
+            <div class="strip">
+              <div class="t"><div class="l">TWR</div><div class="v up">+31.78%</div><div class="s">vs +17.42% bench</div></div>
+              <div class="t"><div class="l">MWR</div><div class="v up">+28.41%</div><div class="s">IRR, cash-flow adj.</div></div>
+              <div class="t"><div class="l">Volatility</div><div class="v">18.4%</div><div class="s">60d realised</div></div>
+              <div class="t"><div class="l">Sharpe</div><div class="v up">1.42</div><div class="s">rf = 4.30%</div></div>
+              <div class="t"><div class="l">Max DD</div><div class="v down">−14.8%</div><div class="s">38 days to trough</div></div>
+              <div class="t"><div class="l">Beta</div><div class="v">1.12</div><div class="s">R² = 0.86</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Inline row</span></div>
+          <div class="vbody">
+            <div class="strip-inline">
+              <div class="t"><div class="l">TWR</div><div class="v up">+31.78%</div></div>
+              <div class="t"><div class="l">Sharpe</div><div class="v up">1.42</div></div>
+              <div class="t"><div class="l">Vol</div><div class="v">18.4%</div></div>
+              <div class="t"><div class="l">Max DD</div><div class="v down">−14.8%</div></div>
+              <div class="t"><div class="l">Beta</div><div class="v">1.12</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 15. HEATMAP ==================== -->
+    <section class="sec" id="heat">
+      <div class="sec-h"><h2>MonthlyHeatmap</h2><span class="idx">15</span></div>
+      <p class="sec-desc">Calendar-year returns, color-scaled. Hover a cell for detail.</p>
+      <div class="variants full">
+        <div class="variant">
+          <div class="vlabel"><i></i>Heatmap</div>
+          <div class="vbody">
+            <div class="card">
+              <div class="heat">
+                <div></div>
+                <div class="hh">J</div><div class="hh">F</div><div class="hh">M</div><div class="hh">A</div><div class="hh">M</div><div class="hh">J</div>
+                <div class="hh">J</div><div class="hh">A</div><div class="hh">S</div><div class="hh">O</div><div class="hh">N</div><div class="hh">D</div>
+                <div class="hh" style="opacity:.7">YTD</div>
+
+                <div class="hy">2021</div>
+                <div class="hc" style="background:rgba(63,214,140,.4)">2.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.55)">3.1</div>
+                <div class="hc" style="background:rgba(63,214,140,.32)">1.8</div>
+                <div class="hc" style="background:rgba(63,214,140,.72)">4.6</div>
+                <div class="hc" style="background:rgba(255,92,122,.28)">−1.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.62)">3.9</div>
+                <div class="hc" style="background:rgba(63,214,140,.45)">2.7</div>
+                <div class="hc" style="background:rgba(255,92,122,.4)">−2.1</div>
+                <div class="hc" style="background:rgba(63,214,140,.22)">1.2</div>
+                <div class="hc" style="background:rgba(63,214,140,.85)">5.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.5)">3.0</div>
+                <div class="hc" style="background:rgba(63,214,140,.68)">4.2</div>
+                <div class="hc yt">+34.8%</div>
+
+                <div class="hy">2022</div>
+                <div class="hc" style="background:rgba(255,92,122,.62)">−4.2</div>
+                <div class="hc" style="background:rgba(255,92,122,.5)">−3.1</div>
+                <div class="hc" style="background:rgba(63,214,140,.4)">2.4</div>
+                <div class="hc" style="background:rgba(255,92,122,.78)">−5.8</div>
+                <div class="hc" style="background:rgba(255,92,122,.3)">−1.6</div>
+                <div class="hc" style="background:rgba(255,92,122,.85)">−6.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.55)">3.4</div>
+                <div class="hc" style="background:rgba(255,92,122,.44)">−2.6</div>
+                <div class="hc" style="background:rgba(255,92,122,.72)">−5.2</div>
+                <div class="hc" style="background:rgba(63,214,140,.62)">3.9</div>
+                <div class="hc" style="background:rgba(63,214,140,.32)">1.8</div>
+                <div class="hc" style="background:rgba(255,92,122,.38)">−2.1</div>
+                <div class="hc yt">−18.4%</div>
+
+                <div class="hy">2023</div>
+                <div class="hc" style="background:rgba(63,214,140,.72)">4.6</div>
+                <div class="hc" style="background:rgba(255,92,122,.28)">−1.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.85)">5.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.4)">2.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.62)">3.9</div>
+                <div class="hc" style="background:rgba(63,214,140,.55)">3.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.45)">2.7</div>
+                <div class="hc" style="background:rgba(255,92,122,.34)">−1.8</div>
+                <div class="hc" style="background:rgba(63,214,140,.32)">1.8</div>
+                <div class="hc" style="background:rgba(63,214,140,.5)">3.0</div>
+                <div class="hc" style="background:rgba(63,214,140,.92)">5.9</div>
+                <div class="hc" style="background:rgba(63,214,140,.68)">4.2</div>
+                <div class="hc yt">+38.2%</div>
+
+                <div class="hy">2024</div>
+                <div class="hc" style="background:rgba(63,214,140,.55)">3.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.78)">5.0</div>
+                <div class="hc" style="background:rgba(63,214,140,.62)">3.9</div>
+                <div class="hc" style="background:rgba(255,92,122,.44)">−2.6</div>
+                <div class="hc" style="background:rgba(63,214,140,.72)">4.6</div>
+                <div class="hc" style="background:rgba(63,214,140,.4)">2.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.85)">5.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.32)">1.8</div>
+                <div class="hc" style="background:rgba(63,214,140,.55)">3.4</div>
+                <div class="hc" style="background:rgba(255,92,122,.3)">−1.6</div>
+                <div class="hc" style="background:rgba(63,214,140,.78)">5.0</div>
+                <div class="hc" style="background:rgba(63,214,140,.62)">3.9</div>
+                <div class="hc yt">+42.6%</div>
+
+                <div class="hy">2025</div>
+                <div class="hc" style="background:rgba(63,214,140,.72)">4.6</div>
+                <div class="hc" style="background:rgba(63,214,140,.4)">2.4</div>
+                <div class="hc" style="background:rgba(255,92,122,.38)">−2.1</div>
+                <div class="hc" style="background:rgba(63,214,140,.62)">3.9</div>
+                <div class="hc" style="background:rgba(63,214,140,.85)">5.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.5)">3.0</div>
+                <div class="hc" style="background:rgba(63,214,140,.32)">1.8</div>
+                <div class="hc" style="background:rgba(63,214,140,.55)">3.4</div>
+                <div class="hc" style="background:rgba(63,214,140,.68)">4.2</div>
+                <div class="hc" style="background:rgba(63,214,140,.45)">2.7</div>
+                <div class="hc" style="background:rgba(63,214,140,.78)">5.0</div>
+                <div class="hc" style="background:rgba(63,214,140,.62)">3.9</div>
+                <div class="hc yt">+41.4%</div>
+
+                <div class="hy">2026</div>
+                <div class="hc" style="background:rgba(63,214,140,.68)">4.2</div>
+                <div class="hc" style="background:rgba(63,214,140,.5)">3.0</div>
+                <div class="hc" style="background:rgba(255,92,122,.34)">−1.8</div>
+                <div class="hc" style="background:rgba(255,255,255,.03);color:var(--dim)"></div>
+                <div class="hc" style="background:rgba(255,255,255,.03);color:var(--dim)"></div>
+                <div class="hc" style="background:rgba(255,255,255,.03);color:var(--dim)"></div>
+                <div class="hc" style="background:rgba(255,255,255,.03);color:var(--dim)"></div>
+                <div class="hc" style="background:rgba(255,255,255,.03);color:var(--dim)"></div>
+                <div class="hc" style="background:rgba(255,255,255,.03);color:var(--dim)"></div>
+                <div class="hc" style="background:rgba(255,255,255,.03);color:var(--dim)"></div>
+                <div class="hc" style="background:rgba(255,255,255,.03);color:var(--dim)"></div>
+                <div class="hc" style="background:rgba(255,255,255,.03);color:var(--dim)"></div>
+                <div class="hc yt">+5.4%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 16. FACTOR BARS ==================== -->
+    <section class="sec" id="factor">
+      <div class="sec-h"><h2>FactorBars</h2><span class="idx">16</span></div>
+      <p class="sec-desc">Diverging from center for signed exposures, left-aligned magnitude for absolute.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Diverging</span></div>
+          <div class="vbody">
+            <div class="card">
+              <div class="fbar"><span class="n">Momentum</span><div class="ftrack"><div class="ffill" style="left:50%;width:21%;background:linear-gradient(90deg,#3FD68C,#5EEAD4)"></div></div><span class="v up">+0.42</span></div>
+              <div class="fbar"><span class="n">Quality</span><div class="ftrack"><div class="ffill" style="left:50%;width:16%;background:linear-gradient(90deg,#3FD68C,#5EEAD4)"></div></div><span class="v up">+0.31</span></div>
+              <div class="fbar"><span class="n">Growth</span><div class="ftrack"><div class="ffill" style="left:50%;width:34%;background:linear-gradient(90deg,#3FD68C,#5EEAD4)"></div></div><span class="v up">+0.68</span></div>
+              <div class="fbar"><span class="n">Size</span><div class="ftrack"><div class="ffill" style="right:50%;width:12%;background:linear-gradient(270deg,#FF5C7A,#FF7BA9)"></div></div><span class="v down">−0.24</span></div>
+              <div class="fbar"><span class="n">Value</span><div class="ftrack"><div class="ffill" style="right:50%;width:26%;background:linear-gradient(270deg,#FF5C7A,#FF7BA9)"></div></div><span class="v down">−0.51</span></div>
+              <div class="fbar"><span class="n">Low vol</span><div class="ftrack"><div class="ffill" style="right:50%;width:19%;background:linear-gradient(270deg,#FF5C7A,#FF7BA9)"></div></div><span class="v down">−0.37</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Magnitude</span></div>
+          <div class="vbody">
+            <div class="card">
+              <div class="fbar2"><span class="n">Growth</span><div class="ftrack2"><div class="ffill2" style="width:68%;background:linear-gradient(90deg,#3FD68C,#5EEAD4)"></div></div><span class="v up">+0.68</span></div>
+              <div class="fbar2"><span class="n">Momentum</span><div class="ftrack2"><div class="ffill2" style="width:42%;background:linear-gradient(90deg,#3FD68C,#5EEAD4)"></div></div><span class="v up">+0.42</span></div>
+              <div class="fbar2"><span class="n">Quality</span><div class="ftrack2"><div class="ffill2" style="width:31%;background:linear-gradient(90deg,#3FD68C,#5EEAD4)"></div></div><span class="v up">+0.31</span></div>
+              <div class="fbar2"><span class="n">Size</span><div class="ftrack2"><div class="ffill2" style="width:24%;background:linear-gradient(90deg,#FF5C7A,#FF7BA9)"></div></div><span class="v down">−0.24</span></div>
+              <div class="fbar2"><span class="n">Low vol</span><div class="ftrack2"><div class="ffill2" style="width:37%;background:linear-gradient(90deg,#FF5C7A,#FF7BA9)"></div></div><span class="v down">−0.37</span></div>
+              <div class="fbar2"><span class="n">Value</span><div class="ftrack2"><div class="ffill2" style="width:51%;background:linear-gradient(90deg,#FF5C7A,#FF7BA9)"></div></div><span class="v down">−0.51</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 17. SCENARIOS ==================== -->
+    <section class="sec" id="scenarios">
+      <div class="sec-h"><h2>Scenarios</h2><span class="idx">17</span></div>
+      <p class="sec-desc">Stress-test list. Diverging bars for signed impact, plain rows for a compact table read.</p>
+      <div class="variants wide">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Diverging bars</span></div>
+          <div class="vbody">
+            <div class="card">
+              <div class="scen">
+                <div class="scen-row"><div class="n">Broad market −10%<span>Beta-adjusted, 1-day shock</span></div><div class="scen-bar"><i style="right:50%;width:50%;background:linear-gradient(270deg,#FF5C7A,#FF7BA9)"></i></div><div class="v down">−$79,200</div></div>
+                <div class="scen-row"><div class="n">Tech selloff −15%<span>Semis + software + QQQ</span></div><div class="scen-bar"><i style="right:50%;width:61%;background:linear-gradient(270deg,#FF5C7A,#FF7BA9)"></i></div><div class="v down">−$96,400</div></div>
+                <div class="scen-row"><div class="n">Rates +100 bps<span>Duration &amp; growth de-rating</span></div><div class="scen-bar"><i style="right:50%;width:12%;background:linear-gradient(270deg,#FF5C7A,#FF7BA9)"></i></div><div class="v down">−$18,600</div></div>
+                <div class="scen-row"><div class="n">Crypto winter −40%<span>BTC + ETH only</span></div><div class="scen-bar"><i style="right:50%;width:74%;background:linear-gradient(270deg,#FF5C7A,#FF7BA9)"></i></div><div class="v down">−$117,200</div></div>
+                <div class="scen-row"><div class="n">Soft landing +8%<span>Risk-on rally</span></div><div class="scen-bar"><i style="left:50%;width:39%;background:linear-gradient(90deg,#3FD68C,#5EEAD4)"></i></div><div class="v up">+$61,800</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Compact rows</span></div>
+          <div class="vbody">
+            <div class="card">
+              <div style="display:flex;flex-direction:column">
+                <div style="display:grid;grid-template-columns:1fr 90px;gap:12px;padding:9px 6px;border-bottom:1px solid var(--line);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700">
+                  <span>Scenario</span><span style="text-align:right">Impact</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 90px;gap:12px;padding:9px 6px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.04)"><span>Broad market −10%</span><span class="num down" style="text-align:right;font-weight:600">−$79,200</span></div>
+                <div style="display:grid;grid-template-columns:1fr 90px;gap:12px;padding:9px 6px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.04)"><span>Tech selloff −15%</span><span class="num down" style="text-align:right;font-weight:600">−$96,400</span></div>
+                <div style="display:grid;grid-template-columns:1fr 90px;gap:12px;padding:9px 6px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.04)"><span>Rates +100 bps</span><span class="num down" style="text-align:right;font-weight:600">−$18,600</span></div>
+                <div style="display:grid;grid-template-columns:1fr 90px;gap:12px;padding:9px 6px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.04)"><span>Crypto winter −40%</span><span class="num down" style="text-align:right;font-weight:600">−$117,200</span></div>
+                <div style="display:grid;grid-template-columns:1fr 90px;gap:12px;padding:9px 6px;font-size:12px"><span>Soft landing +8%</span><span class="num up" style="text-align:right;font-weight:600">+$61,800</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 18. CORRELATION ==================== -->
+    <section class="sec" id="corr">
+      <div class="sec-h"><h2>CorrelationMatrix</h2><span class="idx">18</span></div>
+      <p class="sec-desc">Top holdings, 90-day daily returns. Color intensity carries the value.</p>
+      <div class="variants">
+        <div class="variant" style="grid-column:span 2">
+          <div class="vlabel"><i></i>Matrix</div>
+          <div class="vbody">
+            <div class="card">
+              <div class="matrix" style="grid-template-columns:34px repeat(6,1fr);max-width:520px">
+                <div></div>
+                <div class="mhead">BTC</div><div class="mhead">AAPL</div><div class="mhead">MSFT</div><div class="mhead">VTI</div><div class="mhead">QQQ</div><div class="mhead">ETH</div>
+                <div class="mrow">BTC</div>
+                <div class="mcell" style="background:rgba(255,255,255,.055);color:rgba(255,255,255,.72)">1.00</div>
+                <div class="mcell" style="background:rgba(139,124,255,.28);color:rgba(255,255,255,.72)">.31</div>
+                <div class="mcell" style="background:rgba(139,124,255,.26);color:rgba(255,255,255,.72)">.29</div>
+                <div class="mcell" style="background:rgba(139,124,255,.33);color:rgba(255,255,255,.72)">.38</div>
+                <div class="mcell" style="background:rgba(139,124,255,.30);color:rgba(255,255,255,.72)">.34</div>
+                <div class="mcell" style="background:rgba(139,124,255,.27);color:rgba(255,255,255,.72)">.30</div>
+
+                <div class="mrow">AAPL</div>
+                <div class="mcell" style="background:rgba(139,124,255,.28);color:rgba(255,255,255,.72)">.31</div>
+                <div class="mcell" style="background:rgba(255,255,255,.055);color:rgba(255,255,255,.72)">1.00</div>
+                <div class="mcell" style="background:rgba(139,124,255,.62);color:#fff">.72</div>
+                <div class="mcell" style="background:rgba(139,124,255,.67);color:#fff">.78</div>
+                <div class="mcell" style="background:rgba(139,124,255,.73);color:#fff">.86</div>
+                <div class="mcell" style="background:rgba(139,124,255,.54);color:#fff">.63</div>
+
+                <div class="mrow">MSFT</div>
+                <div class="mcell" style="background:rgba(139,124,255,.26);color:rgba(255,255,255,.72)">.29</div>
+                <div class="mcell" style="background:rgba(139,124,255,.62);color:#fff">.72</div>
+                <div class="mcell" style="background:rgba(255,255,255,.055);color:rgba(255,255,255,.72)">1.00</div>
+                <div class="mcell" style="background:rgba(139,124,255,.69);color:#fff">.81</div>
+                <div class="mcell" style="background:rgba(139,124,255,.75);color:#fff">.88</div>
+                <div class="mcell" style="background:rgba(139,124,255,.61);color:#fff">.71</div>
+
+                <div class="mrow">VTI</div>
+                <div class="mcell" style="background:rgba(139,124,255,.33);color:rgba(255,255,255,.72)">.38</div>
+                <div class="mcell" style="background:rgba(139,124,255,.67);color:#fff">.78</div>
+                <div class="mcell" style="background:rgba(139,124,255,.69);color:#fff">.81</div>
+                <div class="mcell" style="background:rgba(255,255,255,.055);color:rgba(255,255,255,.72)">1.00</div>
+                <div class="mcell" style="background:rgba(139,124,255,.79);color:#fff">.92</div>
+                <div class="mcell" style="background:rgba(139,124,255,.63);color:#fff">.74</div>
+
+                <div class="mrow">QQQ</div>
+                <div class="mcell" style="background:rgba(139,124,255,.30);color:rgba(255,255,255,.72)">.34</div>
+                <div class="mcell" style="background:rgba(139,124,255,.73);color:#fff">.86</div>
+                <div class="mcell" style="background:rgba(139,124,255,.75);color:#fff">.88</div>
+                <div class="mcell" style="background:rgba(139,124,255,.79);color:#fff">.92</div>
+                <div class="mcell" style="background:rgba(255,255,255,.055);color:rgba(255,255,255,.72)">1.00</div>
+                <div class="mcell" style="background:rgba(139,124,255,.68);color:#fff">.79</div>
+
+                <div class="mrow">ETH</div>
+                <div class="mcell" style="background:rgba(139,124,255,.27);color:rgba(255,255,255,.72)">.30</div>
+                <div class="mcell" style="background:rgba(139,124,255,.54);color:#fff">.63</div>
+                <div class="mcell" style="background:rgba(139,124,255,.61);color:#fff">.71</div>
+                <div class="mcell" style="background:rgba(139,124,255,.63);color:#fff">.74</div>
+                <div class="mcell" style="background:rgba(139,124,255,.68);color:#fff">.79</div>
+                <div class="mcell" style="background:rgba(255,255,255,.055);color:rgba(255,255,255,.72)">1.00</div>
+              </div>
+              <div style="margin-top:12px;font-size:11px;color:var(--dim);line-height:1.5">
+                Equity sleeve is highly internally correlated (VTI↔QQQ 0.92). BTC remains the only meaningful diversifier at 0.30–0.38.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 19. RISK CONTRIBUTION ==================== -->
+    <section class="sec" id="risk">
+      <div class="sec-h"><h2>RiskContribution</h2><span class="idx">19</span></div>
+      <p class="sec-desc">Bar with weight overlay, or dual bars for weight vs risk side by side.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Bar + weight text</span></div>
+          <div class="vbody">
+            <div class="card">
+              <div class="rc"><span class="n"><span class="symdot" style="background:#FFB454"></span>BTC</span><div class="ftrack2" style="height:8px"><div class="ffill2" style="width:100%;background:linear-gradient(90deg,#FFB454,#FFB45455)"></div></div><span class="v">33.2% <span class="dim" style="font-weight:500">/ 20.2%</span></span></div>
+              <div class="rc"><span class="n"><span class="symdot" style="background:#FFB454"></span>ETH</span><div class="ftrack2" style="height:8px"><div class="ffill2" style="width:62%;background:linear-gradient(90deg,#FFB454,#FFB45455)"></div></div><span class="v">20.5% <span class="dim" style="font-weight:500">/ 5.4%</span></span></div>
+              <div class="rc"><span class="n"><span class="symdot" style="background:#8B7CFF"></span>NVDA</span><div class="ftrack2" style="height:8px"><div class="ffill2" style="width:41%;background:linear-gradient(90deg,#8B7CFF,#8B7CFF55)"></div></div><span class="v">13.6% <span class="dim" style="font-weight:500">/ 3.7%</span></span></div>
+              <div class="rc"><span class="n"><span class="symdot" style="background:#8B7CFF"></span>TSLA</span><div class="ftrack2" style="height:8px"><div class="ffill2" style="width:28%;background:linear-gradient(90deg,#8B7CFF,#8B7CFF55)"></div></div><span class="v">9.3% <span class="dim" style="font-weight:500">/ 2.9%</span></span></div>
+              <div class="rc"><span class="n"><span class="symdot" style="background:#8B7CFF"></span>AAPL</span><div class="ftrack2" style="height:8px"><div class="ffill2" style="width:19%;background:linear-gradient(90deg,#8B7CFF,#8B7CFF55)"></div></div><span class="v">6.2% <span class="dim" style="font-weight:500">/ 8.4%</span></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Dual bars</span></div>
+          <div class="vbody">
+            <div class="card">
+              <div style="font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:8px">Weight vs risk</div>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <div style="display:grid;grid-template-columns:46px 1fr;gap:9px;align-items:center">
+                  <span style="font-size:11.5px;font-weight:600">BTC</span>
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <div class="ftrack2" style="height:5px"><div class="ffill2" style="width:20.2%;background:#8B7CFF"></div></div>
+                    <div class="ftrack2" style="height:5px"><div class="ffill2" style="width:33.2%;background:#FF5C7A"></div></div>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:46px 1fr;gap:9px;align-items:center">
+                  <span style="font-size:11.5px;font-weight:600">ETH</span>
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <div class="ftrack2" style="height:5px"><div class="ffill2" style="width:5.4%;background:#8B7CFF"></div></div>
+                    <div class="ftrack2" style="height:5px"><div class="ffill2" style="width:20.5%;background:#FF5C7A"></div></div>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:46px 1fr;gap:9px;align-items:center">
+                  <span style="font-size:11.5px;font-weight:600">NVDA</span>
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <div class="ftrack2" style="height:5px"><div class="ffill2" style="width:3.7%;background:#8B7CFF"></div></div>
+                    <div class="ftrack2" style="height:5px"><div class="ffill2" style="width:13.6%;background:#FF5C7A"></div></div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;gap:14px;margin-top:12px;font-size:11px;color:var(--dim)">
+                <span style="display:flex;align-items:center;gap:5px"><i style="width:8px;height:5px;border-radius:2px;background:#8B7CFF;display:block"></i>Weight</span>
+                <span style="display:flex;align-items:center;gap:5px"><i style="width:8px;height:5px;border-radius:2px;background:#FF5C7A;display:block"></i>Risk</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 20. EXPOSURE ==================== -->
+    <section class="sec" id="exposure">
+      <div class="sec-h"><h2>ExposureBreakdown</h2><span class="idx">20</span></div>
+      <p class="sec-desc">Stacked bar for a quick read, list rows when labels need more room.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Stacked bar</span></div>
+          <div class="vbody">
+            <div class="card">
+              <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:8px">Sector</div>
+              <div class="stackbar" style="height:12px">
+                <i style="width:22%;background:#8B7CFF"></i>
+                <i style="width:18%;background:#6EA8FE"></i>
+                <i style="width:14%;background:#5EEAD4"></i>
+                <i style="width:11%;background:#FF7BA9"></i>
+                <i style="width:9%;background:#FFB454"></i>
+                <i style="width:26%;background:#5A6272"></i>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:11px;flex-wrap:wrap;font-size:11px;color:var(--muted)">
+                <span>Tech 22%</span><span>Semis 18%</span><span>Financials 14%</span><span>Health 11%</span><span>Other 35%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">List rows</span></div>
+          <div class="vbody">
+            <div class="card">
+              <div class="fbar2" style="grid-template-columns:100px 1fr 46px"><span class="n">Technology</span><div class="ftrack2"><div class="ffill2" style="width:86%;background:#8B7CFF"></div></div><span class="v">38.2%</span></div>
+              <div class="fbar2" style="grid-template-columns:100px 1fr 46px"><span class="n">Semis</span><div class="ftrack2"><div class="ffill2" style="width:48%;background:#6EA8FE"></div></div><span class="v">21.4%</span></div>
+              <div class="fbar2" style="grid-template-columns:100px 1fr 46px"><span class="n">Financials</span><div class="ftrack2"><div class="ffill2" style="width:24%;background:#5EEAD4"></div></div><span class="v">10.8%</span></div>
+              <div class="fbar2" style="grid-template-columns:100px 1fr 46px"><span class="n">Healthcare</span><div class="ftrack2"><div class="ffill2" style="width:14%;background:#FF7BA9"></div></div><span class="v">6.2%</span></div>
+              <div class="fbar2" style="grid-template-columns:100px 1fr 46px"><span class="n">Digital assets</span><div class="ftrack2"><div class="ffill2" style="width:52%;background:#F7931A"></div></div><span class="v">23.2%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 21. CONCENTRATION ==================== -->
+    <section class="sec" id="concentration">
+      <div class="sec-h"><h2>ConcentrationMetrics</h2><span class="idx">21</span></div>
+      <p class="sec-desc">Simple tiles, or a gauge when a single number is the story.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Tiles</span></div>
+          <div class="vbody">
+            <div class="strip" style="grid-template-columns:repeat(3,1fr)">
+              <div class="t"><div class="l">Effective N</div><div class="v">4.8</div><div class="s">of 14 positions</div></div>
+              <div class="t"><div class="l">Herfindahl</div><div class="v">0.207</div><div class="s">moderate</div></div>
+              <div class="t"><div class="l">Diversification</div><div class="v" style="color:var(--amber)">62<span style="font-size:12px;color:var(--dim)">/100</span></div><div class="s">below target</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Gauge</span></div>
+          <div class="vbody">
+            <div class="card" style="display:flex;align-items:center;gap:20px">
+              <svg width="110" height="70" viewBox="0 0 110 70">
+                <path d="M10 60 A45 45 0 0 1 100 60" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="10" stroke-linecap="round"/>
+                <path d="M10 60 A45 45 0 0 1 100 60" fill="none" stroke="#FFB454" stroke-width="10" stroke-linecap="round"
+                      stroke-dasharray="62 141.4" transform="rotate(0)"/>
+              </svg>
+              <div>
+                <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700">Diversification</div>
+                <div class="num" style="font-size:30px;font-weight:600;letter-spacing:-.03em;margin-top:4px;color:var(--amber)">62<span style="font-size:14px;color:var(--dim)">/100</span></div>
+                <div style="font-size:11px;color:var(--dim);margin-top:3px">Target ≥ 75</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 22. IMPACT BADGE ==================== -->
+    <section class="sec" id="impact">
+      <div class="sec-h"><h2>ImpactBadge</h2><span class="idx">22</span></div>
+      <p class="sec-desc">The enrichment layer's signature. Inline chip for dense UI, banner for a featured cross-reference.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Inline chip</span></div>
+          <div class="vbody">
+            <div class="card" style="display:flex;flex-direction:column;gap:12px">
+              <div style="font-size:12.5px;line-height:1.5">Foundry lead times tighten again on advanced packaging demand</div>
+              <span class="ib-chip"><i></i>Affects 4.2% of your book</span>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Banner</span></div>
+          <div class="vbody">
+            <div class="ib-banner">
+              <div class="ic">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B7CFF" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12z"/></svg>
+              </div>
+              <div class="m">
+                <div class="t">NVDA moved +2.41% and is in your portfolio</div>
+                <div class="s">8th-largest position · 3.7% weight · earnings in 6 days</div>
+              </div>
+              <button class="btn">View</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 23. NOTE PIN ==================== -->
+    <section class="sec" id="note">
+      <div class="sec-h"><h2>NotePin</h2><span class="idx">23</span></div>
+      <p class="sec-desc">Personal notes attached to a holding, lot, or signal. Warm accent so it never reads as system data.</p>
+      <div class="variants">
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant A<span class="tag">Attached note</span></div>
+          <div class="vbody">
+            <div class="note">
+              <div class="t">Watching this one for a break above the 200-day. Will trim if it fails to hold $130 into earnings.</div>
+              <div class="m">Your note · 2 days ago</div>
+            </div>
+          </div>
+        </div>
+        <div class="variant">
+          <div class="vlabel"><i></i>Variant B<span class="tag">Compact</span></div>
+          <div class="vbody">
+            <div class="card" style="display:flex;gap:11px;align-items:flex-start">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--amber);margin-top:5px;flex:0 0 auto;box-shadow:0 0 10px rgba(255,180,84,.6)"></span>
+              <div style="font-size:12px;line-height:1.5;color:var(--muted)">Consider adding to TLT if 10Y holds above 4.6% — thesis depends on duration demand returning.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 24. DRAWER ==================== -->
+    <section class="sec" id="drawer">
+      <div class="sec-h"><h2>Drawer</h2><span class="idx">24</span></div>
+      <p class="sec-desc">Right-side panel for position detail, cross-reference, or transaction entry. Shown inline as a mock.</p>
+      <div class="variants full">
+        <div class="variant">
+          <div class="vlabel"><i></i>Position drawer</div>
+          <div class="vbody">
+            <div class="drawer-mock">
+              <div class="scrim"></div>
+              <div class="panel">
+                <div class="ph">
+                  <div class="av">NV</div>
+                  <div>
+                    <div class="n">NVDA</div>
+                    <div class="s">NVIDIA Corp. · Semiconductors</div>
+                  </div>
+                  <div class="x">×</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div class="mt-a"><div class="l">Market value</div><div class="v num" style="font-size:19px">$42,801</div></div>
+                  <div class="mt-a"><div class="l">Unrealized</div><div class="v num up" style="font-size:19px">+$23,768</div></div>
+                </div>
+                <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-top:4px">Recent coverage</div>
+                <div class="news-a" style="padding:5px 0;border-bottom:0">
+                  <span class="b"></span>
+                  <div><div class="t" style="font-size:11.5px">Foundry lead times tighten on advanced packaging demand</div><div class="m">DigiTimes · 1h ago</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ---- tiny sparkline renderer ---- */
+function pathFrom(vals, w, h, pad){
+  pad = pad || 2;
+  const mn = Math.min(...vals), mx = Math.max(...vals);
+  const X = i => (i / (vals.length - 1)) * w;
+  const Y = v => h - pad - ((v - mn) / ((mx - mn) || 1)) * (h - pad * 2);
+  return vals.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`);
+}
+
+document.querySelectorAll('[data-spark]').forEach(el => {
+  const vals = el.dataset.spark.split(',').map(Number);
+  const color = el.dataset.color || '#3FD68C';
+  const w = +el.dataset.w || 80, h = +el.dataset.h || 24;
+  const pts = pathFrom(vals, w, h, 3);
+  const id = 'g' + Math.random().toString(36).slice(2, 8);
+  el.outerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="${el.getAttribute('style') || ''}">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${color}" stop-opacity=".30"/>
+      <stop offset="1" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polygon points="${pts.join(' ')} ${w},${h} 0,${h}" fill="url(#${id})"/>
+    <polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/>
+  </svg>`;
+});
+
+document.querySelectorAll('[data-spark-bars]').forEach(el => {
+  const vals = el.dataset.sparkBars.split(',').map(Number);
+  const color = el.dataset.color || '#FF5C7A';
+  const w = +el.dataset.w || 80, h = +el.dataset.h || 24;
+  const mn = Math.min(...vals), mx = Math.max(...vals);
+  const bw = w / vals.length - 1.5;
+  let bars = '';
+  vals.forEach((v, i) => {
+    const bh = ((v - mn) / ((mx - mn) || 1)) * (h - 6) + 3;
+    const x = i * (bw + 1.5);
+    bars += `<rect x="${x.toFixed(1)}" y="${(h - bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="1.2" fill="${color}" opacity="${(0.4 + (i / vals.length) * 0.6).toFixed(2)}"/>`;
+  });
+  el.outerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="${el.getAttribute('style') || ''}">${bars}</svg>`;
+});
+
+document.querySelectorAll('[data-spark-dot]').forEach(el => {
+  const vals = el.dataset.sparkDot.split(',').map(Number);
+  const color = el.dataset.color || '#8B7CFF';
+  const w = +el.dataset.w || 80, h = +el.dataset.h || 24;
+  const pts = pathFrom(vals, w, h, 4);
+  const last = pts[pts.length - 1].split(',');
+  el.outerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="${el.getAttribute('style') || ''}">
+    <polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${last[0]}" cy="${last[1]}" r="3" fill="${color}" stroke="#0A0B0E" stroke-width="1.6"/>
+  </svg>`;
+});
+
+/* ---- sidebar active-on-scroll ---- */
+const links = [...document.querySelectorAll('.side a')];
+const secs = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting){
+      links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    }
+  });
+}, {rootMargin: '-20% 0px -70% 0px'});
+secs.forEach(s => io.observe(s));
+
+/* ---- interactive demo states (click to toggle) ---- */
+document.querySelectorAll('.rs-a button, .rs-b button, .rs-c button').forEach(b => {
+  b.addEventListener('click', () => {
+    b.parentElement.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+  });
+});
+document.querySelectorAll('.sc-a button, .sc-b button').forEach(b => {
+  b.addEventListener('click', () => {
+    b.parentElement.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+  });
+});
+</script>
+</body>
+</html>
