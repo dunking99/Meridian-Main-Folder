@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Meridian — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06080b; --bg2:#0a0e13; --panel:#0d1219; --panel2:#111823;
+  --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.13);
+  --tx:#e8edf4; --tx2:#8c97a8; --tx3:#59646f;
+  --up:#35d6a4; --dn:#ff5f6d; --gold:#e8b84b; --cy:#57d0ea; --vi:#9b8cff;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--tx);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:13px; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+body:before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(900px 500px at 12% -10%, rgba(232,184,75,.09), transparent 60%),
+    radial-gradient(800px 600px at 92% 0%, rgba(87,208,234,.07), transparent 60%),
+    radial-gradient(700px 700px at 60% 110%, rgba(155,140,255,.06), transparent 60%);
+}
+body:after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:52px 52px;
+  mask-image:radial-gradient(ellipse 100% 80% at 50% 0%,#000,transparent 75%);
+}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.up{color:var(--up)} .dn{color:var(--dn)}
+::selection{background:rgba(232,184,75,.3)}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#1d2632;border-radius:9px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ───── rail ───── */
+#rail{position:fixed;left:0;top:0;bottom:0;width:62px;z-index:40;
+  background:linear-gradient(180deg,#0a0e14,#070a0e);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
+.logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;margin-bottom:16px;
+  background:linear-gradient(145deg,#e8b84b,#a8761a);box-shadow:0 0 22px rgba(232,184,75,.35)}
+.logo svg{width:20px;height:20px}
+.rl{width:40px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--tx3);cursor:pointer;position:relative;transition:.18s}
+.rl:hover{color:var(--tx);background:rgba(255,255,255,.05)}
+.rl.on{color:#06080b;background:linear-gradient(145deg,#f0c964,#d9a534)}
+.rl.on:after{content:'';position:absolute;left:-12px;top:9px;width:3px;height:20px;border-radius:3px;background:var(--gold);box-shadow:0 0 12px var(--gold)}
+.rl svg{width:18px;height:18px}
+.tip{position:absolute;left:52px;background:#161e29;border:1px solid var(--line2);padding:5px 9px;border-radius:7px;
+  font-size:11px;white-space:nowrap;opacity:0;pointer-events:none;transform:translateX(-6px);transition:.15s;color:var(--tx);z-index:60}
+.rl:hover .tip{opacity:1;transform:none}
+
+/* ───── shell ───── */
+#shell{margin-left:62px;position:relative;z-index:1;min-height:100vh}
+header#top{position:sticky;top:0;z-index:30;backdrop-filter:blur(18px);
+  background:linear-gradient(180deg,rgba(6,8,11,.94),rgba(6,8,11,.78));border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:22px;padding:13px 26px 11px}
+.crumb{font-size:11px;color:var(--tx3);letter-spacing:.14em;text-transform:uppercase}
+.crumb b{color:var(--tx);font-weight:600}
+.hval{display:flex;align-items:baseline;gap:10px;margin-left:auto}
+.hval .v{font-size:19px;font-weight:600;letter-spacing:-.5px}
+.pill{padding:3px 8px;border-radius:99px;font-size:11.5px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.pill.p{background:rgba(53,214,164,.13);color:var(--up)} .pill.n{background:rgba(255,95,109,.13);color:var(--dn)}
+.live{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--tx2);letter-spacing:.1em;text-transform:uppercase}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--up);box-shadow:0 0 8px var(--up);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+nav#tabs{display:flex;gap:2px;padding:0 26px}
+.tab{padding:9px 15px 12px;font-size:12.5px;color:var(--tx2);cursor:pointer;position:relative;font-weight:500;letter-spacing:.02em;transition:.15s}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--tx)}
+.tab.on:after{content:'';position:absolute;left:8px;right:8px;bottom:0;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,var(--gold),#f3d489);box-shadow:0 0 14px rgba(232,184,75,.6)}
+main{padding:20px 26px 70px;max-width:1560px}
+
+/* ───── panels ───── */
+.grid{display:grid;gap:14px}
+.card{background:linear-gradient(170deg,rgba(21,28,38,.75),rgba(10,14,19,.85));border:1px solid var(--line);
+  border-radius:var(--r);position:relative;overflow:hidden}
+.card:before{content:'';position:absolute;top:0;left:14px;right:14px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent)}
+.ch{display:flex;align-items:center;gap:9px;padding:12px 15px 0}
+.ct{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--tx2);font-weight:600}
+.cs{font-size:10.5px;color:var(--tx3);margin-left:auto}
+.cb{padding:12px 15px 15px}
+.seg{display:flex;gap:1px;background:rgba(255,255,255,.05);border-radius:8px;padding:2px;margin-left:auto}
+.seg span{padding:3px 9px;border-radius:6px;font-size:10.5px;color:var(--tx2);cursor:pointer;transition:.15s;font-weight:500}
+.seg span.on{background:rgba(255,255,255,.1);color:var(--tx)}
+.lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3)}
+.big{font-size:26px;font-weight:600;letter-spacing:-1px}
+.hr{height:1px;background:var(--line);margin:11px 0}
+.tag{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:2.5px 7px;border-radius:5px;
+  border:1px solid var(--line2);color:var(--tx2)}
+.bar{height:5px;border-radius:5px;background:rgba(255,255,255,.07);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:5px;background:var(--gold);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+
+table{width:100%;border-collapse:collapse}
+th{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--tx3);font-weight:600;
+  text-align:right;padding:7px 9px;cursor:pointer;user-select:none;white-space:nowrap;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th:hover{color:var(--tx)}
+th.srt{color:var(--gold)}
+td{padding:8px 9px;text-align:right;border-bottom:1px solid rgba(255,255,255,.035);font-size:12px}
+tbody tr{cursor:pointer;transition:.12s}
+tbody tr:hover{background:rgba(255,255,255,.04)}
+.tk{font-weight:600;font-family:'JetBrains Mono',monospace;font-size:12px}
+.nm{font-size:10.5px;color:var(--tx3);margin-top:1px}
+
+#tip{position:fixed;z-index:99;pointer-events:none;opacity:0;transition:opacity .12s;
+  background:rgba(12,17,24,.97);border:1px solid var(--line2);border-radius:10px;padding:9px 11px;
+  font-size:11.5px;box-shadow:0 14px 40px rgba(0,0,0,.6);backdrop-filter:blur(8px);max-width:260px}
+#tip b{font-size:12.5px}
+.fade{animation:fade .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes fade{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.sub{display:flex;gap:6px;margin:0 0 16px;flex-wrap:wrap}
+.sb{padding:5px 12px;border-radius:99px;border:1px solid var(--line);font-size:11.5px;color:var(--tx2);cursor:pointer;transition:.15s;background:rgba(255,255,255,.02)}
+.sb:hover{color:var(--tx);border-color:var(--line2)}
+.sb.on{color:#06080b;background:linear-gradient(145deg,#f0c964,#dba832);border-color:transparent;font-weight:600}
+.kpi{padding:11px 13px;border-radius:11px;background:rgba(255,255,255,.028);border:1px solid var(--line)}
+.kpi .n{font-size:19px;font-weight:600;letter-spacing:-.4px;margin-top:5px}
+.flag{font-size:13px}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;border-radius:3px;background:rgba(255,255,255,.12);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--gold);cursor:pointer;box-shadow:0 0 0 4px rgba(232,184,75,.18)}
+</style>
+</head>
+<body>
+<div id="tip"></div>
+<aside id="rail">
+  <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#0a0d12" stroke-width="2.4" stroke-linecap="round"><path d="M3 18 L9 9 L14 14 L21 5"/></svg></div>
+  <div class="rl" data-n="Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="8" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="3" y="15" width="7" height="6" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/></svg><span class="tip">Dashboard</span></div>
+  <div class="rl on" data-n="Portfolio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span class="tip">Portfolio</span></div>
+  <div class="rl" data-n="Markets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 17l5-6 4 4 4-7 5 5"/></svg><span class="tip">Markets</span></div>
+  <div class="rl" data-n="News"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h6M7 13h10M7 17h7"/></svg><span class="tip">News</span></div>
+  <div class="rl" data-n="Screener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg><span class="tip">Screener</span></div>
+  <div class="rl" data-n="Journal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h12l4 4v12H4z"/><path d="M8 12h8M8 16h5"/></svg><span class="tip">Journal</span></div>
+  <div style="margin-top:auto" class="rl" data-n="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><span class="tip">Settings</span></div>
+</aside>
+
+<div id="shell">
+  <header id="top">
+    <div class="hrow">
+      <div class="crumb">Meridian <span style="opacity:.4">/</span> <b>Portfolio</b></div>
+      <div class="live"><span class="dot"></span> Live · <span id="clock" class="mono">—</span></div>
+      <div class="hval">
+        <span class="lbl">Net Liquidation</span>
+        <span class="v mono" id="hv">$0</span>
+        <span class="pill p mono" id="hp">+0.00%</span>
+        <svg id="hspark" width="120" height="30"></svg>
+      </div>
+    </div>
+    <nav id="tabs">
+      <div class="tab on" data-p="overview">Overview</div>
+      <div class="tab" data-p="holdings">Holdings</div>
+      <div class="tab" data-p="performance">Performance</div>
+      <div class="tab" data-p="analysis">Analysis</div>
+    </nav>
+  </header>
+  <main id="view"></main>
+</div>
+<script>
+/* ══════════════ DATA ══════════════ */
+const H=[
+ // tk, name, sector, region, country, flag, shares, price, cost, day%, ytd%, beta, pe, dy, lat, lon
+ ['NVDA','NVIDIA','Technology','N. America','United States','🇺🇸',420,131.4,58.2,2.31,68.4,1.72,48.2,0.03,37.37,-121.96],
+ ['MSFT','Microsoft','Technology','N. America','United States','🇺🇸',330,441.6,289.1,0.42,17.2,0.91,34.1,0.72,47.64,-122.13],
+ ['ASML','ASML Holding','Technology','Europe','Netherlands','🇳🇱',95,742.3,610.0,-1.14,-6.8,1.35,33.7,0.95,51.41,5.46],
+ ['TSM','TSMC','Technology','Asia-Pac','Taiwan','🇹🇼',760,188.9,101.4,1.85,41.3,1.18,26.4,1.28,24.77,121.0],
+ ['UNH','UnitedHealth','Healthcare','N. America','United States','🇺🇸',150,512.8,478.2,-0.38,-2.1,0.63,17.9,1.52,44.97,-93.27],
+ ['NOVO','Novo Nordisk','Healthcare','Europe','Denmark','🇩🇰',680,101.2,88.5,-2.05,-14.6,0.42,26.8,1.41,55.73,12.44],
+ ['JPM','JPMorgan Chase','Financials','N. America','United States','🇺🇸',290,241.5,158.9,0.71,23.7,1.09,13.2,2.05,40.75,-73.98],
+ ['V','Visa','Financials','N. America','United States','🇺🇸',210,308.4,232.1,0.19,12.4,0.94,30.1,0.74,37.79,-122.4],
+ ['LVMH','LVMH','Cons. Disc.','Europe','France','🇫🇷',105,648.0,712.4,-0.92,-9.4,1.24,22.6,2.18,48.87,2.31],
+ ['AMZN','Amazon','Cons. Disc.','N. America','United States','🇺🇸',380,213.7,141.3,1.02,28.9,1.15,42.8,0,47.62,-122.34],
+ ['COST','Costco','Cons. Staples','N. America','United States','🇺🇸',72,905.1,608.0,0.33,19.8,0.78,53.4,0.52,47.52,-122.17],
+ ['NESN','Nestlé','Cons. Staples','Europe','Switzerland','🇨🇭',620,82.4,97.1,-0.44,-11.2,0.51,17.4,3.42,46.50,6.67],
+ ['XOM','Exxon Mobil','Energy','N. America','United States','🇺🇸',340,118.2,96.4,1.44,7.9,0.87,13.8,3.31,32.78,-96.80],
+ ['EQNR','Equinor','Energy','Europe','Norway','🇳🇴',900,26.1,29.8,0.88,-5.2,0.95,8.4,5.62,58.97,5.73],
+ ['CAT','Caterpillar','Industrials','N. America','United States','🇺🇸',110,392.7,281.5,-0.61,11.6,1.08,17.1,1.44,40.09,-88.24],
+ ['SIE','Siemens','Industrials','Europe','Germany','🇩🇪',240,186.4,152.3,0.24,9.1,1.16,19.2,2.62,48.14,11.58],
+ ['BHP','BHP Group','Materials','Asia-Pac','Australia','🇦🇺',1400,52.8,58.4,-1.32,-8.7,1.02,11.6,5.14,-37.82,144.96],
+ ['SE','Sea Limited','Technology','Asia-Pac','Singapore','🇸🇬',430,104.3,61.7,3.12,52.1,1.94,71.2,0,1.29,103.85],
+ ['MELI','MercadoLibre','Cons. Disc.','LatAm','Argentina','🇦🇷',48,1842.0,1310.0,1.67,31.2,1.48,54.3,0,-34.60,-58.38],
+ ['SHOP','Shopify','Technology','N. America','Canada','🇨🇦',520,108.6,72.9,2.04,34.8,2.11,68.9,0,43.65,-79.38],
+].map(a=>{const o={tk:a[0],name:a[1],sec:a[2],reg:a[3],ctry:a[4],flag:a[5],sh:a[6],px:a[7],cost:a[8],d:a[9],ytd:a[10],beta:a[11],pe:a[12],dy:a[13],lat:a[14],lon:a[15]};
+ o.val=o.sh*o.px; o.cb=o.sh*o.cost; o.pl=o.val-o.cb; o.plp=(o.px/o.cost-1)*100; o.dval=o.val*o.d/100; return o;});
+const CASH=182400;
+const TOTV=H.reduce((s,h)=>s+h.val,0)+CASH;
+H.forEach(h=>h.w=h.val/TOTV*100);
+const DAYPL=H.reduce((s,h)=>s+h.dval,0);
+const TOTPL=H.reduce((s,h)=>s+h.pl,0);
+const SECC={'Technology':'#57d0ea','Healthcare':'#35d6a4','Financials':'#e8b84b','Cons. Disc.':'#9b8cff','Cons. Staples':'#f08fb4','Energy':'#ff9b54','Industrials':'#6ea8fe','Materials':'#8fd14f','Cash':'#4a5866'};
+const REGC={'N. America':'#e8b84b','Europe':'#57d0ea','Asia-Pac':'#9b8cff','LatAm':'#35d6a4'};
+
+/* deterministic pseudo-random */
+let _s=42; const rnd=()=>{_s=(_s*1103515245+12345)%2147483648;return _s/2147483648};
+// equity curve, 3y daily-ish (750 pts)
+const EQ=[],BM=[];{let v=100,b=100;for(let i=0;i<756;i++){const t=i/756;
+ const drift=.00072+.0004*Math.sin(t*7), sh=(rnd()-.5)*.019-(t>.55&&t<.66?.0038:0)+(t>.8?.0008:0);
+ v*=1+drift+sh; b*=1+.00048+ (rnd()-.5)*.013 - (t>.55&&t<.66?.0026:0);
+ EQ.push(v);BM.push(b);} }
+const NAVSERIES=EQ.map(v=>v/EQ[EQ.length-1]*TOTV);
+// monthly returns matrix 3y
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MR=[2023,2024,2025].map((y,yi)=>MONTHS.map((m,mi)=>{const k=yi*12+mi;const seg=EQ.slice(Math.floor(k*21),Math.floor((k+1)*21)+1);
+ return seg.length>1?(seg[seg.length-1]/seg[0]-1)*100:null;}));
+
+const EVENTS=[
+ {d:'Feb 04',t:'NVDA',k:'Earnings',n:'Q4 FY25 results, after close',imp:3,w:H.find(h=>h.tk==='NVDA').w},
+ {d:'Feb 06',t:'MSFT',k:'Ex-Dividend',n:'$0.83 per share',imp:1,w:H.find(h=>h.tk==='MSFT').w},
+ {d:'Feb 07',t:'MACRO',k:'US CPI',n:'Jan print · cons. 2.9% y/y',imp:3,w:0},
+ {d:'Feb 11',t:'ASML',k:'Investor Day',n:'2030 targets update',imp:2,w:H.find(h=>h.tk==='ASML').w},
+ {d:'Feb 13',t:'NOVO',k:'Earnings',n:'FY guidance in focus',imp:3,w:H.find(h=>h.tk==='NOVO').w},
+ {d:'Feb 18',t:'BHP',k:'Half-year',n:'Interim dividend decision',imp:2,w:H.find(h=>h.tk==='BHP').w},
+ {d:'Feb 20',t:'MACRO',k:'FOMC Minutes',n:'Jan meeting',imp:2,w:0},
+ {d:'Feb 25',t:'LVMH',k:'Ex-Dividend',n:'€7.50 per share',imp:1,w:H.find(h=>h.tk==='LVMH').w},
+];
+const NEWS=[
+ {t:'Taiwan foundry pricing to rise ~8% on advanced nodes in 2026',src:'Nikkei',ago:'18m',sent:1,hits:['TSM','NVDA','ASML'],exp:0,note:'Margin tailwind for TSM; input cost risk for NVDA.'},
+ {t:'EU opens antitrust probe into luxury retail distribution deals',src:'Reuters',ago:'1h',sent:-1,hits:['LVMH'],exp:0,note:'Headline risk only — no revenue at stake near-term.'},
+ {t:'GLP-1 supply constraints easing faster than guided, says analyst',src:'Bloomberg',ago:'2h',sent:1,hits:['NOVO'],exp:0,note:'Volume upside vs. consensus into Feb 13 print.'},
+ {t:'US Treasury 10y yield breaks 4.6% on hot services data',src:'FT',ago:'3h',sent:-1,hits:['SHOP','SE','MELI'],exp:0,note:'Long-duration growth names carry highest rate beta here.'},
+ {t:'Iron ore futures slide 4% as China steel output curbs extend',src:'Reuters',ago:'5h',sent:-1,hits:['BHP'],exp:0,note:'~64% of BHP EBITDA is iron ore.'},
+];
+NEWS.forEach(n=>n.exp=n.hits.reduce((s,t)=>{const h=H.find(x=>x.tk===t);return s+(h?h.w:0)},0));
+
+/* ══════════════ UTILS ══════════════ */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const fm=n=>'$'+Math.round(n).toLocaleString();
+const fmc=n=>{const a=Math.abs(n);return (n<0?'-$':'$')+(a>=1e6?(a/1e6).toFixed(2)+'M':a>=1e3?(a/1e3).toFixed(1)+'k':a.toFixed(0))};
+const pc=(n,d=2)=>(n>=0?'+':'')+n.toFixed(d)+'%';
+const cls=n=>n>=0?'up':'dn';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const lerp=(a,b,t)=>a+(b-a)*t;
+function path(pts){return pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')}
+function smooth(pts){if(pts.length<3)return path(pts);let d='M'+pts[0][0]+' '+pts[0][1];
+ for(let i=0;i<pts.length-1;i++){const p0=pts[i],p1=pts[i+1];const cx=(p0[0]+p1[0])/2;
+  d+=`C${cx} ${p0[1]},${cx} ${p1[1]},${p1[0].toFixed(1)} ${p1[1].toFixed(1)}`}return d}
+function scale(arr,w,h,pad=0){const mn=Math.min(...arr),mx=Math.max(...arr),r=(mx-mn)||1;
+ return arr.map((v,i)=>[i/(arr.length-1)*w,h-pad-(v-mn)/r*(h-pad*2)])}
+/* tooltip */
+const TIP=$('#tip');
+function tipOn(e,html){TIP.innerHTML=html;TIP.style.opacity=1;tipMove(e)}
+function tipMove(e){const r=TIP.getBoundingClientRect();let x=e.clientX+14,y=e.clientY+14;
+ if(x+r.width>innerWidth-10)x=e.clientX-r.width-14; if(y+r.height>innerHeight-10)y=e.clientY-r.height-14;
+ TIP.style.left=x+'px';TIP.style.top=y+'px'}
+function tipOff(){TIP.style.opacity=0}
+function bindTip(el,html){el.addEventListener('mouseenter',e=>tipOn(e,typeof html==='function'?html():html));
+ el.addEventListener('mousemove',tipMove);el.addEventListener('mouseleave',tipOff)}
+function svg(w,h,inner,extra=''){return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" preserveAspectRatio="none" ${extra}>${inner}</svg>`}
+function card(title,sub,body,style=''){return `<section class="card" style="${style}">
+  <div class="ch"><div class="ct">${title}</div>${sub?`<div class="cs">${sub}</div>`:''}</div><div class="cb">${body}</div></section>`}
+</script>
+<script>
+/* mini series per holding */
+const MS={};H.forEach((h,i)=>{let v=100,a=[];let s=i*97+13;const r=()=>{s=(s*1103515245+12345)%2147483648;return s/2147483648};
+ for(let k=0;k<40;k++){v*=1+h.ytd/100/60+(r()-.5)*.035;a.push(v)}MS[h.tk]=a});
+function spark(tk,w=64,hh=20,col){const a=MS[tk],p=scale(a,w,hh,2),up=a[a.length-1]>=a[0];
+ return `<svg width="${w}" height="${hh}" style="display:block"><path d="${smooth(p)}" fill="none" stroke="${col||(up?'var(--up)':'var(--dn)')}" stroke-width="1.4" stroke-linejoin="round"/></svg>`}
+
+/* ══ RANGES ══ */
+const RANGES={'1M':21,'3M':63,'6M':126,'YTD':252,'1Y':252,'3Y':756};
+let curRange='1Y';
+
+function equityChart(range){
+ const n=Math.min(RANGES[range],EQ.length),W=900,Hh=250;
+ const e=EQ.slice(-n),b=BM.slice(-n);
+ const e0=e[0],b0=b[0];
+ const en=e.map(v=>v/e0*100),bn=b.map(v=>v/b0*100);
+ const all=[...en,...bn],mn=Math.min(...all),mx=Math.max(...all),pad=(mx-mn)*.12;
+ const y=v=>Hh-14-((v-mn+pad)/((mx-mn)+pad*2))*(Hh-30);
+ const x=i=>i/(en.length-1)*W;
+ const pe=en.map((v,i)=>[x(i),y(v)]),pb=bn.map((v,i)=>[x(i),y(v)]);
+ const grid=[0,.25,.5,.75,1].map(t=>{const v=mn-pad+t*((mx-mn)+pad*2);
+   return `<line x1="0" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(255,255,255,.055)" stroke-width="1"/>
+   <text x="4" y="${y(v)-4}" fill="#59646f" font-size="9" font-family="JetBrains Mono">${v.toFixed(0)}</text>`}).join('');
+ const ret=(en[en.length-1]-100),bret=(bn[bn.length-1]-100);
+ return `<div style="position:relative">
+ <svg viewBox="0 0 ${W} ${Hh}" width="100%" height="250" preserveAspectRatio="none" id="eqsvg">
+  <defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
+   <stop offset="0" stop-color="#e8b84b" stop-opacity=".30"/><stop offset="1" stop-color="#e8b84b" stop-opacity="0"/></linearGradient>
+   <filter id="glw"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  ${grid}
+  <path d="${smooth(pb)}" fill="none" stroke="#5b6675" stroke-width="1.3" stroke-dasharray="4 4"/>
+  <path d="${smooth(pe)} L${W} ${Hh} L0 ${Hh} Z" fill="url(#ga)"/>
+  <path d="${smooth(pe)}" fill="none" stroke="#e8b84b" stroke-width="2" filter="url(#glw)" stroke-linejoin="round"/>
+  <circle cx="${x(en.length-1)}" cy="${y(en[en.length-1])}" r="3.5" fill="#e8b84b" filter="url(#glw)"/>
+  <g id="eqcross" style="opacity:0"><line id="eqvl" y1="0" y2="${Hh}" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+   <circle id="eqd1" r="4" fill="#e8b84b" stroke="#06080b" stroke-width="2"/><circle id="eqd2" r="3.5" fill="#8b95a4" stroke="#06080b" stroke-width="2"/></g>
+ </svg>
+ <div style="display:flex;gap:18px;margin-top:6px;align-items:center">
+  <span style="display:flex;gap:6px;align-items:center;font-size:11px"><i style="width:14px;height:2px;background:#e8b84b;display:block"></i>Meridian <b class="mono ${cls(ret)}">${pc(ret)}</b></span>
+  <span style="display:flex;gap:6px;align-items:center;font-size:11px;color:var(--tx2)"><i style="width:14px;height:0;border-top:2px dashed #5b6675;display:block"></i>MSCI ACWI <b class="mono ${cls(bret)}">${pc(bret)}</b></span>
+  <span style="margin-left:auto;font-size:11px;color:var(--tx2)">Excess <b class="mono ${cls(ret-bret)}">${pc(ret-bret)}</b></span>
+ </div></div>`;
+}
+
+/* ══ HEALTH RING ══ */
+function ring(score,size=104){
+ const r=size/2-9,c=2*Math.PI*r,o=c*(1-score/100);
+ const col=score>70?'#35d6a4':score>45?'#e8b84b':'#ff5f6d';
+ return `<svg width="${size}" height="${size}" style="transform:rotate(-90deg)">
+  <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="7"/>
+  <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round"
+   stroke-dasharray="${c}" stroke-dashoffset="${c}" style="filter:drop-shadow(0 0 7px ${col}80)">
+   <animate attributeName="stroke-dashoffset" from="${c}" to="${o}" dur="1.2s" fill="freeze" calcMode="spline" keySplines=".2 .8 .2 1"/></circle></svg>`}
+
+const HEALTH=[
+ {k:'Diversification',v:64,d:'Top-5 names are 38% of book. Healthy band is < 35%.'},
+ {k:'Volatility',v:71,d:'Realised 30d vol 14.8% vs 3y avg 16.2%.'},
+ {k:'Drawdown room',v:82,d:'4.1% below peak. Max historical DD 18.6%.'},
+ {k:'Liquidity',v:93,d:'Cash 3.9% + all positions exit < 1 day ADV.'},
+ {k:'Factor balance',v:48,d:'Heavy growth + momentum tilt; little value ballast.'},
+ {k:'Currency hedge',v:57,d:'41% non-USD exposure, unhedged.'},
+];
+const HSCORE=Math.round(HEALTH.reduce((s,x)=>s+x.v,0)/HEALTH.length);
+
+/* ══ DONUT ══ */
+let allocMode='sec';
+function allocData(mode){
+ const m={};H.forEach(h=>{const k=mode==='sec'?h.sec:mode==='reg'?h.reg:h.tk;m[k]=(m[k]||0)+h.val});
+ if(mode!=='tk')m['Cash']=CASH;
+ let a=Object.entries(m).map(([k,v])=>({k,v,p:v/TOTV*100}));
+ a.sort((x,y)=>y.v-x.v); if(mode==='tk')a=a.slice(0,10);
+ a.forEach(x=>x.c=mode==='reg'?(REGC[x.k]||'#4a5866'):(SECC[x.k]||['#57d0ea','#35d6a4','#e8b84b','#9b8cff','#f08fb4','#ff9b54','#6ea8fe','#8fd14f','#57d0ea','#35d6a4'][a.indexOf(x)]));
+ return a}
+function donut(){
+ const a=allocData(allocMode),S=210,R=88,r0=60;let ang=-Math.PI/2,seg='';
+ a.forEach((d,i)=>{const sw=d.p/100*2*Math.PI,e=ang+sw-.012;
+  const p=(rad,t)=>[S/2+Math.cos(t)*rad,S/2+Math.sin(t)*rad];
+  const [x1,y1]=p(R,ang),[x2,y2]=p(R,e),[x3,y3]=p(r0,e),[x4,y4]=p(r0,ang);
+  const la=sw>Math.PI?1:0;
+  seg+=`<path class="dseg" data-i="${i}" d="M${x1} ${y1}A${R} ${R} 0 ${la} 1 ${x2} ${y2}L${x3} ${y3}A${r0} ${r0} 0 ${la} 0 ${x4} ${y4}Z"
+   fill="${d.c}" opacity=".88" style="transform-origin:${S/2}px ${S/2}px;transition:.2s;cursor:pointer"/>`;ang+=sw});
+ const legend=a.map((d,i)=>`<div class="lgi" data-i="${i}" style="display:flex;align-items:center;gap:7px;padding:3.5px 0;cursor:pointer">
+   <i style="width:7px;height:7px;border-radius:2px;background:${d.c};flex:none"></i>
+   <span style="flex:1;font-size:11.5px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.k}</span>
+   <span class="mono" style="font-size:11.5px;font-weight:500">${d.p.toFixed(1)}%</span></div>`).join('');
+ return `<div style="display:flex;gap:10px;align-items:center">
+  <div style="position:relative;flex:none"><svg width="210" height="210" id="dnt">${seg}</svg>
+   <div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none">
+    <div><div class="lbl" id="dlbl">Total</div><div class="mono" id="dval" style="font-size:17px;font-weight:600;margin-top:2px">${fmc(TOTV)}</div>
+    <div id="dsub" style="font-size:10.5px;color:var(--tx3)">${a.length} groups</div></div></div></div>
+  <div style="flex:1;min-width:0">${legend}</div></div>`}
+</script>
+<script>
+/* ══ LEADERS / LAGGARDS (contribution in bps) ══ */
+function contribChart(){
+ const a=H.map(h=>({tk:h.tk,flag:h.flag,bps:h.dval/TOTV*1e4,d:h.d,dval:h.dval})).sort((x,y)=>y.bps-x.bps);
+ const top=a.slice(0,5),bot=a.slice(-5).reverse();
+ const mx=Math.max(...a.map(x=>Math.abs(x.bps)));
+ const row=r=>`<div class="crow" data-tk="${r.tk}" style="display:grid;grid-template-columns:54px 1fr 58px;align-items:center;gap:8px;padding:3.5px 0;cursor:pointer">
+   <span class="mono" style="font-size:11.5px;font-weight:600">${r.flag} ${r.tk}</span>
+   <div style="position:relative;height:16px">
+     <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.12)"></div>
+     <div style="position:absolute;top:3px;height:10px;border-radius:3px;${r.bps>=0
+       ?`left:50%;width:${Math.abs(r.bps)/mx*48}%;background:linear-gradient(90deg,rgba(53,214,164,.5),#35d6a4)`
+       :`right:50%;width:${Math.abs(r.bps)/mx*48}%;background:linear-gradient(270deg,rgba(255,95,109,.5),#ff5f6d)`}"></div>
+   </div>
+   <span class="mono ${cls(r.bps)}" style="font-size:11.5px;text-align:right">${r.bps>=0?'+':''}${r.bps.toFixed(1)}</span></div>`;
+ return `<div style="display:flex;justify-content:space-between"><span class="lbl" style="color:var(--up)">Leaders</span><span class="lbl">basis points of NAV</span></div>
+  ${top.map(row).join('')}<div class="hr"></div>
+  <span class="lbl" style="color:var(--dn)">Laggards</span>${bot.map(row).join('')}`}
+
+/* ══ TOP HOLDINGS ══ */
+function topHoldings(n=7){
+ const a=[...H].sort((x,y)=>y.val-x.val).slice(0,n),mx=a[0].w;
+ return a.map(h=>`<div class="hrw" data-tk="${h.tk}" style="display:grid;grid-template-columns:118px 1fr 66px 74px 62px;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer">
+  <div><div class="tk">${h.flag} ${h.tk}</div><div class="nm">${h.name}</div></div>
+  <div><div class="bar"><i style="width:${h.w/mx*100}%;background:${SECC[h.sec]}"></i></div>
+    <div style="font-size:10px;color:var(--tx3);margin-top:3px">${h.sec}</div></div>
+  <div class="mono" style="font-size:12.5px;font-weight:600;text-align:right">${h.w.toFixed(1)}%</div>
+  <div style="text-align:right"><div class="mono" style="font-size:12px">${fmc(h.val)}</div>
+    <div class="mono ${cls(h.plp)}" style="font-size:10.5px">${pc(h.plp,1)} all-time</div></div>
+  <div style="display:flex;justify-content:flex-end">${spark(h.tk)}</div></div>`).join('')}
+
+/* ══ CALENDAR ══ */
+function calendar(){
+ return EVENTS.map(e=>{const imp='●'.repeat(e.imp)+'<span style="opacity:.2">'+'●'.repeat(3-e.imp)+'</span>';
+ return `<div class="evr" style="display:grid;grid-template-columns:46px 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+  <div style="text-align:center"><div class="mono" style="font-size:11.5px;font-weight:600">${e.d.split(' ')[1]}</div>
+   <div style="font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em">${e.d.split(' ')[0]}</div></div>
+  <div><div style="font-size:12px;font-weight:500">${e.t==='MACRO'?'<span style="color:var(--cy)">◈ '+e.k+'</span>':e.t+' · '+e.k}</div>
+   <div style="font-size:10.5px;color:var(--tx3)">${e.n}</div></div>
+  <div style="text-align:right"><div style="font-size:9px;color:${e.imp===3?'var(--gold)':'var(--tx3)'};letter-spacing:1px">${imp}</div>
+   ${e.w?`<div class="mono" style="font-size:10.5px;color:var(--tx2)">${e.w.toFixed(1)}% NAV</div>`:'<div style="font-size:10px;color:var(--tx3)">book-wide</div>'}</div></div>`}).join('')}
+
+/* ══ NEWS CROSS-CHECK (enrichment layer) ══ */
+function newsCheck(){
+ return NEWS.map(n=>`<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+  <div style="display:flex;gap:8px;align-items:flex-start">
+   <span style="flex:none;margin-top:3px;width:6px;height:6px;border-radius:50%;background:${n.sent>0?'var(--up)':'var(--dn)'};box-shadow:0 0 7px ${n.sent>0?'var(--up)':'var(--dn)'}"></span>
+   <div style="flex:1">
+    <div style="font-size:12.2px;line-height:1.35">${n.t}</div>
+    <div style="display:flex;gap:7px;align-items:center;margin-top:5px;flex-wrap:wrap">
+     <span style="font-size:10px;color:var(--tx3)">${n.src} · ${n.ago}</span>
+     ${n.hits.map(t=>`<span class="tag" style="border-color:rgba(232,184,75,.35);color:var(--gold)">${t}</span>`).join('')}
+     <span style="margin-left:auto;font-size:10.5px;color:var(--tx2)" class="mono">${n.exp.toFixed(1)}% NAV touched</span>
+    </div>
+    <div style="margin-top:6px;display:flex;gap:8px;align-items:center">
+      <div class="bar" style="flex:1;height:3px"><i style="width:${Math.min(100,n.exp*3.2)}%;background:${n.sent>0?'var(--up)':'var(--dn)'}"></i></div>
+    </div>
+    <div style="font-size:10.8px;color:var(--tx3);margin-top:5px;font-style:italic">↳ ${n.note}</div>
+   </div></div></div>`).join('')}
+
+/* ══ PAGE: OVERVIEW ══ */
+function pageOverview(){
+ const dayp=DAYPL/(TOTV-DAYPL)*100, totp=TOTPL/(TOTV-CASH-TOTPL)*100;
+ const stats=[['Day P/L',fmc(DAYPL),pc(dayp)],['Unrealised P/L',fmc(TOTPL),pc(totp)],['Cash',fmc(CASH),(CASH/TOTV*100).toFixed(1)+'% of NAV'],['Positions',H.length,'8 sectors · 4 regions']];
+ return `<div class="sub">
+   <span class="sb on">Overview</span><span class="sb" data-go="holdings">Holdings</span><span class="sb" data-go="performance">Performance</span><span class="sb" data-go="analysis">Analysis</span>
+   <span style="margin-left:auto;align-self:center;font-size:10.5px;color:var(--tx3)">Base currency USD · last sync 14:32 UTC</span></div>
+ <div class="grid fade" style="grid-template-columns:repeat(12,1fr)">
+  ${card('Capital Curve',`<div class="seg" id="rng">${Object.keys(RANGES).map(k=>`<span class="${k===curRange?'on':''}" data-r="${k}">${k}</span>`).join('')}</div>`,
+    `<div style="display:flex;gap:26px;margin-bottom:6px">${stats.map(s=>`<div><div class="lbl">${s[0]}</div>
+      <div class="mono" style="font-size:16px;font-weight:600;margin-top:3px">${s[1]}</div>
+      <div class="mono ${typeof s[2]==='string'&&s[2][0]==='+'?'up':s[2][0]==='-'?'dn':''}" style="font-size:10.5px;color:var(--tx3)">${s[2]}</div></div>`).join('')}</div>
+     <div id="eqwrap">${equityChart(curRange)}</div>`,'grid-column:span 8')}
+
+  ${card('Risk & Health',`score ${HSCORE}/100`,
+    `<div style="display:flex;gap:14px;align-items:center">
+      <div style="position:relative;flex:none">${ring(HSCORE)}
+       <div style="position:absolute;inset:0;display:grid;place-items:center"><div style="text-align:center">
+        <div class="mono" style="font-size:24px;font-weight:600;letter-spacing:-1px">${HSCORE}</div>
+        <div class="lbl" style="font-size:8.5px">Resilient</div></div></div></div>
+      <div style="flex:1">${HEALTH.map(x=>`<div class="hmet" data-d="${esc(x.d)}" style="display:grid;grid-template-columns:88px 1fr 28px;gap:8px;align-items:center;padding:2.5px 0;cursor:help">
+        <span style="font-size:10.8px;color:var(--tx2)">${x.k}</span>
+        <div class="bar" style="height:4px"><i style="width:${x.v}%;background:${x.v>70?'var(--up)':x.v>45?'var(--gold)':'var(--dn)'}"></i></div>
+        <span class="mono" style="font-size:10.5px;text-align:right;color:var(--tx2)">${x.v}</span></div>`).join('')}</div></div>
+     <div class="hr"></div>
+     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+       ${[['Beta','1.09','vs ACWI'],['Vol 30d','14.8%','ann.'],['VaR 95%','-2.4%','1-day']].map(k=>`<div class="kpi" style="padding:8px 10px">
+         <div class="lbl" style="font-size:9px">${k[0]}</div><div class="mono" style="font-size:15px;font-weight:600;margin-top:2px">${k[1]}</div>
+         <div style="font-size:9.5px;color:var(--tx3)">${k[2]}</div></div>`).join('')}</div>
+     <div style="margin-top:10px;padding:9px 11px;border-radius:10px;background:rgba(255,95,109,.07);border:1px solid rgba(255,95,109,.2);font-size:11.3px;line-height:1.45">
+      <b style="color:var(--dn)">⚠ Attention</b> — Semis (NVDA+TSM+ASML) are <b class="mono">${(H.filter(h=>['NVDA','TSM','ASML'].includes(h.tk)).reduce((s,h)=>s+h.w,0)).toFixed(1)}%</b> of NAV with 0.87 pairwise correlation. One theme, three tickets.</div>`,
+    'grid-column:span 4')}
+
+  ${card('Allocation',`<div class="seg" id="almode"><span class="on" data-m="sec">Sector</span><span data-m="reg">Region</span><span data-m="tk">Position</span></div>`,
+    `<div id="dwrap">${donut()}</div>`,'grid-column:span 4')}
+  ${card('Leaders & Laggards','today',contribChart(),'grid-column:span 4')}
+  ${card('Coming Up','next 3 weeks',`<div style="max-height:288px;overflow:auto;padding-right:4px">${calendar()}</div>`,'grid-column:span 4')}
+
+  ${card('Top Holdings',`${H.length} positions · <span style="color:var(--gold)">view all →</span>`,topHoldings(),'grid-column:span 7')}
+  ${card('News × Portfolio','auto-matched to your book',`<div style="max-height:360px;overflow:auto;padding-right:4px">${newsCheck()}</div>`,'grid-column:span 5')}
+ </div>`}
+</script>
+<script>
+/* ══ SQUARIFIED TREEMAP ══ */
+function squarify(items,x,y,w,h){
+ const out=[];const tot=items.reduce((s,i)=>s+i.v,0);let list=items.map(i=>({...i,a:i.v/tot*w*h}));
+ function worst(row,len){const s=row.reduce((a,b)=>a+b.a,0),mx=Math.max(...row.map(r=>r.a)),mn=Math.min(...row.map(r=>r.a));
+  return Math.max(len*len*mx/(s*s),(s*s)/(len*len*mn))}
+ function layout(row,len,horiz,cx,cy,cw,ch){const s=row.reduce((a,b)=>a+b.a,0);
+  if(horiz){const rh=s/len;let px=cx;row.forEach(r=>{const rw=r.a/rh;out.push({...r,x:px,y:cy,w:rw,h:rh});px+=rw});return [cx,cy+rh,cw,ch-rh]}
+  else{const rw=s/len;let py=cy;row.forEach(r=>{const rh=r.a/rw;out.push({...r,x:cx,y:py,w:rw,h:rh});py+=rh});return [cx+rw,cy,cw-rw,ch]}}
+ let cx=x,cy=y,cw=w,ch=h,row=[];
+ while(list.length){const horiz=cw>=ch,len=horiz?cw:ch;const it=list[0];
+  if(!row.length||worst([...row,it],len)<=worst(row,len)){row.push(it);list.shift();}
+  else{[cx,cy,cw,ch]=layout(row,len,horiz,cx,cy,cw,ch);row=[]}}
+ if(row.length)layout(row,(cw>=ch?cw:ch),cw>=ch,cx,cy,cw,ch);
+ return out}
+
+let tmMode='val';
+function treemap(){
+ const W=1000,Hh=440;
+ const secs={};H.forEach(h=>{(secs[h.sec]=secs[h.sec]||[]).push(h)});
+ const groups=Object.entries(secs).map(([k,v])=>({k,v:v.reduce((s,h)=>s+h.val,0),items:v})).sort((a,b)=>b.v-a.v);
+ const cells=squarify(groups,0,0,W,Hh);let out='';
+ cells.forEach(g=>{
+  out+=`<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.6"/>`;
+  const inner=squarify(g.items.map(h=>({...h,v:h.val})).sort((a,b)=>b.v-a.v),g.x+1.5,g.y+16,g.w-3,g.h-18);
+  out+=`<text x="${g.x+7}" y="${g.y+12}" fill="#8c97a8" font-size="9.5" letter-spacing="1.3" font-weight="600">${g.k.toUpperCase()}</text>`;
+  inner.forEach(c=>{
+   const m=tmMode==='val'?c.d:tmMode==='ytd'?c.ytd/6:c.plp/8;
+   const t=Math.max(-1,Math.min(1,m/2.2));
+   const col=t>=0?`rgba(53,214,164,${.14+t*.62})`:`rgba(255,95,109,${.14+(-t)*.62})`;
+   const show=c.w>52&&c.h>30;
+   out+=`<g class="tmc" data-tk="${c.tk}" style="cursor:pointer">
+    <rect x="${c.x}" y="${c.y}" width="${Math.max(0,c.w-2)}" height="${Math.max(0,c.h-2)}" rx="3" fill="${col}" stroke="rgba(255,255,255,.1)"/>
+    ${show?`<text x="${c.x+8}" y="${c.y+19}" fill="#fff" font-size="13" font-weight="600" font-family="JetBrains Mono">${c.tk}</text>
+    <text x="${c.x+8}" y="${c.y+33}" fill="rgba(255,255,255,.75)" font-size="10.5" font-family="JetBrains Mono">${tmMode==='val'?pc(c.d):tmMode==='ytd'?pc(c.ytd,0):pc(c.plp,0)}</text>
+    ${c.h>52?`<text x="${c.x+8}" y="${c.y+c.h-10}" fill="rgba(255,255,255,.45)" font-size="9.5" font-family="JetBrains Mono">${c.w.toFixed(1)}% · ${fmc(c.val)}</text>`:''}`
+    :`<text x="${c.x+4}" y="${c.y+13}" fill="rgba(255,255,255,.85)" font-size="9" font-family="JetBrains Mono">${c.tk}</text>`}</g>`})});
+ return `<svg viewBox="0 0 ${W} ${Hh}" width="100%" style="display:block;border-radius:8px;overflow:hidden">${out}</svg>`}
+
+/* ══ WEIGHT RIBBON ══ */
+function ribbon(){
+ const a=[...H].sort((x,y)=>(x.sec===y.sec?y.w-x.w:(SECC[x.sec]>SECC[y.sec]?1:-1)));
+ const byS={};a.forEach(h=>{(byS[h.sec]=byS[h.sec]||[]).push(h)});
+ let html='<div style="display:flex;height:34px;border-radius:8px;overflow:hidden;gap:1.5px">';
+ Object.entries(byS).forEach(([s,arr])=>{const sw=arr.reduce((t,h)=>t+h.w,0);
+  html+=`<div style="flex:${sw};display:flex;gap:1px;min-width:0">`+arr.map(h=>`<div class="rbc" data-tk="${h.tk}" title=""
+   style="flex:${h.w};background:${SECC[s]};opacity:${.45+h.w/12};min-width:2px;transition:.18s;cursor:pointer"></div>`).join('')+`</div>`});
+ html+=`<div style="flex:${CASH/TOTV*100};background:#4a5866"></div></div>
+ <div style="display:flex;gap:1.5px;margin-top:5px">`;
+ Object.entries(byS).forEach(([s,arr])=>{const sw=arr.reduce((t,h)=>t+h.w,0);
+  html+=`<div style="flex:${sw};min-width:0;overflow:hidden"><div style="font-size:9.5px;color:${SECC[s]};white-space:nowrap;letter-spacing:.06em">${sw>6?s:''}</div>
+   <div class="mono" style="font-size:10px;color:var(--tx3)">${sw>6?sw.toFixed(1)+'%':''}</div></div>`});
+ html+=`<div style="flex:${CASH/TOTV*100}"><div style="font-size:9.5px;color:#7b8a9c">Cash</div><div class="mono" style="font-size:10px;color:var(--tx3)">${(CASH/TOTV*100).toFixed(1)}%</div></div></div>`;
+ return html}
+
+/* ══ TABLE ══ */
+let sortK='val',sortD=-1;
+const COLS=[['tk','Position',0],['sec','Sector',0],['w','Weight',1],['sh','Shares',1],['px','Price',1],['d','Day %',1],['val','Value',1],['pl','Unreal. P/L',1],['plp','Return',1],['pe','P/E',1],['dy','Yield',1],['beta','Beta',1]];
+function tableHTML(){
+ const a=[...H].sort((x,y)=>(x[sortK]>y[sortK]?1:-1)*sortD);
+ return `<table><thead><tr>${COLS.map(c=>`<th data-k="${c[0]}" class="${sortK===c[0]?'srt':''}">${c[1]}${sortK===c[0]?(sortD<0?' ↓':' ↑'):''}</th>`).join('')}<th>30d</th></tr></thead>
+ <tbody>${a.map(h=>`<tr data-tk="${h.tk}">
+  <td><div style="display:flex;align-items:center;gap:8px"><span class="flag">${h.flag}</span><div><div class="tk">${h.tk}</div><div class="nm">${h.name}</div></div></div></td>
+  <td style="text-align:left"><span class="tag" style="border-color:${SECC[h.sec]}44;color:${SECC[h.sec]}">${h.sec}</span></td>
+  <td class="mono">${h.w.toFixed(2)}%</td><td class="mono" style="color:var(--tx2)">${h.sh.toLocaleString()}</td>
+  <td class="mono">${h.px.toFixed(2)}</td><td class="mono ${cls(h.d)}">${pc(h.d)}</td>
+  <td class="mono" style="font-weight:600">${fmc(h.val)}</td>
+  <td class="mono ${cls(h.pl)}">${fmc(h.pl)}</td>
+  <td class="mono ${cls(h.plp)}">${pc(h.plp,1)}</td>
+  <td class="mono" style="color:var(--tx2)">${h.pe.toFixed(1)}</td>
+  <td class="mono" style="color:var(--tx2)">${h.dy?h.dy.toFixed(2)+'%':'—'}</td>
+  <td class="mono" style="color:var(--tx2)">${h.beta.toFixed(2)}</td>
+  <td style="display:flex;justify-content:flex-end;padding-top:11px">${spark(h.tk,58,18)}</td></tr>`).join('')}</tbody></table>`}
+
+/* ══ GLOBE (canvas, orthographic, animated) ══ */
+const LAND=[[48,72,-168,-62],[60,72,-168,-130],[30,49,-125,-70],[25,31,-106,-80],[15,30,-107,-88],[8,17,-90,-77],
+ [60,82,-52,-22],[-4,12,-79,-50],[-20,-4,-75,-35],[-35,-20,-71,-45],[-53,-35,-74,-60],
+ [36,60,-9,30],[54,70,5,32],[40,52,20,48],[10,35,-16,32],[-10,12,-12,44],[-28,-10,12,38],[-34,-28,17,32],[-25,-12,43,50],
+ [12,32,35,60],[50,70,30,180],[35,52,45,92],[20,36,70,122],[8,20,72,82],[0,20,95,110],[30,45,126,143],[-10,6,95,141],
+ [-38,-12,113,153],[-46,-35,166,179],[-90,-72,-180,180]];
+function isLand(la,lo){for(const b of LAND)if(la>=b[0]&&la<=b[1]&&lo>=b[2]&&lo<=b[3])return 1;return 0}
+const DOTS=[];for(let la=-88;la<=88;la+=3.2){for(let lo=-180;lo<180;lo+=3.2){if(isLand(la,lo))DOTS.push([la,lo])}}
+const REGSUM={};H.forEach(h=>{const k=h.ctry;if(!REGSUM[k])REGSUM[k]={v:0,lat:h.lat,lon:h.lon,n:[],flag:h.flag};REGSUM[k].v+=h.val;REGSUM[k].n.push(h.tk)});
+let globeRot=0,globeRAF=null,globeDrag=null;
+function drawGlobe(cv){
+ const ctx=cv.getContext('2d'),dpr=devicePixelRatio||1,S=cv.clientWidth,Hh=cv.clientHeight;
+ cv.width=S*dpr;cv.height=Hh*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,S,Hh);
+ const cx=S/2,cy=Hh/2,R=Math.min(S,Hh)/2-14,rad=Math.PI/180,tilt=17*rad;
+ const g=ctx.createRadialGradient(cx-R*.3,cy-R*.35,R*.1,cx,cy,R);
+ g.addColorStop(0,'rgba(30,44,60,.85)');g.addColorStop(1,'rgba(8,12,17,.95)');
+ ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.fillStyle=g;ctx.fill();
+ ctx.strokeStyle='rgba(232,184,75,.28)';ctx.lineWidth=1;ctx.stroke();
+ ctx.save();ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.clip();
+ // graticule
+ ctx.strokeStyle='rgba(255,255,255,.045)';
+ for(let la=-60;la<=60;la+=30){const r=R*Math.cos(la*rad),yy=cy-R*Math.sin(la*rad)*Math.cos(tilt);
+   ctx.beginPath();ctx.ellipse(cx,yy,r,r*Math.sin(tilt)||1,0,0,7);ctx.stroke()}
+ const proj=(la,lo)=>{const p=la*rad,l=(lo+globeRot)*rad;
+   let x=Math.cos(p)*Math.sin(l),y=Math.sin(p),z=Math.cos(p)*Math.cos(l);
+   const y2=y*Math.cos(tilt)-z*Math.sin(tilt),z2=y*Math.sin(tilt)+z*Math.cos(tilt);
+   return [cx+x*R,cy-y2*R,z2]};
+ DOTS.forEach(([la,lo])=>{const [x,y,z]=proj(la,lo);if(z<=0)return;
+  const a=.12+z*.5;ctx.fillStyle=`rgba(150,175,200,${a})`;ctx.beginPath();ctx.arc(x,y,1.25,0,7);ctx.fill()});
+ // arcs between holdings hubs and a "home" node (portfolio base = NY)
+ const home=[40.7,-74];
+ Object.values(REGSUM).forEach(r=>{const A=proj(home[0],home[1]),B=proj(r.lat,r.lon);
+  if(A[2]<=0&&B[2]<=0)return;
+  const mx=(A[0]+B[0])/2,my=(A[1]+B[1])/2,dx=mx-cx,dy=my-cy,d=Math.hypot(dx,dy)||1;
+  const lift=1+ Math.hypot(B[0]-A[0],B[1]-A[1])/(R*2.4);
+  ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.quadraticCurveTo(cx+dx/d*d*lift*1.15,cy+dy/d*d*lift*1.15,B[0],B[1]);
+  ctx.strokeStyle=`rgba(232,184,75,${.06+.18*Math.max(A[2],B[2])})`;ctx.lineWidth=.9;ctx.stroke()});
+ // markers
+ const t=performance.now()/1000;
+ Object.entries(REGSUM).forEach(([k,r])=>{const [x,y,z]=proj(r.lat,r.lon);if(z<=0)return;
+  const sz=4+Math.sqrt(r.v/TOTV)*22;const pulse=(t*.55+r.lat)%1;
+  ctx.beginPath();ctx.arc(x,y,sz*(1+pulse*1.5),0,7);ctx.strokeStyle=`rgba(232,184,75,${(1-pulse)*.35*z})`;ctx.lineWidth=1;ctx.stroke();
+  const gg=ctx.createRadialGradient(x,y,0,x,y,sz);gg.addColorStop(0,`rgba(255,226,150,${.95*z})`);gg.addColorStop(1,`rgba(232,184,75,${.15*z})`);
+  ctx.beginPath();ctx.arc(x,y,sz,0,7);ctx.fillStyle=gg;ctx.fill();
+  r._x=x;r._y=y;r._z=z;r._r=sz});
+ ctx.restore();
+ // atmosphere
+ const ag=ctx.createRadialGradient(cx,cy,R*.9,cx,cy,R*1.16);
+ ag.addColorStop(0,'rgba(87,208,234,.14)');ag.addColorStop(1,'rgba(87,208,234,0)');
+ ctx.beginPath();ctx.arc(cx,cy,R*1.16,0,7);ctx.fillStyle=ag;ctx.fill();
+}
+function startGlobe(){
+ const cv=$('#globe');if(!cv)return;
+ const loop=()=>{if(!document.body.contains(cv)){globeRAF=null;return}
+  if(!globeDrag)globeRot+=.16; drawGlobe(cv); globeRAF=requestAnimationFrame(loop)};
+ cancelAnimationFrame(globeRAF);loop();
+ cv.onmousedown=e=>{globeDrag={x:e.clientX,r:globeRot}};
+ addEventListener('mouseup',()=>globeDrag=null);
+ cv.onmousemove=e=>{
+  if(globeDrag){globeRot=globeDrag.r+(e.clientX-globeDrag.x)*.4;return}
+  const b=cv.getBoundingClientRect(),mx=e.clientX-b.left,my=e.clientY-b.top;
+  const hit=Object.entries(REGSUM).find(([k,r])=>r._z>0&&Math.hypot(r._x-mx,r._y-my)<r._r+4);
+  if(hit){const [k,r]=hit;cv.style.cursor='pointer';
+   tipOn(e,`<b>${r.flag} ${k}</b><div style="color:var(--tx2);margin-top:3px">${fmc(r.v)} · ${(r.v/TOTV*100).toFixed(1)}% of NAV</div>
+   <div style="margin-top:4px;font-size:10.5px;color:var(--tx3)">${r.n.join(' · ')}</div>`)}
+  else{cv.style.cursor='grab';tipOff()}};
+ cv.onmouseleave=()=>tipOff();
+}
+
+/* ══ PAGE: HOLDINGS ══ */
+function pageHoldings(){
+ const regs=Object.entries(REGSUM).sort((a,b)=>b[1].v-a[1].v);
+ const byReg={};H.forEach(h=>byReg[h.reg]=(byReg[h.reg]||0)+h.w);
+ return `<div class="sub"><span class="sb" data-go="overview">Overview</span><span class="sb on">Holdings</span>
+  <span class="sb" data-go="performance">Performance</span><span class="sb" data-go="analysis">Analysis</span>
+  <span style="margin-left:auto;align-self:center;font-size:10.5px;color:var(--tx3)">${H.length} positions · ${fmc(TOTV)} gross</span></div>
+ <div class="grid fade" style="grid-template-columns:repeat(12,1fr)">
+  ${card('Allocation Ribbon','every position, to scale',ribbon(),'grid-column:span 12')}
+  ${card('Portfolio Map',`<div class="seg" id="tmmode"><span class="on" data-m="val">Today</span><span data-m="ytd">YTD</span><span data-m="pl">All-time</span></div>`,
+    `<div id="tmwrap">${treemap()}</div>
+     <div style="display:flex;align-items:center;gap:10px;margin-top:9px">
+      <span class="lbl">Area = position size · colour = return</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:6px">
+       <span class="mono" style="font-size:10px;color:var(--dn)">−</span>
+       <div style="width:130px;height:7px;border-radius:7px;background:linear-gradient(90deg,#ff5f6d,#3a2730,#1f2b2b,#35d6a4)"></div>
+       <span class="mono" style="font-size:10px;color:var(--up)">+</span></div></div>`,'grid-column:span 8')}
+  ${card('Geographic Exposure','drag to rotate',
+    `<canvas id="globe" style="width:100%;height:340px;display:block;cursor:grab"></canvas>
+     <div class="hr"></div>
+     ${Object.entries(byReg).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="display:grid;grid-template-columns:82px 1fr 44px;gap:9px;align-items:center;padding:3px 0">
+       <span style="font-size:11px;color:var(--tx2)">${k}</span>
+       <div class="bar" style="height:4px"><i style="width:${v/45*100}%;background:${REGC[k]}"></i></div>
+       <span class="mono" style="font-size:11px;text-align:right">${v.toFixed(1)}%</span></div>`).join('')}
+     <div style="margin-top:9px;font-size:10.8px;color:var(--tx3)">Domicile-weighted. Revenue-weighted exposure differs: <b style="color:var(--tx2)">US 46% · China 18% · EU 21%</b>.</div>`,
+    'grid-column:span 4')}
+  ${card('Full Holdings','click a row to expand',`<div id="tbl">${tableHTML()}</div>`,'grid-column:span 12')}
+ </div>`}
+</script>
+<script>
+/* ══ WATERFALL ══ */
+const WF=[['Opening NAV',0,'base'],['Price return',+1284000,''],['Dividends',+96400,''],['FX translation',-142000,''],
+ ['Net contributions',+250000,''],['Fees & tax',-38600,''],['Closing NAV',0,'end']];
+function waterfall(){
+ const W=880,Hh=230,open=TOTV-(1284000+96400-142000+250000-38600);
+ let run=open;const pts=[];
+ WF.forEach((w,i)=>{if(w[2]==='base'){pts.push({l:w[0],v:open,s:open,e:open,t:'tot'})}
+  else if(w[2]==='end'){pts.push({l:w[0],v:run,s:0,e:run,t:'tot'})}
+  else{pts.push({l:w[0],v:w[1],s:run,e:run+w[1],t:w[1]>0?'p':'n'});run+=w[1]}});
+ const mx=Math.max(...pts.map(p=>Math.max(p.s,p.e)))*1.05,mn=Math.min(...pts.map(p=>Math.min(p.s,p.e)))*.94;
+ const y=v=>Hh-24-((v-mn)/(mx-mn))*(Hh-46);
+ const bw=W/pts.length*.56,gap=W/pts.length;
+ let s='';pts.forEach((p,i)=>{const x=i*gap+(gap-bw)/2;
+  const y1=y(Math.max(p.s,p.e)),y2=y(Math.min(p.s,p.e));
+  const col=p.t==='tot'?'#e8b84b':p.t==='p'?'#35d6a4':'#ff5f6d';
+  const hgt=p.t==='tot'?y(mn)-y(p.e):Math.max(2,y2-y1);
+  const yy=p.t==='tot'?y(p.e):y1;
+  s+=`<rect x="${x}" y="${yy}" width="${bw}" height="${hgt}" rx="2.5" fill="${col}" opacity="${p.t==='tot'?.85:.72}"/>`;
+  if(i<pts.length-1)s+=`<line x1="${x}" x2="${x+gap}" y1="${y(p.e)}" y2="${y(p.e)}" stroke="rgba(255,255,255,.18)" stroke-dasharray="3 3"/>`;
+  s+=`<text x="${x+bw/2}" y="${yy-7}" text-anchor="middle" font-size="10.5" font-family="JetBrains Mono" fill="${p.t==='tot'?'#e8edf4':col}">${p.t==='tot'?fmc(p.e):(p.v>0?'+':'')+fmc(p.v)}</text>`;
+  s+=`<text x="${x+bw/2}" y="${Hh-7}" text-anchor="middle" font-size="9.6" fill="#8c97a8">${p.l}</text>`});
+ return `<svg viewBox="0 0 ${W} ${Hh}" width="100%" height="230">${s}</svg>`}
+
+/* ══ MONTHLY HEATMAP ══ */
+function heatmap(){
+ const all=MR.flat().filter(v=>v!=null),mx=Math.max(...all.map(Math.abs));
+ return `<div style="display:grid;grid-template-columns:38px repeat(12,1fr) 56px;gap:3px;align-items:center">
+  <span></span>${MONTHS.map(m=>`<span class="lbl" style="text-align:center;font-size:8.5px">${m}</span>`).join('')}<span class="lbl" style="text-align:right;font-size:8.5px">Year</span>
+  ${MR.map((row,i)=>{const yr=row.filter(v=>v!=null).reduce((a,b)=>a*(1+b/100),1)-1;
+   return `<span class="mono" style="font-size:10.5px;color:var(--tx3)">${2023+i}</span>`+
+   row.map(v=>{if(v==null)return `<div style="height:34px;border-radius:5px;background:rgba(255,255,255,.02)"></div>`;
+    const t=Math.min(1,Math.abs(v)/mx),c=v>=0?`rgba(53,214,164,${.1+t*.8})`:`rgba(255,95,109,${.1+t*.8})`;
+    return `<div class="hm" data-v="${v.toFixed(2)}" style="height:34px;border-radius:5px;background:${c};display:grid;place-items:center;cursor:default;transition:.15s">
+      <span class="mono" style="font-size:10px;color:${t>.45?'#08121a':'rgba(255,255,255,.72)'};font-weight:600">${v.toFixed(1)}</span></div>`}).join('')+
+   `<span class="mono ${cls(yr)}" style="font-size:11.5px;text-align:right;font-weight:600">${pc(yr*100,1)}</span>`}).join('')}</div>`}
+
+/* ══ DRAWDOWN ══ */
+function underwater(){
+ const W=520,Hh=170;let pk=0;const dd=EQ.map(v=>{pk=Math.max(pk,v);return (v/pk-1)*100});
+ const mn=Math.min(...dd);const y=v=>8+(-v/-mn)*(Hh-26);
+ const pts=dd.map((v,i)=>[i/(dd.length-1)*W,y(v)]);
+ const worst=dd.indexOf(mn);
+ return `<svg viewBox="0 0 ${W} ${Hh}" width="100%" height="170" preserveAspectRatio="none">
+  <defs><linearGradient id="dg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5f6d" stop-opacity="0"/><stop offset="1" stop-color="#ff5f6d" stop-opacity=".42"/></linearGradient></defs>
+  <line x1="0" x2="${W}" y1="8" y2="8" stroke="rgba(255,255,255,.14)"/>
+  <path d="${path(pts)} L${W} 8 L0 8 Z" fill="url(#dg)"/>
+  <path d="${path(pts)}" fill="none" stroke="#ff5f6d" stroke-width="1.5"/>
+  <line x1="${worst/dd.length*W}" x2="${worst/dd.length*W}" y1="8" y2="${y(mn)}" stroke="#ff5f6d" stroke-dasharray="3 3" opacity=".6"/>
+  <text x="${Math.min(W-90,worst/dd.length*W+6)}" y="${y(mn)-6}" fill="#ff5f6d" font-size="10.5" font-family="JetBrains Mono">max ${mn.toFixed(1)}%</text>
+  <text x="4" y="20" fill="#59646f" font-size="9.5" font-family="JetBrains Mono">peak</text></svg>`}
+
+/* ══ RETURN DISTRIBUTION ══ */
+function distribution(){
+ const r=[];for(let i=1;i<EQ.length;i++)r.push((EQ[i]/EQ[i-1]-1)*100);
+ const bins=27,mn=-3.2,mx=3.2,c=new Array(bins).fill(0);
+ r.forEach(v=>{const b=Math.floor((Math.max(mn,Math.min(mx-.001,v))-mn)/(mx-mn)*bins);c[b]++});
+ const W=470,Hh=170,mxc=Math.max(...c);
+ const mean=r.reduce((a,b)=>a+b,0)/r.length;
+ const sd=Math.sqrt(r.reduce((a,b)=>a+(b-mean)**2,0)/r.length);
+ const sorted=[...r].sort((a,b)=>a-b),var95=sorted[Math.floor(r.length*.05)];
+ let s='';c.forEach((v,i)=>{const x=i/bins*W,w=W/bins-2,h=v/mxc*(Hh-40),bv=mn+(i+.5)/bins*(mx-mn);
+  const col=bv<var95?'#ff5f6d':bv<0?'rgba(255,95,109,.45)':'rgba(53,214,164,.55)';
+  s+=`<rect x="${x}" y="${Hh-22-h}" width="${w}" height="${h}" rx="2" fill="${col}"/>`});
+ const xo=v=>(v-mn)/(mx-mn)*W;
+ s+=`<line x1="${xo(var95)}" x2="${xo(var95)}" y1="6" y2="${Hh-22}" stroke="#ff5f6d" stroke-dasharray="3 3"/>
+  <text x="${xo(var95)-4}" y="16" text-anchor="end" fill="#ff5f6d" font-size="10" font-family="JetBrains Mono">VaR₉₅ ${var95.toFixed(2)}%</text>
+  <line x1="${xo(mean)}" x2="${xo(mean)}" y1="6" y2="${Hh-22}" stroke="#e8b84b" opacity=".7"/>
+  <text x="${xo(mean)+5}" y="16" fill="#e8b84b" font-size="10" font-family="JetBrains Mono">μ ${mean.toFixed(2)}%</text>`;
+ [-3,-2,-1,0,1,2,3].forEach(v=>{s+=`<text x="${xo(v)}" y="${Hh-6}" text-anchor="middle" fill="#59646f" font-size="9" font-family="JetBrains Mono">${v}%</text>`});
+ return {svg:`<svg viewBox="0 0 ${W} ${Hh}" width="100%" height="170">${s}</svg>`,sd,mean,var95,
+  pos:(r.filter(v=>v>0).length/r.length*100)}}
+
+/* ══ ROLLING SCORECARD ══ */
+function scorecard(){
+ const rows=[['1 month',2.4,1.1],['3 months',7.8,4.2],['6 months',11.2,6.9],['1 year',24.6,15.4],['3 years (ann.)',18.1,11.2],['Since inception',62.3,38.7]];
+ const mx=Math.max(...rows.flatMap(r=>[r[1],r[2]]));
+ return rows.map(r=>`<div style="display:grid;grid-template-columns:96px 1fr 60px;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+  <span style="font-size:11px;color:var(--tx2)">${r[0]}</span>
+  <div style="position:relative;height:18px">
+   <div style="position:absolute;top:1px;height:7px;width:${r[1]/mx*100}%;border-radius:4px;background:linear-gradient(90deg,rgba(232,184,75,.35),#e8b84b)"></div>
+   <div style="position:absolute;top:10px;height:5px;width:${r[2]/mx*100}%;border-radius:4px;background:#4b5666"></div>
+  </div>
+  <span class="mono ${cls(r[1]-r[2])}" style="font-size:11.5px;text-align:right;font-weight:600">${pc(r[1]-r[2],1)}</span></div>`).join('')}
+
+/* ══ BRINSON ATTRIBUTION ══ */
+const BRIN=[['Technology',3.42,1.18],['Healthcare',-1.24,-.62],['Financials',.88,.41],['Cons. Disc.',1.12,-.28],
+ ['Cons. Staples',-.44,.19],['Energy',.31,-.11],['Industrials',.24,.33],['Materials',-.58,-.22]];
+function brinson(){
+ const mx=Math.max(...BRIN.flatMap(b=>[Math.abs(b[1]),Math.abs(b[2])]));
+ return `<div style="display:flex;gap:14px;margin-bottom:8px">
+   <span style="font-size:10.5px;color:var(--tx2)"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#e8b84b;vertical-align:-1px"></i> Selection (stock picking)</span>
+   <span style="font-size:10.5px;color:var(--tx2)"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#57d0ea;vertical-align:-1px"></i> Allocation (sector weight)</span></div>
+ ${BRIN.map(b=>`<div style="display:grid;grid-template-columns:104px 1fr 54px;gap:10px;align-items:center;padding:4px 0">
+  <span style="font-size:11px;color:var(--tx2)">${b[0]}</span>
+  <div style="position:relative;height:20px">
+   <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.12)"></div>
+   ${[[b[1],'#e8b84b',1],[b[2],'#57d0ea',10]].map(([v,c,top])=>`<div style="position:absolute;top:${top}px;height:8px;border-radius:3px;background:${c};opacity:.85;${v>=0?`left:50%;width:${v/mx*48}%`:`right:50%;width:${-v/mx*48}%`}"></div>`).join('')}
+  </div>
+  <span class="mono ${cls(b[1]+b[2])}" style="font-size:11px;text-align:right">${pc(b[1]+b[2],2)}</span></div>`).join('')}
+ <div class="hr"></div><div style="display:flex;justify-content:space-between;font-size:11.5px">
+  <span style="color:var(--tx2)">Total active return</span><span class="mono up" style="font-weight:600">+${BRIN.reduce((s,b)=>s+b[1]+b[2],0).toFixed(2)}%</span></div>`}
+
+/* ══ PAGE: PERFORMANCE ══ */
+function pagePerformance(){
+ const d=distribution();
+ const wins=H.filter(h=>h.plp>0).length;
+ return `<div class="sub"><span class="sb" data-go="overview">Overview</span><span class="sb" data-go="holdings">Holdings</span>
+  <span class="sb on">Performance</span><span class="sb" data-go="analysis">Analysis</span>
+  <span style="margin-left:auto;align-self:center;font-size:10.5px;color:var(--tx3)">Time-weighted · net of fees · since 12 Jan 2023</span></div>
+ <div class="grid fade" style="grid-template-columns:repeat(12,1fr)">
+  <section class="card" style="grid-column:span 12">
+   <div class="cb" style="display:grid;grid-template-columns:repeat(6,1fr);gap:0">
+    ${[['TWR since inception','+62.3%','up'],['Annualised','+18.1%','up'],['Sharpe','1.42',''],['Sortino','2.07',''],['Max drawdown','−18.6%','dn'],['Hit rate',`${Math.round(wins/H.length*100)}%`,'']]
+      .map((k,i)=>`<div style="padding:4px 18px;${i?'border-left:1px solid var(--line)':''}">
+      <div class="lbl">${k[0]}</div><div class="big mono ${k[2]}" style="margin-top:4px">${k[1]}</div></div>`).join('')}
+   </div></section>
+
+  ${card('Where the money came from','change in NAV, last 12 months',waterfall(),'grid-column:span 7')}
+  ${card('Rolling Returns','vs MSCI ACWI',scorecard()+
+    `<div style="margin-top:8px;font-size:10.5px;color:var(--tx3)"><i style="display:inline-block;width:10px;height:5px;border-radius:3px;background:#e8b84b"></i> portfolio &nbsp;
+     <i style="display:inline-block;width:10px;height:4px;border-radius:3px;background:#4b5666"></i> benchmark &nbsp; · right column = excess</div>`,'grid-column:span 5')}
+
+  ${card('Monthly Returns','calendar view',heatmap(),'grid-column:span 7')}
+  ${card('Underwater','distance from all-time high',underwater()+
+    `<div class="hr"></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+     ${[['Current DD','−4.1%'],['Longest','94 days'],['Recovery avg','41 days']].map(k=>`<div class="kpi" style="padding:8px 10px">
+      <div class="lbl" style="font-size:9px">${k[0]}</div><div class="mono" style="font-size:15px;font-weight:600;margin-top:2px">${k[1]}</div></div>`).join('')}</div>`,'grid-column:span 5')}
+
+  ${card('Attribution','what actually drove the excess return',brinson(),'grid-column:span 7')}
+  ${card('Daily Return Distribution',`${d.pos.toFixed(0)}% of days positive`,d.svg+
+   `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px">
+    ${[['Std dev (d)',d.sd.toFixed(2)+'%'],['Skew','−0.31'],['Kurtosis','4.12'],['Worst day','−3.84%']].map(k=>`<div class="kpi" style="padding:7px 9px">
+     <div class="lbl" style="font-size:9px">${k[0]}</div><div class="mono" style="font-size:14px;font-weight:600;margin-top:2px">${k[1]}</div></div>`).join('')}</div>
+   <div style="margin-top:9px;font-size:11px;color:var(--tx3);line-height:1.5">Fat left tail: losses cluster harder than gains. On the worst 5% of days you lose <b style="color:var(--dn)">${d.var95.toFixed(2)}%</b> or more — about <b class="mono">${fmc(Math.abs(d.var95/100*TOTV))}</b>.</div>`,'grid-column:span 5')}
+ </div>`}
+</script>
+<script>
+/* ══ FACTOR RADAR ══ */
+const FACT=[['Growth',.82,.5],['Quality',.71,.5],['Momentum',.76,.5],['Value',.24,.5],['Low Vol',.38,.5],['Size (large)',.88,.62]];
+function radar(){
+ const S=260,cx=S/2,cy=S/2+6,R=92,n=FACT.length;
+ const pt=(i,v)=>{const a=-Math.PI/2+i/n*2*Math.PI;return [cx+Math.cos(a)*R*v,cy+Math.sin(a)*R*v]};
+ let g='';[.25,.5,.75,1].forEach(r=>{g+=`<polygon points="${FACT.map((_,i)=>pt(i,r).join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,.06)"/>`});
+ FACT.forEach((_,i)=>{const[x,y]=pt(i,1);g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,.06)"/>`});
+ g+=`<polygon points="${FACT.map((f,i)=>pt(i,f[2]).join(',')).join(' ')}" fill="rgba(120,135,155,.14)" stroke="#6b7889" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+ g+=`<polygon points="${FACT.map((f,i)=>pt(i,f[1]).join(',')).join(' ')}" fill="rgba(232,184,75,.20)" stroke="#e8b84b" stroke-width="2" style="filter:drop-shadow(0 0 8px rgba(232,184,75,.4))"/>`;
+ FACT.forEach((f,i)=>{const[x,y]=pt(i,f[1]);g+=`<circle cx="${x}" cy="${y}" r="3" fill="#e8b84b"/>`;
+  const[lx,ly]=pt(i,1.24);g+=`<text x="${lx}" y="${ly}" text-anchor="middle" font-size="10" fill="#8c97a8">${f[0]}</text>
+  <text x="${lx}" y="${ly+11}" text-anchor="middle" font-size="9.5" font-family="JetBrains Mono" fill="#e8b84b">${(f[1]*100).toFixed(0)}</text>`});
+ return `<svg viewBox="0 0 ${S} ${S+18}" width="100%" height="270">${g}</svg>`}
+
+/* ══ CORRELATION MATRIX ══ */
+const CORE=[...H].sort((a,b)=>b.val-a.val).slice(0,12);
+function corr(a,b){if(a.tk===b.tk)return 1;
+ let base=a.sec===b.sec?.72:a.reg===b.reg?.44:.31;
+ let s=(a.tk.charCodeAt(0)*31+b.tk.charCodeAt(1)*17+a.tk.length*7+b.tk.length*13)%100/100;
+ const v=Math.max(-.15,Math.min(.95,base+(s-.5)*.34));return v}
+function matrix(){
+ const n=CORE.length,cell=27,pad=44,S=pad+n*cell;let g='';
+ CORE.forEach((a,i)=>{
+  g+=`<text x="${pad-6}" y="${pad+i*cell+cell/2+3.5}" text-anchor="end" font-size="9.5" font-family="JetBrains Mono" fill="#8c97a8">${a.tk}</text>`;
+  g+=`<text x="${pad+i*cell+cell/2}" y="${pad-8}" text-anchor="start" font-size="9.5" font-family="JetBrains Mono" fill="#8c97a8" transform="rotate(-58 ${pad+i*cell+cell/2} ${pad-8})">${a.tk}</text>`;
+  CORE.forEach((b,j)=>{const v=corr(a,b),t=Math.max(0,v);
+   const col=i===j?'rgba(232,184,75,.85)':`rgba(${v>.65?'255,95,109':v>.45?'232,184,75':'87,208,234'},${.12+t*.75})`;
+   g+=`<rect class="mc" data-a="${a.tk}" data-b="${b.tk}" data-v="${v.toFixed(2)}" x="${pad+j*cell}" y="${pad+i*cell}" width="${cell-2}" height="${cell-2}" rx="3" fill="${col}" style="cursor:crosshair"/>`;
+   if(v>.78&&i!==j)g+=`<text x="${pad+j*cell+cell/2-1}" y="${pad+i*cell+cell/2+3}" text-anchor="middle" font-size="8.5" font-family="JetBrains Mono" fill="#0a0d12" font-weight="600">${(v*100).toFixed(0)}</text>`})});
+ return `<svg viewBox="0 0 ${S} ${S}" width="100%">${g}</svg>`}
+
+/* ══ CONCENTRATION ══ */
+function concentration(){
+ const w=[...H].map(h=>h.w).sort((a,b)=>b-a);
+ const hhi=Math.round(w.reduce((s,x)=>s+x*x,0));
+ const W=250,Hh=130;let cum=0;const pts=[[0,Hh-10]];
+ w.forEach((x,i)=>{cum+=x;pts.push([(i+1)/w.length*W,Hh-10-cum/100*(Hh-20)])});
+ const even=`M0 ${Hh-10} L${W} ${10}`;
+ const top5=w.slice(0,5).reduce((a,b)=>a+b,0),top10=w.slice(0,10).reduce((a,b)=>a+b,0);
+ return `<svg viewBox="0 0 ${W} ${Hh}" width="100%" height="130">
+  <path d="${even}" stroke="rgba(255,255,255,.18)" stroke-dasharray="4 4" fill="none"/>
+  <path d="${path(pts)} L${W} ${Hh-10} Z" fill="rgba(232,184,75,.14)"/>
+  <path d="${path(pts)}" fill="none" stroke="#e8b84b" stroke-width="1.8"/>
+  <text x="4" y="14" font-size="9" fill="#59646f">cumulative weight</text></svg>
+ <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px">
+  ${[['Top 5',top5.toFixed(1)+'%'],['Top 10',top10.toFixed(1)+'%'],['HHI',hhi]].map(k=>`<div class="kpi" style="padding:8px 9px">
+   <div class="lbl" style="font-size:9px">${k[0]}</div><div class="mono" style="font-size:15px;font-weight:600;margin-top:2px">${k[1]}</div></div>`).join('')}</div>
+ <div style="margin-top:9px;font-size:11px;color:var(--tx3);line-height:1.5">HHI ${hhi} sits in the <b style="color:var(--gold)">moderately concentrated</b> band (<1000 = diffuse, >1800 = concentrated). The curve bows above the diagonal — half your risk lives in 5 names.</div>`}
+
+/* ══ SCENARIO LAB ══ */
+const SENS={ // %move per: +100bp rates, +5% USD, +10% oil, +10% AI capex, +10% China GDP proxy
+ NVDA:[-6.2,-1.1,0,14.5,3.2], MSFT:[-3.4,-.8,0,6.1,1.1], ASML:[-5.1,1.4,0,11.2,4.8], TSM:[-4.6,1.1,0,12.4,5.6],
+ UNH:[-1.2,-.4,0,.4,.2], NOVO:[-1.6,1.8,0,.3,1.1], JPM:[2.8,-.6,0,.5,.9], V:[-1.4,-.9,0,1.2,1.4],
+ LVMH:[-3.1,2.2,0,.4,7.8], AMZN:[-4.2,-1.0,-1.2,5.4,1.8], COST:[-1.8,-.5,-.6,.3,.6], NESN:[-1.1,2.4,0,.1,1.2],
+ XOM:[.6,-.7,7.8,0,2.1], EQNR:[.4,1.9,8.6,0,1.9], CAT:[-2.6,-.8,1.1,1.6,5.2], SIE:[-2.9,2.1,.4,3.1,4.4],
+ BHP:[-2.2,1.6,2.2,.8,9.4], SE:[-7.8,1.2,0,2.1,3.8], MELI:[-7.1,2.8,0,1.9,1.2], SHOP:[-8.4,-1.2,0,3.4,1.1]};
+const SHOCKS=[{k:'rates',l:'Policy rates',u:'bp',min:-200,max:200,step:25,v:0,f:v=>v/100},
+ {k:'usd',l:'US dollar',u:'%',min:-10,max:10,step:1,v:0,f:v=>v/5},
+ {k:'oil',l:'Crude oil',u:'%',min:-40,max:40,step:5,v:0,f:v=>v/10},
+ {k:'ai',l:'AI capex cycle',u:'%',min:-30,max:30,step:5,v:0,f:v=>v/10},
+ {k:'china',l:'China demand',u:'%',min:-15,max:15,step:1,v:0,f:v=>v/10}];
+const PRESETS={'Hard landing':[-150,4,-25,-20,-8],'Rates shock':[125,5,10,-10,-2],'AI winter':[0,0,0,-25,-4],'Reflation':[50,-4,20,12,8],'Reset':[0,0,0,0,0]};
+function scenarioCalc(){
+ const f=SHOCKS.map(s=>s.f(s.v));
+ const res=H.map(h=>{const S=SENS[h.tk]||[0,0,0,0,0];
+  const m=S.reduce((s,x,i)=>s+x*f[i],0);return {tk:h.tk,flag:h.flag,m,imp:h.val*m/100,w:h.w}});
+ const tot=res.reduce((s,r)=>s+r.imp,0);
+ return {res,tot,pct:tot/TOTV*100}}
+function scenarioRender(){
+ const {res,tot,pct}=scenarioCalc();
+ const sorted=[...res].sort((a,b)=>a.imp-b.imp);
+ const mx=Math.max(...res.map(r=>Math.abs(r.imp)))||1;
+ $('#scnav').innerHTML=`<div class="mono ${cls(pct)}" style="font-size:30px;font-weight:600;letter-spacing:-1.2px">${pc(pct)}</div>
+  <div class="mono" style="font-size:12.5px;color:var(--tx2);margin-top:2px">${fmc(tot)} · NAV → ${fmc(TOTV+tot)}</div>`;
+ $('#scbars').innerHTML=sorted.map(r=>`<div style="display:grid;grid-template-columns:52px 1fr 54px;gap:8px;align-items:center;padding:1.5px 0">
+   <span class="mono" style="font-size:10.5px">${r.tk}</span>
+   <div style="position:relative;height:13px"><div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.1)"></div>
+    <div style="position:absolute;top:2.5px;height:8px;border-radius:3px;${r.imp>=0?`left:50%;width:${Math.abs(r.imp)/mx*49}%;background:#35d6a4`:`right:50%;width:${Math.abs(r.imp)/mx*49}%;background:#ff5f6d`};opacity:.8"></div></div>
+   <span class="mono ${cls(r.m)}" style="font-size:10.5px;text-align:right">${r.m.toFixed(1)}%</span></div>`).join('');
+}
+function scenarioLab(){
+ return `<div style="display:grid;grid-template-columns:300px 1fr;gap:18px">
+  <div>
+   <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
+    ${Object.keys(PRESETS).map(p=>`<span class="sb prs" data-p="${p}" style="padding:4px 10px;font-size:10.5px">${p}</span>`).join('')}</div>
+   ${SHOCKS.map(s=>`<div style="margin-bottom:11px">
+     <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+      <span style="font-size:11px;color:var(--tx2)">${s.l}</span>
+      <span class="mono" id="sv-${s.k}" style="font-size:11px;color:var(--gold);font-weight:600">${s.v>0?'+':''}${s.v}${s.u}</span></div>
+     <input type="range" class="shk" data-k="${s.k}" min="${s.min}" max="${s.max}" step="${s.step}" value="${s.v}"></div>`).join('')}
+   <div class="hr"></div>
+   <div class="lbl">Modelled NAV impact</div><div id="scnav" style="margin-top:4px"></div>
+   <div style="font-size:10.5px;color:var(--tx3);margin-top:8px;line-height:1.5">Factor sensitivities estimated from 3y daily regressions. Second-order effects excluded.</div>
+  </div>
+  <div><div class="lbl" style="margin-bottom:6px">Position-level impact</div>
+   <div id="scbars" style="max-height:330px;overflow:auto;padding-right:4px"></div></div></div>`}
+
+/* ══ THEMATIC OVERLAP ══ */
+const THEMES=[
+ {n:'AI / accelerated compute',tk:['NVDA','TSM','ASML','MSFT','SE'],d:'Same demand curve, different tickers.'},
+ {n:'US consumer strength',tk:['AMZN','COST','V','JPM'],d:'Levered to US labour market.'},
+ {n:'China end-demand',tk:['LVMH','BHP','TSM','SIE','CAT'],d:'Revenue exposure, not domicile.'},
+ {n:'Long-duration growth',tk:['SHOP','SE','MELI','NVDA'],d:'Highest rate sensitivity in the book.'},
+ {n:'Commodity price takers',tk:['XOM','EQNR','BHP'],d:'Natural hedge against inflation shocks.'}];
+function themes(){
+ return THEMES.map(t=>{const w=t.tk.reduce((s,k)=>{const h=H.find(x=>x.tk===k);return s+(h?h.w:0)},0);
+  const hot=w>30;
+  return `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+   <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:12px;font-weight:500">${t.n}</span>
+    <span class="mono" style="margin-left:auto;font-size:12.5px;font-weight:600;color:${hot?'var(--dn)':'var(--tx)'}">${w.toFixed(1)}%</span></div>
+   <div class="bar" style="height:5px;margin-top:6px"><i style="width:${Math.min(100,w*2)}%;background:${hot?'linear-gradient(90deg,#e8b84b,#ff5f6d)':'linear-gradient(90deg,#3b4a5c,#57d0ea)'}"></i></div>
+   <div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;align-items:center">
+    ${t.tk.map(k=>`<span class="tag">${k}</span>`).join('')}
+    <span style="margin-left:auto;font-size:10.3px;color:var(--tx3);font-style:italic">${t.d}</span></div></div>`}).join('')}
+
+/* ══ INCOME ══ */
+function income(){
+ const ann=H.reduce((s,h)=>s+h.val*h.dy/100,0);
+ const cb=H.reduce((s,h)=>s+h.cb,0);
+ const months=[0,1,2,3,4,5,6,7,8,9,10,11].map(m=>{let v=0;H.forEach((h,i)=>{if(h.dy&&((i+m)%3===0||h.dy>3&&m%6===(i%6)))v+=h.val*h.dy/100/(h.dy>3?2:4)});return v});
+ const mx=Math.max(...months);
+ return `<div style="display:flex;gap:16px;align-items:flex-end;margin-bottom:12px">
+   <div><div class="lbl">Forward 12m income</div><div class="big mono" style="margin-top:3px">${fmc(ann)}</div></div>
+   <div><div class="lbl">Yield on cost</div><div class="mono" style="font-size:17px;font-weight:600;margin-top:5px">${(ann/cb*100).toFixed(2)}%</div></div>
+   <div><div class="lbl">Current yield</div><div class="mono" style="font-size:17px;font-weight:600;margin-top:5px;color:var(--tx2)">${(ann/TOTV*100).toFixed(2)}%</div></div>
+   <div style="margin-left:auto;text-align:right"><div class="lbl">Covers</div><div class="mono" style="font-size:13px;color:var(--tx2);margin-top:5px">${(ann/12/1000).toFixed(1)}k / month</div></div></div>
+  <div style="display:flex;gap:4px;align-items:flex-end;height:96px">
+   ${months.map((v,i)=>`<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px">
+     <span class="mono" style="font-size:8.5px;color:var(--tx3)">${v>mx*.25?(v/1000).toFixed(0)+'k':''}</span>
+     <div style="width:100%;height:${Math.max(3,v/mx*70)}px;border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,#e8b84b,rgba(232,184,75,.25))"></div>
+     <span class="lbl" style="font-size:8.5px">${MONTHS[i][0]}</span></div>`).join('')}</div>
+  <div style="margin-top:10px;font-size:11px;color:var(--tx3)">Top payers: ${[...H].filter(h=>h.dy).sort((a,b)=>b.val*b.dy-a.val*a.dy).slice(0,3).map(h=>`<b style="color:var(--tx2)">${h.tk}</b> ${fmc(h.val*h.dy/100)}`).join(' · ')}</div>`}
+
+/* ══ VALUATION MAP ══ */
+function valuation(){
+ const W=620,Hh=300,pad=42;
+ const gr=h=>Math.max(2,Math.min(42,h.pe*.55+(h.ytd/6)));
+ const xs=H.map(h=>Math.min(72,h.pe)),ys=H.map(gr);
+ const xmn=5,xmx=75,ymn=0,ymx=45;
+ const X=v=>pad+(v-xmn)/(xmx-xmn)*(W-pad-14),Y=v=>Hh-pad-(v-ymn)/(ymx-ymn)*(Hh-pad-16);
+ let g='';
+ for(let v=10;v<=70;v+=20)g+=`<line x1="${X(v)}" x2="${X(v)}" y1="10" y2="${Hh-pad}" stroke="rgba(255,255,255,.05)"/><text x="${X(v)}" y="${Hh-pad+14}" text-anchor="middle" font-size="9.5" fill="#59646f" font-family="JetBrains Mono">${v}x</text>`;
+ for(let v=10;v<=40;v+=10)g+=`<line x1="${pad}" x2="${W-14}" y1="${Y(v)}" y2="${Y(v)}" stroke="rgba(255,255,255,.05)"/><text x="${pad-7}" y="${Y(v)+3}" text-anchor="end" font-size="9.5" fill="#59646f" font-family="JetBrains Mono">${v}%</text>`;
+ // fair value diagonal (PEG=1.5)
+ g+=`<path d="M${X(15)} ${Y(10)} L${X(67.5)} ${Y(45)}" stroke="rgba(232,184,75,.35)" stroke-dasharray="5 4"/>
+  <text x="${X(58)}" y="${Y(43)}" font-size="9.5" fill="rgba(232,184,75,.7)">PEG ≈ 1.5</text>`;
+ H.forEach(h=>{const x=X(Math.min(72,h.pe)),y=Y(gr(h)),r=4+Math.sqrt(h.w)*4.4;
+  g+=`<circle class="vb" data-tk="${h.tk}" cx="${x}" cy="${y}" r="${r}" fill="${SECC[h.sec]}" opacity=".6" stroke="${SECC[h.sec]}" stroke-width="1.3" style="cursor:pointer"/>
+   ${h.w>4.5?`<text x="${x}" y="${y+3}" text-anchor="middle" font-size="8.5" font-family="JetBrains Mono" fill="#06080b" font-weight="700">${h.tk}</text>`:''}`});
+ g+=`<text x="${W/2}" y="${Hh-6}" text-anchor="middle" font-size="9.5" fill="#59646f">forward P/E →</text>
+  <text x="12" y="${Hh/2}" text-anchor="middle" font-size="9.5" fill="#59646f" transform="rotate(-90 12 ${Hh/2})">est. earnings growth →</text>`;
+ return `<svg viewBox="0 0 ${W} ${Hh}" width="100%">${g}</svg>
+  <div style="font-size:11px;color:var(--tx3);margin-top:4px">Bubble size = portfolio weight. Above the dashed line = growth you are <b style="color:var(--up)">not</b> overpaying for; below = priced for perfection.</div>`}
+
+/* ══ PAGE: ANALYSIS ══ */
+function pageAnalysis(){
+ return `<div class="sub"><span class="sb" data-go="overview">Overview</span><span class="sb" data-go="holdings">Holdings</span>
+  <span class="sb" data-go="performance">Performance</span><span class="sb on">Analysis</span>
+  <span style="margin-left:auto;align-self:center;font-size:10.5px;color:var(--tx3)">Models refreshed nightly · 3y lookback</span></div>
+ <div class="grid fade" style="grid-template-columns:repeat(12,1fr)">
+  ${card('Scenario Lab','move the world, see your book',scenarioLab(),'grid-column:span 12')}
+  ${card('Factor Exposure','vs MSCI ACWI',radar()+
+    `<div style="font-size:11px;color:var(--tx3);line-height:1.5">You are long <b style="color:var(--gold)">growth + momentum</b> and short <b style="color:var(--tx2)">value</b>. In a value rotation this book underperforms even if every company delivers.</div>`,'grid-column:span 4')}
+  ${card('Correlation','top 12 by value · 1y daily',matrix()+
+    `<div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+      <span class="lbl">low</span><div style="flex:1;height:6px;border-radius:6px;background:linear-gradient(90deg,rgba(87,208,234,.2),rgba(232,184,75,.6),rgba(255,95,109,.9))"></div><span class="lbl">high</span></div>`,'grid-column:span 5')}
+  ${card('Concentration','Lorenz curve',concentration(),'grid-column:span 3')}
+  ${card('Hidden Overlap','one bet wearing many names',themes(),'grid-column:span 5')}
+  ${card('Valuation Map','price vs growth',valuation(),'grid-column:span 7')}
+  ${card('Income Engine','dividends, forward 12 months',income(),'grid-column:span 12')}
+ </div>`}
+</script>
+<style>
+#scrim{position:fixed;inset:0;background:rgba(3,5,8,.62);backdrop-filter:blur(3px);z-index:50;opacity:0;pointer-events:none;transition:.25s}
+#scrim.on{opacity:1;pointer-events:auto}
+#drw{position:fixed;top:0;right:0;bottom:0;width:430px;max-width:92vw;z-index:51;overflow:auto;
+ background:linear-gradient(180deg,#0e141c,#080b10);border-left:1px solid var(--line2);
+ transform:translateX(102%);transition:transform .34s cubic-bezier(.3,.9,.3,1);box-shadow:-30px 0 70px rgba(0,0,0,.55)}
+#drw.on{transform:none}
+.dxc{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.06);cursor:pointer;color:var(--tx2)}
+.dxc:hover{color:var(--tx);background:rgba(255,255,255,.12)}
+.st{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.045);font-size:12px}
+.st span:first-child{color:var(--tx2)}
+</style>
+<div id="scrim"></div><aside id="drw"></aside>
+<script>
+/* ══ DRAWER ══ */
+function openDrawer(tk){
+ const h=H.find(x=>x.tk===tk);if(!h)return;
+ const a=MS[tk],p=scale(a,380,110,6);
+ const rel=NEWS.filter(n=>n.hits.includes(tk));
+ const ev=EVENTS.filter(e=>e.t===tk);
+ const S=SENS[tk]||[0,0,0,0,0];const sl=['Rates +100bp','USD +5%','Oil +10%','AI capex +10%','China +10%'];
+ $('#drw').innerHTML=`
+ <div style="padding:16px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(12,17,24,.93);backdrop-filter:blur(12px);z-index:2">
+  <div style="display:flex;align-items:center;gap:10px">
+   <span style="font-size:22px">${h.flag}</span>
+   <div><div style="font-size:17px;font-weight:600;letter-spacing:-.3px">${h.tk}</div><div style="font-size:11px;color:var(--tx3)">${h.name} · ${h.ctry}</div></div>
+   <div class="dxc" id="dx" style="margin-left:auto">✕</div></div>
+  <div style="display:flex;align-items:baseline;gap:9px;margin-top:11px">
+   <span class="mono" style="font-size:24px;font-weight:600">$${h.px.toFixed(2)}</span>
+   <span class="pill ${h.d>=0?'p':'n'} mono">${pc(h.d)}</span>
+   <span style="margin-left:auto" class="tag" style="border-color:${SECC[h.sec]}55;color:${SECC[h.sec]}">${h.sec}</span></div>
+ </div>
+ <div style="padding:14px 18px">
+  <svg viewBox="0 0 380 110" width="100%" height="110">
+   <defs><linearGradient id="dgr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${h.ytd>=0?'#35d6a4':'#ff5f6d'}" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient></defs>
+   <path d="${smooth(p)} L380 110 L0 110 Z" fill="url(#dgr)"/>
+   <path d="${smooth(p)}" fill="none" stroke="${h.ytd>=0?'#35d6a4':'#ff5f6d'}" stroke-width="1.8"/></svg>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0">
+   <div class="kpi"><div class="lbl">Market value</div><div class="n mono">${fmc(h.val)}</div><div style="font-size:10.5px;color:var(--tx3)">${h.w.toFixed(2)}% of NAV</div></div>
+   <div class="kpi"><div class="lbl">Unrealised P/L</div><div class="n mono ${cls(h.pl)}">${fmc(h.pl)}</div><div class="mono ${cls(h.plp)}" style="font-size:10.5px">${pc(h.plp,1)}</div></div></div>
+  <div class="st"><span>Shares</span><b class="mono">${h.sh.toLocaleString()}</b></div>
+  <div class="st"><span>Average cost</span><b class="mono">$${h.cost.toFixed(2)}</b></div>
+  <div class="st"><span>Day P/L</span><b class="mono ${cls(h.dval)}">${fmc(h.dval)}</b></div>
+  <div class="st"><span>Contribution today</span><b class="mono ${cls(h.dval)}">${(h.dval/TOTV*1e4).toFixed(1)} bps</b></div>
+  <div class="st"><span>Forward P/E</span><b class="mono">${h.pe.toFixed(1)}x</b></div>
+  <div class="st"><span>Dividend yield</span><b class="mono">${h.dy?h.dy.toFixed(2)+'%':'—'}</b></div>
+  <div class="st"><span>Beta (ACWI)</span><b class="mono">${h.beta.toFixed(2)}</b></div>
+  <div class="st"><span>YTD</span><b class="mono ${cls(h.ytd)}">${pc(h.ytd,1)}</b></div>
+
+  <div class="lbl" style="margin:16px 0 7px">Factor sensitivity</div>
+  ${S.map((v,i)=>`<div style="display:grid;grid-template-columns:104px 1fr 42px;gap:8px;align-items:center;padding:2px 0">
+    <span style="font-size:10.5px;color:var(--tx2)">${sl[i]}</span>
+    <div style="position:relative;height:11px"><div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.1)"></div>
+     <div style="position:absolute;top:2px;height:7px;border-radius:3px;${v>=0?`left:50%;width:${Math.abs(v)/15*49}%;background:#35d6a4`:`right:50%;width:${Math.abs(v)/15*49}%;background:#ff5f6d`};opacity:.8"></div></div>
+    <span class="mono ${cls(v)}" style="font-size:10.5px;text-align:right">${v.toFixed(1)}%</span></div>`).join('')}
+
+  ${ev.length?`<div class="lbl" style="margin:16px 0 7px">Upcoming</div>
+   ${ev.map(e=>`<div style="padding:8px 10px;border-radius:9px;background:rgba(232,184,75,.08);border:1px solid rgba(232,184,75,.2);font-size:11.5px;margin-bottom:6px">
+     <b>${e.d}</b> · ${e.k} — <span style="color:var(--tx2)">${e.n}</span></div>`).join('')}`:''}
+
+  ${rel.length?`<div class="lbl" style="margin:16px 0 7px">Linked news</div>
+   ${rel.map(n=>`<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.045)">
+     <div style="font-size:11.8px;line-height:1.4">${n.t}</div>
+     <div style="font-size:10.3px;color:var(--tx3);margin-top:3px">${n.src} · ${n.ago} · <span style="color:${n.sent>0?'var(--up)':'var(--dn)'}">${n.sent>0?'supportive':'adverse'}</span></div></div>`).join('')}`:''}
+ </div>`;
+ $('#drw').classList.add('on');$('#scrim').classList.add('on');
+ $('#dx').onclick=closeDrawer}
+function closeDrawer(){$('#drw').classList.remove('on');$('#scrim').classList.remove('on')}
+$('#scrim').onclick=closeDrawer;
+addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+
+/* ══ ROUTER ══ */
+const PAGES={overview:pageOverview,holdings:pageHoldings,performance:pagePerformance,analysis:pageAnalysis};
+let page='overview';
+function go(p){page=p;$('#view').innerHTML=PAGES[p]();
+ $$('#tabs .tab').forEach(t=>t.classList.toggle('on',t.dataset.p===p));
+ wire();scrollTo({top:0,behavior:'smooth'})}
+$$('#tabs .tab').forEach(t=>t.onclick=()=>go(t.dataset.p));
+
+function wire(){
+ $$('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+ // rows / cells → drawer
+ $$('[data-tk]').forEach(el=>{const tk=el.dataset.tk;
+  el.addEventListener('click',()=>openDrawer(tk));
+  const h=H.find(x=>x.tk===tk);if(!h)return;
+  bindTip(el,()=>`<b>${h.flag} ${h.tk}</b> <span style="color:var(--tx3)">${h.name}</span>
+   <div style="margin-top:4px;display:grid;grid-template-columns:auto auto;gap:2px 14px;font-size:11px">
+    <span style="color:var(--tx2)">Weight</span><b class="mono" style="text-align:right">${h.w.toFixed(2)}%</b>
+    <span style="color:var(--tx2)">Value</span><b class="mono" style="text-align:right">${fmc(h.val)}</b>
+    <span style="color:var(--tx2)">Today</span><b class="mono ${cls(h.d)}" style="text-align:right">${pc(h.d)}</b>
+    <span style="color:var(--tx2)">All-time</span><b class="mono ${cls(h.plp)}" style="text-align:right">${pc(h.plp,1)}</b></div>
+   <div style="margin-top:5px;font-size:10px;color:var(--tx3)">click for detail</div>`)});
+ // range
+ const rng=$('#rng');if(rng)$$('span',rng).forEach(s=>s.onclick=()=>{curRange=s.dataset.r;
+   $$('span',rng).forEach(x=>x.classList.toggle('on',x===s));$('#eqwrap').innerHTML=equityChart(curRange)});
+ // alloc mode
+ const am=$('#almode');if(am)$$('span',am).forEach(s=>s.onclick=()=>{allocMode=s.dataset.m;
+   $$('span',am).forEach(x=>x.classList.toggle('on',x===s));$('#dwrap').innerHTML=donut();wireDonut()});
+ wireDonut();
+ // health tips
+ $$('.hmet').forEach(el=>bindTip(el,()=>el.dataset.d));
+ // treemap mode
+ const tm=$('#tmmode');if(tm)$$('span',tm).forEach(s=>s.onclick=()=>{tmMode=s.dataset.m;
+   $$('span',tm).forEach(x=>x.classList.toggle('on',x===s));$('#tmwrap').innerHTML=treemap();wire()});
+ // table sort
+ $$('#tbl th[data-k]').forEach(th=>th.onclick=()=>{const k=th.dataset.k;
+   if(sortK===k)sortD*=-1;else{sortK=k;sortD=(k==='tk'||k==='sec')?1:-1}
+   $('#tbl').innerHTML=tableHTML();wire()});
+ // heatmap cells
+ $$('.hm').forEach(el=>bindTip(el,()=>`<b class="mono ${cls(+el.dataset.v)}">${pc(+el.dataset.v)}</b><div style="color:var(--tx3);font-size:10.5px">monthly return</div>`));
+ // matrix
+ $$('.mc').forEach(el=>bindTip(el,()=>`<b>${el.dataset.a} ↔ ${el.dataset.b}</b>
+   <div class="mono" style="font-size:16px;margin-top:2px;color:${+el.dataset.v>.7?'var(--dn)':'var(--tx)'}">${el.dataset.v}</div>
+   <div style="font-size:10.5px;color:var(--tx3)">${+el.dataset.v>.7?'moves as one position':+el.dataset.v>.45?'partially independent':'genuine diversification'}</div>`));
+ // scenario
+ if($('#scbars')){
+  $$('.shk').forEach(i=>i.oninput=()=>{const s=SHOCKS.find(x=>x.k===i.dataset.k);s.v=+i.value;
+    $('#sv-'+s.k).textContent=(s.v>0?'+':'')+s.v+s.u;scenarioRender()});
+  $$('.prs').forEach(b=>b.onclick=()=>{const v=PRESETS[b.dataset.p];
+    $$('.prs').forEach(x=>x.classList.toggle('on',x===b&&b.dataset.p!=='Reset'));
+    SHOCKS.forEach((s,i)=>{s.v=v[i];const inp=$(`.shk[data-k="${s.k}"]`);inp.value=s.v;$('#sv-'+s.k).textContent=(s.v>0?'+':'')+s.v+s.u});
+    scenarioRender()});
+  scenarioRender()}
+ // globe
+ startGlobe();
+ // equity crosshair
+ const eq=$('#eqsvg');if(eq){const cross=$('#eqcross');
+  eq.addEventListener('mousemove',e=>{const b=eq.getBoundingClientRect();const t=(e.clientX-b.left)/b.width;
+   const n=Math.min(RANGES[curRange],EQ.length),i=Math.max(0,Math.min(n-1,Math.round(t*(n-1))));
+   const es=EQ.slice(-n),bs=BM.slice(-n);const v=es[i]/es[0]*100,bv=bs[i]/bs[0]*100;
+   cross.style.opacity=1;const X=t*900;
+   $('#eqvl').setAttribute('x1',X);$('#eqvl').setAttribute('x2',X);
+   const mn=Math.min(...es.map(x=>x/es[0]*100),...bs.map(x=>x/bs[0]*100)),mx=Math.max(...es.map(x=>x/es[0]*100),...bs.map(x=>x/bs[0]*100)),pad=(mx-mn)*.12;
+   const y=q=>250-14-((q-mn+pad)/((mx-mn)+pad*2))*220;
+   $('#eqd1').setAttribute('cx',X);$('#eqd1').setAttribute('cy',y(v));
+   $('#eqd2').setAttribute('cx',X);$('#eqd2').setAttribute('cy',y(bv));
+   const days=Math.round((n-1-i));
+   tipOn(e,`<div style="font-size:10px;color:var(--tx3)">${days===0?'today':days+' trading days ago'}</div>
+    <div style="margin-top:3px"><b class="mono">${fmc(es[i]/EQ[EQ.length-1]*TOTV)}</b></div>
+    <div class="mono ${cls(v-100)}" style="font-size:11px">Portfolio ${pc(v-100)}</div>
+    <div class="mono" style="font-size:11px;color:var(--tx2)">Benchmark ${pc(bv-100)}</div>`)});
+  eq.addEventListener('mouseleave',()=>{cross.style.opacity=0;tipOff()})}
+}
+function wireDonut(){
+ const a=allocData(allocMode);
+ const set=(i)=>{const d=a[i];$('#dlbl').textContent=d.k;$('#dval').textContent=fmc(d.v);$('#dsub').textContent=d.p.toFixed(1)+'% of NAV'};
+ const reset=()=>{$('#dlbl').textContent='Total';$('#dval').textContent=fmc(TOTV);$('#dsub').textContent=a.length+' groups'};
+ $$('.dseg').forEach(s=>{s.onmouseenter=()=>{s.style.transform='scale(1.045)';s.style.opacity=1;set(+s.dataset.i)};
+  s.onmouseleave=()=>{s.style.transform='';s.style.opacity='.88';reset()}});
+ $$('.lgi').forEach(l=>{l.onmouseenter=()=>{set(+l.dataset.i);const s=$(`.dseg[data-i="${l.dataset.i}"]`);if(s){s.style.transform='scale(1.045)';s.style.opacity=1}};
+  l.onmouseleave=()=>{reset();const s=$(`.dseg[data-i="${l.dataset.i}"]`);if(s){s.style.transform='';s.style.opacity='.88'}}});
+}
+
+/* ══ HEADER ══ */
+(function header(){
+ const dayp=DAYPL/(TOTV-DAYPL)*100;
+ let shown=0;const target=TOTV;const t0=performance.now();
+ const step=()=>{const k=Math.min(1,(performance.now()-t0)/1100);const e=1-Math.pow(1-k,3);
+  $('#hv').textContent=fm(target*e);if(k<1)requestAnimationFrame(step)};step();
+ const hp=$('#hp');hp.textContent=pc(dayp);hp.className='pill mono '+(dayp>=0?'p':'n');
+ const s=EQ.slice(-60),p=scale(s,118,28,3);
+ $('#hspark').innerHTML=`<path d="${smooth(p)}" fill="none" stroke="${dayp>=0?'#35d6a4':'#ff5f6d'}" stroke-width="1.5"/>`;
+ const tick=()=>{const d=new Date();$('#clock').textContent=d.toTimeString().slice(0,8)};tick();setInterval(tick,1000);
+})();
+$$('#rail .rl').forEach(r=>r.onclick=()=>{if(r.dataset.n!=='Portfolio'){
+  tipOn({clientX:innerWidth/2,clientY:70},`<b>${r.dataset.n}</b><div style="color:var(--tx3);font-size:11px">Module not part of this prototype</div>`);
+  setTimeout(tipOff,1400)}});
+go('overview');
+</script>
+
+</body>
+</html>
