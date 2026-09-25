@@ -1,0 +1,13 @@
+id,symbol,type,date,title,detail
+"1","NVDA","earnings","2026-09-30","NVDA Q1 print","Street at $0.89 / $44.1B. Watch networking attach and China."
+"2","AAPL","dividend","2026-10-03","AAPL ex-dividend","$0.25 declared. Small, but the calendar is the calendar."
+"3","","macro","2026-10-06","FOMC decision","Hold expected. Dots more interesting than the statement."
+"4","LLY","earnings","2026-10-08","LLY Q1 print","Supply commentary is the whole note."
+"5","ASML","earnings","2026-10-12","ASML Q1 print","Book-to-bill and High-NA commentary."
+"6","MSFT","earnings","2026-10-15","MSFT FYQ3","Azure growth vs capex. Copilot seats a sideshow."
+"7","JPM","dividend","2026-10-17","JPM ex-dividend","$1.25. Income sleeve."
+"8","NVO","earnings","2026-10-21","NVO Q1 print","Guidance repair job after the cut."
+"9","META","earnings","2026-10-23","META Q1 print","Ad pricing and Reality Labs opex."
+"10","SHEL","dividend","2026-10-27","SHEL ex-dividend","Yield name. Buyback still running."
+"11","","macro","2026-10-30","CPI print","Core services still the hinge for duration."
+"12","TSM","earnings","2026-11-04","TSM Q1 print","N2 ramp and CoWoS capacity."

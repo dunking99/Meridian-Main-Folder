@@ -1,0 +1,6 @@
+id,code,usd_per_unit,label
+"1","USD","1","US Dollar"
+"2","EUR","0.921","Euro"
+"3","GBP","0.784","Sterling"
+"4","CHF","0.874","Swiss Franc"
+"5","JPY","149.2","Yen"

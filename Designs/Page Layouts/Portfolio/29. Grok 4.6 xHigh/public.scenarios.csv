@@ -1,0 +1,7 @@
+id,portfolio_id,name,shock,impact_pct
+"1","1","Soft landing","Vol crush, +75bp curve bull flatten","8.4"
+"2","1","Hard landing","Recession, earnings -18%, spreads +180","-16.2"
+"3","1","Inflation scare","CPI re-acceleration, real yields +80bp","-7.1"
+"4","1","AI winter","Semi multiple mean-reverts 1.5σ","-11.8"
+"5","1","Dollar crush","DXY -12%, EM and gold bid","4.6"
+"6","1","Rates +100bp","Parallel shift, growth derated","-6.4"
