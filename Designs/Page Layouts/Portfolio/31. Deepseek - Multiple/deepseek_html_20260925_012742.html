@@ -1,0 +1,2548 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14282d">
+  <title>Meridian — Portfolio</title>
+  <style>
+    :root {
+      --canvas: #f3f2ed;
+      --paper: #fffefa;
+      --ink: #1b2b30;
+      --muted: #77858a;
+      --line: #e5e8e2;
+      --deep: #14282d;
+      --deep-2: #1c363a;
+      --teal: #16765c;
+      --mint: #b8e3ce;
+      --red: #b85852;
+      --gold: #be9251;
+      --blue: #6c96b7;
+      --radius: 16px;
+      --shadow: 0 8px 28px rgba(20, 40, 45, .035);
+      font-synthesis: none;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body.overlay-open { overflow: hidden; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .5; }
+    button:focus-visible, input:focus-visible, select:focus-visible, svg:focus-visible {
+      outline: 3px solid #81bea9;
+      outline-offset: 3px;
+    }
+    svg { display: block; }
+    .serif { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+    .mono, .eyebrow, .side-kicker, .micro-label {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    .positive { color: var(--teal); }
+    .negative { color: var(--red); }
+    .muted { color: var(--muted); }
+    .eyebrow, .micro-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .145em;
+      text-transform: uppercase;
+    }
+    .micro-label { color: var(--muted); }
+    .shell { display: grid; grid-template-columns: 226px minmax(0, 1fr); min-height: 100vh; }
+
+    /* Navigation */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 25px 14px 19px;
+      color: #dbe7e3;
+      background: var(--deep);
+      border-right: 1px solid rgba(255,255,255,.08);
+      z-index: 25;
+    }
+    .brand {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 2px 10px 25px;
+      border: 0;
+      background: none;
+      color: #fff;
+      text-align: left;
+    }
+    .brand-mark {
+      width: 35px; height: 35px;
+      display: grid; place-items: center;
+      flex: none;
+      border: 1px solid #96cdb8;
+      border-radius: 10px;
+      color: #b9e5d0;
+      font: italic 25px Georgia, serif;
+    }
+    .brand-name { font: 25px Georgia, serif; letter-spacing: -.055em; line-height: 1; }
+    .brand-name small {
+      display: block;
+      margin-top: 6px;
+      color: #8da9a6;
+      font: 8px/1.1 ui-monospace, Consolas, monospace;
+      letter-spacing: .16em;
+    }
+    .sidebar-rule { height: 1px; background: rgba(255,255,255,.1); margin: 0 10px 24px; }
+    .side-kicker { margin: 0 12px 12px; color: #839e9d; font-size: 10px; letter-spacing: .17em; }
+    .primary-nav, .side-tab {
+      width: 100%;
+      border: 0;
+      color: #b6cbc7;
+      background: transparent;
+      text-align: left;
+    }
+    .primary-nav {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 13px;
+      border-radius: 10px;
+      font-weight: 650;
+    }
+    .primary-nav.active { background: #244440; color: #fff; }
+    .nav-icon { width: 17px; color: #9ee0c3; font-size: 19px; line-height: 1; }
+    .nav-count { margin-left: auto; color: #a5c9bd; font: 10px ui-monospace, monospace; }
+    .side-subnav { margin: 9px 0 22px 21px; padding-left: 11px; border-left: 1px solid #40615d; }
+    .side-tab {
+      display: flex; gap: 12px; align-items: center;
+      padding: 10px 11px; border-radius: 8px;
+      color: #a4b9b6;
+    }
+    .side-tab:hover, .side-tab.active { color: #fff; background: rgba(255,255,255,.075); }
+    .side-tab.active { box-shadow: inset 2px 0 #8bd9b9; }
+    .side-number { color: #88a6a0; font: 10px ui-monospace, Consolas, monospace; }
+    .side-roadmap { margin-top: 12px; padding: 16px 10px; border-top: 1px solid rgba(255,255,255,.1); }
+    .roadmap-row {
+      display: flex; justify-content: space-between;
+      padding: 10px 2px; color: #809994;
+    }
+    .roadmap-row small { color: #718a86; font: 10px ui-monospace, monospace; }
+    .side-bottom { margin-top: auto; padding: 15px 8px 0; border-top: 1px solid rgba(255,255,255,.1); }
+    .account-chip { display: flex; align-items: center; gap: 10px; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: #d6ba86; color: #23372d;
+      font: bold 12px Georgia, serif;
+    }
+    .account-chip strong { display: block; font-size: 12px; }
+    .account-chip small { display: block; color: #8da8a2; font-size: 11px; }
+    .demo-note {
+      display: flex; align-items: center; gap: 7px;
+      margin-top: 20px; color: #a8c0b9;
+      font: 9px ui-monospace, Consolas, monospace; letter-spacing: .06em;
+    }
+    .status-dot { display: inline-block; width: 7px; height: 7px; flex: none; border-radius: 50%; background: #73d5aa; }
+
+    /* Workspace */
+    .workspace { min-width: 0; }
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      min-height: 66px;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      padding: 12px clamp(20px, 3vw, 44px);
+      background: rgba(243,242,237,.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+    .breadcrumb { color: var(--muted); white-space: nowrap; font-size: 12px; }
+    .breadcrumb span { padding: 0 9px; color: #abb5b3; }
+    .breadcrumb strong { color: var(--ink); font-weight: 650; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .top-date { color: var(--muted); white-space: nowrap; font-size: 11px; }
+    .sync-button, .top-export, .currency-box {
+      display: inline-flex; align-items: center; gap: 8px;
+      min-height: 34px; padding: 0 11px;
+      border: 1px solid #dce2dc; border-radius: 8px;
+      background: var(--paper); color: var(--ink);
+      white-space: nowrap; font-size: 11px; font-weight: 650;
+    }
+    .sync-button:hover, .top-export:hover { border-color: #91b9a9; }
+    .currency-box { padding-right: 4px; }
+    .currency-box span { color: var(--muted); font-weight: 500; }
+    .currency-box select { border: 0; background: transparent; color: var(--ink); font-weight: 700; outline: 0; }
+    .main { max-width: 1660px; margin: 0 auto; padding: 29px clamp(20px,3vw,44px) 38px; }
+    .page { animation: page-in .28s ease-out; }
+    @keyframes page-in { from { opacity: .5; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .page-head {
+      display: flex; justify-content: space-between; align-items: end; gap: 22px;
+      margin: 0 0 23px;
+    }
+    .page-head h1 {
+      margin: 7px 0 5px;
+      font: 400 clamp(33px, 3.6vw, 49px)/1.06 Georgia, serif;
+      letter-spacing: -.055em;
+    }
+    .page-head h1 em { color: #367566; font-weight: 400; }
+    .page-head p { margin: 0; color: var(--muted); font-size: 13px; }
+    .head-aside { text-align: right; color: var(--muted); font-size: 11px; }
+    .head-aside strong { display: block; color: var(--ink); font-weight: 600; }
+    .page-head.compact h1 { font-size: clamp(31px, 3.2vw, 43px); }
+    .page-controls { display: flex; align-items: center; gap: 9px; }
+
+    /* Cards and controls */
+    .card {
+      min-width: 0;
+      padding: 20px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .card-head { display: flex; align-items: start; justify-content: space-between; gap: 15px; margin-bottom: 16px; }
+    .card-head h2, .card-head h3 { margin: 2px 0 2px; font-size: 16px; letter-spacing: -.025em; }
+    .card-head p { margin: 0; color: var(--muted); font-size: 11px; }
+    .card-link, .text-button {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 0; border: 0; background: none;
+      color: var(--teal); font-size: 11px; font-weight: 700;
+      white-space: nowrap;
+    }
+    .card-link:hover, .text-button:hover { text-decoration: underline; }
+    .subtle-note { color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .segmented {
+      display: inline-flex; gap: 2px; padding: 3px;
+      border: 1px solid #e3e8e3; border-radius: 9px; background: #f2f5f1;
+    }
+    .segmented button {
+      min-height: 27px;
+      padding: 4px 9px; border: 0; border-radius: 6px;
+      background: transparent; color: #647578;
+      font-size: 11px; white-space: nowrap;
+    }
+    .segmented button:hover { color: var(--ink); }
+    .segmented button.active { background: var(--paper); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.09); font-weight: 700; }
+    .segmented.dark { background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.12); }
+    .segmented.dark button { color: #adc3be; }
+    .segmented.dark button.active { background: #e7f4ec; color: #173d32; }
+    .outline-button, .solid-button {
+      display: inline-flex; justify-content: center; align-items: center; gap: 7px;
+      min-height: 34px; padding: 7px 12px;
+      border-radius: 8px; font-size: 11px; font-weight: 700;
+    }
+    .outline-button { color: var(--ink); background: var(--paper); border: 1px solid #dce3dc; }
+    .outline-button:hover { border-color: #96bca9; }
+    .solid-button { background: var(--deep); color: white; border: 1px solid var(--deep); }
+    .solid-button:hover { background: #285349; }
+    .plain-select, .search-input {
+      min-height: 35px; padding: 6px 10px;
+      border: 1px solid #dce3dc; border-radius: 8px;
+      background: var(--paper); color: var(--ink); outline-color: #8ec7ad;
+      font-size: 12px;
+    }
+    .search-input { width: min(270px, 100%); }
+    .chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 8px; border: 1px solid #e1e8df;
+      border-radius: 999px; color: #61716f;
+      background: #f8faf7; font-size: 10px;
+      white-space: nowrap;
+    }
+    .chip.warn { color: #9a6a25; border-color: #eee0bc; background: #fff8e8; }
+    .chip.good { color: #167258; border-color: #cae8d9; background: #effaf3; }
+    .dot { display: inline-block; width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--dot, var(--teal)); }
+    .stat-value { font: 400 27px/1.05 Georgia, serif; letter-spacing: -.04em; }
+    .foot-rule { border-top: 1px solid var(--line); padding-top: 11px; margin-top: 12px; }
+
+    /* Overview */
+    .overview-grid, .analysis-grid { display: grid; grid-template-columns: repeat(12,minmax(0,1fr)); gap: 15px; }
+    .span-5 { grid-column: span 5; } .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; } .span-12 { grid-column: span 12; }
+    .hero-card {
+      grid-column: span 12; display: grid; grid-template-columns: minmax(260px, .82fr) minmax(0, 1.45fr);
+      min-height: 310px; overflow: hidden; padding: 0;
+      background: linear-gradient(112deg,#152c30 8%,#19373a 58%,#20433d 100%);
+      color: #f6fcf7; border-color: #193b38;
+    }
+    .hero-left { position: relative; display: flex; flex-direction: column; padding: 30px 30px 24px; border-right: 1px solid rgba(255,255,255,.12); }
+    .hero-left::after {
+      content: ""; position: absolute; width: 190px; height: 190px;
+      right: -62px; bottom: -120px; border: 1px solid rgba(190,229,205,.11);
+      border-radius: 50%; pointer-events: none;
+    }
+    .hero-left .eyebrow { color: #a6c8bb; }
+    .hero-value {
+      margin: 25px 0 12px;
+      font: 400 clamp(41px,5vw,67px)/.95 Georgia, serif; letter-spacing: -.06em;
+      white-space: nowrap;
+    }
+    .day-pill {
+      display: inline-flex; align-items: center; gap: 7px; align-self: flex-start;
+      padding: 7px 10px; border: 1px solid rgba(159,223,185,.22);
+      border-radius: 999px; background: rgba(76,163,114,.16);
+      color: #a8eac5; font-size: 12px; font-weight: 700;
+    }
+    .hero-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; padding-top: 26px; }
+    .hero-bottom div { padding-top: 11px; border-top: 1px solid rgba(255,255,255,.15); }
+    .hero-bottom small { display: block; color: #a5bcb5; font-size: 10px; }
+    .hero-bottom strong { font-size: 13px; font-weight: 650; }
+    .hero-right { min-width: 0; padding: 22px 24px 14px; }
+    .chart-card-head { display: flex; justify-content: space-between; align-items: start; gap: 14px; }
+    .hero-right .micro-label { color: #abc8ba; }
+    .chart-card-head strong { display: block; margin-top: 3px; font-size: 13px; }
+    .chart-box { position: relative; min-height: 170px; }
+    .hero-right .chart-box { margin-top: 7px; height: 203px; }
+    .chart-box svg { width: 100%; height: 100%; overflow: visible; touch-action: none; cursor: crosshair; }
+    .chart-tooltip {
+      position: absolute; z-index: 3; top: 10px; left: 50%;
+      min-width: 164px; padding: 10px 12px; pointer-events: none;
+      border: 1px solid #d9e3db; border-radius: 9px;
+      background: #fffefa; color: var(--ink);
+      box-shadow: 0 8px 22px rgba(0,0,0,.12);
+      transform: translateX(-50%); font-size: 11px;
+    }
+    .chart-tooltip small { display: block; margin-bottom: 5px; color: var(--muted); }
+    .chart-tooltip div { display: flex; justify-content: space-between; gap: 18px; padding: 2px 0; }
+    .chart-bottom { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 10px; color: #acc8bd; }
+    .chart-bottom select { max-width: 165px; border: 0; color: #d4eee0; background: transparent; font-size: 10px; }
+    .chart-bottom select option { color: var(--ink); }
+    .metrics-grid { grid-column: span 12; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 15px; }
+    .metric-card { min-height: 112px; display: flex; flex-direction: column; justify-content: space-between; padding: 16px 18px; }
+    .metric-card .stat-value { margin: 9px 0 4px; }
+    .metric-card .subtle-note { margin: 0; }
+    .metric-card .metric-accent { width: 23px; height: 3px; margin-top: 2px; border-radius: 9px; background: var(--accent,var(--teal)); }
+    .allocation-head-controls { display: flex; flex-wrap: wrap; justify-content: end; gap: 7px; }
+    .allocation-viz { min-height: 236px; }
+    .allocation-split { display: grid; grid-template-columns: 205px minmax(0,1fr); gap: 24px; align-items: center; }
+    .donut-wrap { width: 192px; height: 192px; position: relative; flex: none; }
+    .donut-wrap svg { width: 100%; height: 100%; }
+    .donut-wrap .donut-center {
+      position: absolute; inset: 37px;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center; pointer-events: none;
+    }
+    .donut-center small { color: var(--muted); font: 9px ui-monospace,monospace; letter-spacing: .08em; text-transform: uppercase; }
+    .donut-center strong { margin-top: 3px; font: 400 24px Georgia,serif; letter-spacing: -.05em; }
+    .donut-slice { cursor: pointer; transition: opacity .15s; }
+    .donut-slice:hover { opacity: .72; }
+    .alloc-list { max-height: 219px; overflow: auto; padding-right: 5px; }
+    .alloc-row {
+      width: 100%; display: grid; grid-template-columns: 9px minmax(0,1fr) auto auto;
+      align-items: center; gap: 9px; padding: 8px 2px;
+      border: 0; border-bottom: 1px solid var(--line); background: none;
+      color: var(--ink); text-align: left; font-size: 11px;
+    }
+    .alloc-row:hover { background: #f5f8f4; }
+    .alloc-row strong { font-size: 11px; }
+    .alloc-row small { color: var(--muted); font-size: 10px; }
+    .alloc-row:last-child { border-bottom: 0; }
+    .alloc-bars { display: grid; gap: 11px; padding: 4px 0; }
+    .alloc-bar-row { width: 100%; padding: 0; border: 0; background: none; text-align: left; color: var(--ink); }
+    .alloc-bar-top { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 5px; font-size: 11px; }
+    .alloc-bar-top span:last-child { color: var(--muted); }
+    .bar-track { height: 9px; overflow: hidden; border-radius: 10px; background: #edf1ed; }
+    .bar-fill { display: block; height: 100%; border-radius: inherit; background: var(--bar,var(--teal)); }
+    .mini-mosaic { height: 225px; position: relative; background: #e9eee9; border-radius: 10px; overflow: hidden; }
+    .mosaic-tile {
+      position: absolute; display: flex; flex-direction: column; justify-content: space-between;
+      overflow: hidden; border: 0; border-radius: 5px; padding: 9px;
+      color: white; text-align: left; font-size: 11px; font-weight: 700;
+    }
+    .mosaic-tile small { font: 10px ui-monospace,monospace; opacity: .88; }
+    .mosaic-tile:hover, .map-tile:hover { filter: brightness(1.14); }
+    .pulse-list { display: grid; }
+    .pulse-item {
+      width: 100%; display: grid; grid-template-columns: 28px minmax(0,1fr) 14px;
+      gap: 10px; padding: 13px 0; border: 0; border-top: 1px solid var(--line);
+      background: none; text-align: left; color: var(--ink);
+    }
+    .pulse-item:first-child { border-top: 0; }
+    .pulse-item strong { display: block; font-size: 12px; }
+    .pulse-item small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .pulse-item:hover strong { color: var(--teal); }
+    .pulse-icon {
+      display: grid; place-items: center; width: 25px; height: 25px;
+      border-radius: 8px; font-size: 13px;
+      background: #e9f4eb; color: var(--teal);
+    }
+    .pulse-icon.warn { background: #fff2e2; color: #b27b30; }
+    .mover-preview { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .mover-col-title { margin-bottom: 3px; font-size: 10px; font-weight: 750; letter-spacing: .11em; text-transform: uppercase; }
+    .mover-row {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      width: 100%; padding: 11px 2px; border: 0; border-top: 1px solid var(--line);
+      background: none; color: var(--ink); text-align: left;
+    }
+    .mover-row strong { display: block; font-size: 12px; }
+    .mover-row small { display: block; color: var(--muted); font-size: 10px; }
+    .mover-row:hover strong { color: var(--teal); }
+    .income-preview-bars { display: flex; align-items: end; gap: 4px; height: 65px; margin: 14px 0 7px; }
+    .income-preview-bars span { flex: 1; min-height: 4px; background: #7cae97; border-radius: 3px 3px 0 0; }
+    .income-preview-bars span:nth-child(3n) { background: #24785c; }
+
+    /* Holdings */
+    .holding-page-stats { margin-bottom: 15px; }
+    .map-card { margin-bottom: 15px; }
+    .map-layout { display: grid; grid-template-columns: minmax(0,1fr) 226px; gap: 12px; }
+    .map-frame {
+      position: relative; width: 100%; height: 343px; overflow: hidden;
+      border-radius: 10px; background: #e9efeb;
+    }
+    .map-tile {
+      position: absolute; overflow: hidden; display: flex; flex-direction: column;
+      justify-content: space-between; padding: 10px; border: 0; border-radius: 5px;
+      color: #fff; text-align: left; transition: filter .15s, box-shadow .15s;
+    }
+    .map-tile.selected { box-shadow: inset 0 0 0 3px #e0f3d9; z-index: 1; }
+    .map-tile strong { font-size: clamp(11px, 1.3vw, 16px); }
+    .map-tile small { display: block; color: rgba(255,255,255,.82); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .map-tile .tile-weight { font: 700 13px ui-monospace,monospace; }
+    .map-tile.micro { justify-content: center; align-items: center; padding: 2px; }
+    .map-tile.micro small, .map-tile.micro .tile-weight { display: none; }
+    .map-tile.tiny { padding: 6px; }
+    .map-tile.tiny small { display: none; }
+    .map-inspector {
+      display: flex; flex-direction: column; justify-content: space-between;
+      min-width: 0; padding: 16px; border-radius: 10px;
+      background: var(--deep); color: white;
+    }
+    .map-inspector .micro-label { color: #a6c0b4; }
+    .inspector-symbol { margin: 12px 0 0; font: 400 31px Georgia,serif; }
+    .inspector-name { color: #bed3c9; font-size: 11px; }
+    .inspector-value { margin: 18px 0 4px; font: 400 28px Georgia,serif; letter-spacing: -.04em; }
+    .inspector-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+    .inspector-grid small { display: block; color: #9db8ad; font-size: 10px; }
+    .inspector-grid strong { font-size: 12px; }
+    .map-inspector .outline-button { width: 100%; border-color: #4e786a; color: #f1faf2; background: #2b5149; }
+    .map-footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 11px; }
+    .table-card { padding-bottom: 8px; }
+    .table-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; margin-bottom: 10px; }
+    .table-toolbar .spacer { flex: 1; }
+    .filter-banner {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      padding: 9px 11px; margin: 9px 0;
+      background: #f1f7f1; border-radius: 8px; color: #386e59; font-size: 11px;
+    }
+    .filter-banner button { border: 0; background: none; color: #175f49; text-decoration: underline; font-weight: 700; }
+    .breadth { display: flex; height: 29px; overflow: hidden; border-radius: 7px; margin-bottom: 11px; background: #e7ebe6; }
+    .breadth button { border: 0; min-width: 0; color: white; font: 700 11px ui-monospace,monospace; }
+    .breadth .up { background: #197659; text-align: left; padding-left: 12px; }
+    .breadth .down { background: #b95d55; text-align: right; padding-right: 12px; }
+    .table-scroll { overflow-x: auto; }
+    .holdings-table { width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 11px; }
+    .holdings-table th {
+      padding: 11px 12px; border-bottom: 1px solid #cdd8d0;
+      color: var(--muted); font-size: 10px; font-weight: 700; text-align: right;
+    }
+    .holdings-table th:first-child { text-align: left; }
+    .holdings-table th button { padding: 0; border: 0; background: none; color: inherit; font-size: inherit; font-weight: inherit; }
+    .holdings-table th button:hover { color: var(--teal); }
+    .holdings-table td { padding: 10px 12px; border-bottom: 1px solid #e9ede7; text-align: right; }
+    .holdings-table td:first-child { text-align: left; }
+    .holdings-table tbody tr:hover { background: #f5f9f5; }
+    .holding-name { display: inline-flex; align-items: center; gap: 9px; min-width: 185px; }
+    .ticker-badge {
+      width: 35px; height: 32px; flex: none; display: grid; place-items: center;
+      border-radius: 7px; background: #eef3ec; color: #31594c;
+      font-size: 9px; font-weight: 800;
+    }
+    .holding-name button { padding: 0; border: 0; background: none; color: var(--ink); text-align: left; }
+    .holding-name button:hover { color: var(--teal); }
+    .holding-name strong { display: block; font-size: 11px; }
+    .holding-name small { display: block; max-width: 190px; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 10px; }
+    .table-footer { display: flex; justify-content: space-between; gap: 10px; padding: 12px 1px 5px; }
+    .concentration-card { margin-top: 15px; }
+    .concentration-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 13px; }
+    .concentration-grid > div { padding: 12px 16px; border: 1px solid var(--line); border-radius: 9px; }
+    .concentration-grid strong { display: block; margin: 5px 0; font: 31px Georgia,serif; }
+    .concentration-grid small { color: var(--muted); font-size: 10px; }
+    .concentration-strip { display: flex; overflow: hidden; height: 10px; margin: 15px 0 6px; border-radius: 10px; background: #edf1eb; }
+    .concentration-strip span { height: 100%; }
+
+    /* Performance */
+    .performance-chart-card { margin-bottom: 15px; }
+    .performance-chart-card .chart-box { height: 300px; }
+    .performance-chart-card .chart-foot {
+      display: flex; align-items: center; justify-content: space-between; gap: 13px;
+      padding-top: 12px; border-top: 1px solid var(--line); font-size: 11px;
+    }
+    .heatmap-card { margin-bottom: 15px; }
+    .heat-scroll { overflow-x: auto; }
+    .heatmap { min-width: 720px; width: 100%; border-spacing: 4px; table-layout: fixed; }
+    .heatmap th { color: var(--muted); font: 9px ui-monospace,monospace; text-transform: uppercase; }
+    .heatmap th:first-child { width: 47px; text-align: left; }
+    .heatmap th:last-child { width: 64px; text-align: right; }
+    .heatmap td { padding: 0; }
+    .heat-year { font: 700 11px ui-monospace,monospace; }
+    .heat-cell, .heat-empty {
+      width: 100%; height: 34px; display: grid; place-items: center;
+      border: 1px solid transparent; border-radius: 5px;
+      background: var(--cell,#eef2ed); color: var(--ink);
+      font: 700 10px ui-monospace,monospace;
+    }
+    .heat-cell.positive { color: #175c47; }
+    .heat-cell.negative { color: #994a45; }
+    .heat-cell.active { border: 2px solid var(--ink); }
+    .heat-cell:hover { border-color: #4e866f; }
+    .heat-empty { color: #b3bdb8; background: #f2f4f0; }
+    .year-return { text-align: right; font: 700 11px ui-monospace,monospace; }
+    .heat-detail {
+      display: flex; align-items: center; justify-content: space-between; gap: 15px;
+      padding: 13px 3px 0; margin-top: 10px; border-top: 1px solid var(--line); font-size: 11px;
+    }
+    .heat-detail strong { font-size: 13px; }
+    .performance-bottom { display: grid; grid-template-columns: minmax(0,5fr) minmax(0,7fr); gap: 15px; }
+    .perf-movers-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .perf-movers-cols .mover-row { padding: 8px 0; }
+    .income-chart { display: flex; align-items: end; gap: 5px; height: 106px; margin: 16px 0 4px; }
+    .income-month {
+      display: flex; flex: 1; flex-direction: column; justify-content: end;
+      min-width: 0; height: 100%; padding: 0; border: 0; background: none;
+      color: var(--muted); text-align: center; font-size: 9px;
+    }
+    .income-month i {
+      display: block; width: 100%; min-height: 5px;
+      background: #9ccbb4; border-radius: 4px 4px 0 0;
+      transition: background .15s;
+    }
+    .income-month.active i, .income-month:hover i { background: #14765a; }
+    .income-month span { padding-top: 5px; }
+    .income-event { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 11px; }
+    .income-event:last-child { border-bottom: 0; }
+    .income-event small { display: block; color: var(--muted); font-size: 10px; }
+    .checkline { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; cursor: pointer; }
+    .checkline input { accent-color: var(--teal); }
+
+    /* Analysis */
+    .health-layout { display: grid; grid-template-columns: 170px minmax(0,1fr); gap: 20px; align-items: center; }
+    .health-ring {
+      width: 156px; height: 156px; position: relative; display: grid; place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(#2f9972 0 var(--score), #e4eae3 var(--score) 100%);
+    }
+    .health-ring::after { content: ""; position: absolute; inset: 15px; border-radius: 50%; background: var(--paper); }
+    .health-ring div { z-index: 1; text-align: center; }
+    .health-ring strong { display: block; font: 45px Georgia,serif; line-height: 1; }
+    .health-ring small { color: var(--muted); font: 10px ui-monospace,monospace; }
+    .health-bars { display: grid; gap: 9px; }
+    .health-bar-head { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+    .health-bar-head strong { font: 700 10px ui-monospace,monospace; }
+    .health-bar-track { height: 6px; overflow: hidden; background: #ebefea; border-radius: 5px; }
+    .health-bar-track span { display: block; height: 100%; border-radius: 5px; background: var(--bar,var(--teal)); }
+    .issue-item {
+      display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 9px;
+      width: 100%; padding: 10px 0;
+      border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--ink); text-align: left;
+    }
+    .issue-item:last-child { border-bottom: 0; }
+    .issue-item strong { display: block; font-size: 11px; }
+    .issue-item small { display: block; color: var(--muted); font-size: 10px; }
+    .issue-item:hover strong { color: var(--teal); }
+    .severity { align-self: start; padding: 3px 5px; border-radius: 4px; background: #fae9e3; color: #a94f43; font: 700 9px ui-monospace,monospace; }
+    .severity.med { color: #936d2e; background: #fff2d9; }
+    .severity.note { color: #397960; background: #e8f5eb; }
+    .drift-rows { display: grid; gap: 13px; }
+    .drift-row { display: grid; grid-template-columns: minmax(115px,1.25fr) minmax(0,4fr) minmax(92px,.9fr); align-items: center; gap: 15px; }
+    .drift-row-label strong { display: block; font-size: 11px; }
+    .drift-row-label small { color: var(--muted); font-size: 10px; }
+    .drift-track { height: 16px; position: relative; border-radius: 4px; background: #eff2ed; }
+    .drift-track .drift-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--bar); }
+    .drift-track .target-tick { position: absolute; top: -5px; height: 26px; width: 2px; background: #22353a; z-index: 1; }
+    .drift-note { text-align: right; font: 10px ui-monospace,monospace; }
+    .rebalance-layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 25px; }
+    .target-controls { display: grid; gap: 11px; }
+    .target-row { padding-bottom: 5px; }
+    .target-head { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; font-weight: 700; }
+    .target-row input[type=range], .projection-controls input[type=range], .corr-slider input[type=range] { width: 100%; accent-color: var(--teal); }
+    .target-row input[type=range] { margin: 5px 0 0; }
+    .target-row small { color: var(--muted); font-size: 10px; }
+    .plan-toolrow { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 14px; }
+    .plan-preview { padding: 15px; border-radius: 11px; background: #f2f6f1; }
+    .preview-donuts { display: flex; justify-content: space-around; align-items: center; gap: 7px; }
+    .preview-donuts .donut-wrap { width: 112px; height: 112px; }
+    .preview-donuts .donut-center { inset: 24px; }
+    .preview-donuts .donut-center strong { font-size: 12px; }
+    .preview-arrow { color: #547765; font-size: 22px; }
+    .trade-list { display: grid; gap: 6px; margin-top: 12px; }
+    .trade-row { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid #dae6da; font-size: 11px; }
+    .trade-row:last-child { border-bottom: 0; }
+    .trade-type { display: inline-block; min-width: 43px; font: 700 9px ui-monospace,monospace; }
+    .trade-type.buy { color: var(--teal); }
+    .trade-type.sell { color: var(--red); }
+    .scenario-options { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+    .scenario-option {
+      min-width: 0; padding: 10px; border: 1px solid var(--line);
+      border-radius: 9px; background: var(--paper); text-align: left;
+    }
+    .scenario-option.active { border-color: #ce867b; background: #fff7f4; }
+    .scenario-option strong { display: block; font-size: 11px; }
+    .scenario-option span { display: block; margin-top: 4px; color: var(--red); font: 19px Georgia,serif; }
+    .stress-readout { display: grid; grid-template-columns: minmax(0,1fr) 155px; gap: 13px; align-items: end; margin-top: 13px; }
+    .stress-readout svg { width: 100%; height: 110px; }
+    .stress-readout strong { display: block; margin-top: 5px; font: 30px Georgia,serif; white-space: nowrap; }
+    .shock-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    details.assumptions { margin-top: 11px; color: var(--muted); font-size: 10px; }
+    details.assumptions summary { cursor: pointer; color: #476456; }
+    .assumption-list { display: flex; flex-wrap: wrap; gap: 7px; padding-top: 7px; }
+    .corr-layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(115px,.55fr); gap: 13px; }
+    .corr-table { width: 100%; border-spacing: 3px; table-layout: fixed; }
+    .corr-table th { font: 9px ui-monospace,monospace; color: var(--muted); }
+    .corr-table td { padding: 0; }
+    .corr-table button, .corr-diagonal {
+      width: 100%; height: 32px; display: grid; place-items: center;
+      padding: 0; border: 1px solid transparent; border-radius: 5px;
+      background: var(--corr,#eef1ed); color: #233c3a;
+      font: 700 10px ui-monospace,monospace;
+    }
+    .corr-table button.active { border: 2px solid var(--ink); }
+    .corr-table button:hover { border-color: var(--teal); }
+    .corr-diagonal { background: #e5eae5; color: #92a09a; }
+    .corr-insight { padding: 11px; background: #f2f6f1; border-radius: 9px; }
+    .corr-insight strong { display: block; margin: 7px 0; font: 27px Georgia,serif; }
+    .corr-insight p { margin: 0; color: #657570; font-size: 10px; }
+    .corr-slider { margin-top: 12px; font-size: 10px; color: var(--muted); }
+    .corr-pairs { margin-top: 7px; max-height: 104px; overflow: auto; }
+    .corr-pairs div { display: flex; justify-content: space-between; padding: 4px 0; border-top: 1px solid var(--line); font-size: 10px; }
+    .underlying-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .underlying-card {
+      padding: 10px; min-width: 0; border: 1px solid var(--line);
+      border-radius: 9px; background: var(--paper); text-align: left; color: var(--ink);
+    }
+    .underlying-card.active { border-color: #6aa98c; background: #f3faf4; }
+    .underlying-card strong { display: block; font-size: 11px; }
+    .underlying-card .big { display: block; margin: 4px 0; font: 23px Georgia,serif; }
+    .underlying-card small { color: var(--muted); font-size: 10px; }
+    .split-mini { display: flex; height: 5px; margin-top: 8px; overflow: hidden; background: #edf1ed; border-radius: 8px; }
+    .split-mini .direct { background: #217b5c; }
+    .split-mini .fund { background: #8cb4a2; }
+    .route-detail { min-height: 70px; padding: 11px; margin-top: 11px; border-radius: 9px; background: #f3f7f2; font-size: 11px; }
+    .route-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .overlap-list { display: flex; flex-wrap: wrap; gap: 5px; }
+    .overlap-list button { padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--ink); font-size: 10px; }
+    .overlap-list button.active { border-color: #6eaa8d; background: #eaf6ed; }
+    .projection-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 11px 0 15px; }
+    .projection-controls label { color: var(--muted); font-size: 10px; }
+    .projection-controls strong { display: block; color: var(--ink); font-size: 12px; }
+    .future-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .future-card { min-width: 0; padding: 11px; border-radius: 9px; background: #f5f6f1; border: 1px solid var(--line); }
+    .future-card:nth-child(2) { background: #eef7f1; border-color: #cce5d4; }
+    .future-card strong { display: block; margin: 7px 0 3px; font: 21px Georgia,serif; letter-spacing: -.04em; white-space: nowrap; }
+    .future-card small { color: var(--muted); font-size: 9px; }
+    .future-card svg { width: 100%; height: 28px; margin-top: 9px; }
+    .workspace-footnote { margin: 28px 0 0; color: #81908d; font-size: 10px; }
+
+    /* Drawer, dialog and toast */
+    .drawer-backdrop, .modal-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(10,23,24,.46); }
+    .holding-drawer {
+      position: fixed; inset: 0 0 0 auto; z-index: 61;
+      width: min(405px,100vw); overflow-y: auto; padding: 27px;
+      color: var(--ink); background: var(--paper);
+      box-shadow: -15px 0 40px rgba(0,0,0,.15);
+    }
+    .drawer-top { display: flex; justify-content: space-between; align-items: start; }
+    .icon-button { width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); font-size: 19px; }
+    .drawer-title { margin: 21px 0 5px; font: 42px Georgia,serif; }
+    .drawer-price { margin: 20px 0; font: 37px Georgia,serif; letter-spacing: -.04em; }
+    .drawer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px 0; border-top: 1px solid var(--line); }
+    .drawer-grid small { display: block; color: var(--muted); font-size: 10px; }
+    .drawer-grid strong { display: block; margin-top: 4px; font-size: 13px; }
+    .drawer-spark { width: 100%; height: 105px; margin: 15px 0; }
+    .modal-backdrop { z-index: 70; display: grid; place-items: center; padding: 18px; }
+    .modal {
+      width: min(475px,100%); max-height: 88vh; overflow: auto;
+      padding: 24px; border-radius: 15px; background: var(--paper);
+      box-shadow: 0 20px 60px rgba(0,0,0,.24);
+    }
+    .modal h2 { margin: 5px 0 7px; font: 30px Georgia,serif; }
+    .modal p, .modal li { color: #5b6a69; font-size: 12px; line-height: 1.6; }
+    .modal ul { padding-left: 18px; }
+    .modal .drawer-top { align-items: center; }
+    .toast {
+      position: fixed; right: 22px; bottom: 22px; z-index: 90;
+      max-width: min(390px,calc(100vw - 44px)); padding: 12px 17px;
+      border-radius: 9px; color: white; background: var(--deep);
+      box-shadow: 0 10px 30px rgba(0,0,0,.2);
+      font-size: 12px;
+    }
+
+    @media (max-width: 1190px) {
+      .hero-card { grid-template-columns: minmax(240px,.8fr) minmax(0,1fr); }
+      .span-5, .span-7 { grid-column: span 6; }
+      .allocation-split { grid-template-columns: 170px minmax(0,1fr); gap: 9px; }
+      .allocation-split .donut-wrap { width: 165px; height: 165px; }
+      .allocation-split .donut-center { inset: 34px; }
+      .allocation-split .donut-center strong { font-size: 20px; }
+      .top-date { display: none; }
+    }
+    @media (max-width: 930px) {
+      .shell { display: block; }
+      .sidebar {
+        position: relative; height: auto; min-height: 0; padding: 10px 18px;
+        flex-direction: row; align-items: center; gap: 16px;
+      }
+      .brand { width: auto; padding: 0; }
+      .brand-name small, .sidebar-rule, .side-kicker, .primary-nav, .side-roadmap, .side-bottom { display: none; }
+      .side-subnav { display: flex; gap: 3px; padding: 0; margin: 0; border: 0; overflow-x: auto; }
+      .side-tab { width: auto; white-space: nowrap; padding: 9px 10px; }
+      .side-tab.active { box-shadow: inset 0 -2px #8bd9b9; }
+      .topbar { position: relative; }
+      .main { padding-top: 23px; }
+    }
+    @media (max-width: 720px) {
+      .brand-name { font-size: 21px; }
+      .brand-mark { width: 31px; height: 31px; }
+      .sidebar { gap: 7px; padding: 8px 10px; }
+      .side-number { display: none; }
+      .side-tab { font-size: 11px; padding: 8px; }
+      .topbar { min-height: 52px; padding: 9px 16px; }
+      .top-export, .sync-button { display: none; }
+      .breadcrumb { font-size: 11px; }
+      .main { padding: 19px 15px 30px; }
+      .page-head { align-items: start; }
+      .page-head h1 { font-size: 36px; }
+      .head-aside { display: none; }
+      .overview-grid, .analysis-grid { gap: 11px; }
+      .span-5, .span-6, .span-7, .span-12, .hero-card { grid-column: span 12; }
+      .hero-card { display: block; }
+      .hero-left { min-height: 235px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.13); }
+      .hero-value { margin-top: 18px; font-size: clamp(44px,10vw,63px); }
+      .hero-right { padding: 20px 16px 14px; }
+      .metrics-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+      .metric-card { min-height: 100px; padding: 13px; }
+      .metric-card .stat-value { font-size: 23px; }
+      .map-layout { grid-template-columns: 1fr; }
+      .map-frame { height: 305px; }
+      .map-inspector { min-height: 154px; }
+      .inspector-grid { margin: 8px 0; }
+      .performance-bottom, .rebalance-layout, .corr-layout { grid-template-columns: 1fr; }
+      .health-layout { grid-template-columns: 125px 1fr; gap: 12px; }
+      .health-ring { width: 120px; height: 120px; }
+      .health-ring::after { inset: 13px; }
+      .health-ring strong { font-size: 35px; }
+      .drift-row { grid-template-columns: 105px minmax(0,1fr) 69px; gap: 8px; }
+      .drift-note { font-size: 9px; }
+    }
+    @media (max-width: 480px) {
+      .card { padding: 15px; }
+      .page-head h1 { font-size: 32px; }
+      .allocation-split { grid-template-columns: 1fr; justify-items: center; }
+      .alloc-list { width: 100%; max-height: 220px; }
+      .allocation-head-controls { justify-content: start; }
+      .card-head { flex-wrap: wrap; }
+      .mover-preview { gap: 9px; }
+      .mover-row { font-size: 10px; }
+      .scenario-options { gap: 5px; }
+      .stress-readout { grid-template-columns: 1fr; }
+      .underlying-grid { grid-template-columns: repeat(2,1fr); }
+      .future-grid { grid-template-columns: 1fr; }
+      .concentration-grid { gap: 5px; }
+      .concentration-grid > div { padding: 9px; }
+      .concentration-grid strong { font-size: 25px; }
+      .head-aside { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <button class="brand" data-action="nav" data-page="overview" aria-label="Meridian portfolio overview">
+        <span class="brand-mark">M</span>
+        <span class="brand-name">meridian<small>THE INVESTOR'S DESK</small></span>
+      </button>
+      <div class="sidebar-rule"></div>
+      <div class="side-kicker">WORKSPACE</div>
+      <button class="primary-nav active" data-action="nav" data-page="overview">
+        <span class="nav-icon">◈</span> Portfolio <span class="nav-count">01</span>
+      </button>
+      <nav class="side-subnav" aria-label="Portfolio pages">
+        <button class="side-tab" data-action="nav" data-page="overview"><span class="side-number">01</span>Overview</button>
+        <button class="side-tab" data-action="nav" data-page="holdings"><span class="side-number">02</span>Holdings</button>
+        <button class="side-tab" data-action="nav" data-page="performance"><span class="side-number">03</span>Performance</button>
+        <button class="side-tab" data-action="nav" data-page="analysis"><span class="side-number">04</span>Analysis</button>
+      </nav>
+      <div class="side-roadmap">
+        <div class="side-kicker" style="margin:0 2px 7px">ON THE ROADMAP</div>
+        <div class="roadmap-row">Markets <small>SOON</small></div>
+        <div class="roadmap-row">Research <small>SOON</small></div>
+        <div class="roadmap-row">Discover <small>SOON</small></div>
+      </div>
+      <div class="side-bottom">
+        <div class="account-chip"><div class="avatar">MD</div><div><strong>Sample portfolio</strong><small>14 assets + cash</small></div></div>
+        <div class="demo-note"><i class="status-dot"></i> ILLUSTRATIVE DATA · 24 FEB 2026</div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div class="breadcrumb">Workspace <span>/</span> Portfolio <span>/</span> <strong id="crumbPage">Overview</strong></div>
+        <div class="top-actions">
+          <span class="top-date">As of 24 Feb 2026</span>
+          <button class="sync-button" data-action="demo-info"><i class="status-dot"></i> Sample data <span aria-hidden="true">ⓘ</span></button>
+          <label class="currency-box"><span>Display</span>
+            <select id="currencySelect" aria-label="Display currency">
+              <option value="USD">USD $</option><option value="GBP">GBP £</option><option value="EUR">EUR €</option>
+            </select>
+          </label>
+          <button class="top-export" data-action="export-holdings">Export holdings ↗</button>
+        </div>
+      </header>
+
+      <main class="main">
+        <!-- OVERVIEW -->
+        <section id="page-overview" class="page" aria-label="Portfolio overview">
+          <div class="page-head">
+            <div><div class="eyebrow">01 / PORTFOLIO OVERVIEW</div><h1>Find the shape in<br><em>the numbers.</em></h1><p>What you own, what moved, and what deserves a closer look.</p></div>
+            <div class="head-aside"><strong>THE MERIDIAN DESK</strong>24 February 2026 · Illustrative edition</div>
+          </div>
+          <div class="overview-grid">
+            <section class="hero-card card" aria-label="Portfolio value and growth">
+              <div class="hero-left">
+                <div class="eyebrow">TOTAL PORTFOLIO VALUE</div>
+                <div class="hero-value" id="heroValue"></div>
+                <div class="day-pill" id="heroDay"></div>
+                <div class="hero-bottom" id="heroBottom"></div>
+              </div>
+              <div class="hero-right">
+                <div class="chart-card-head">
+                  <div><span class="micro-label">THE LONG VIEW</span><strong>Growth of 100 · portfolio vs benchmark</strong></div>
+                  <div id="overviewRanges"></div>
+                </div>
+                <div class="chart-box" id="overviewChart"></div>
+                <div class="chart-bottom">
+                  <span id="overviewChartFoot"></span>
+                  <label>Compare with
+                    <select id="overviewBenchmark" aria-label="Overview benchmark">
+                      <option value="SP500">S&amp;P 500</option><option value="ACWI">MSCI ACWI</option>
+                      <option value="AGG">US bonds</option><option value="none">None</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <div class="metrics-grid" id="overviewMetrics"></div>
+
+            <section class="card span-7">
+              <div class="card-head">
+                <div><div class="micro-label">COMPOSITION</div><h2>Allocation, your way</h2><p>Change the question; select a slice to explore its holdings.</p></div>
+                <div class="allocation-head-controls"><div id="allocationDimensions"></div><div id="allocationViews"></div></div>
+              </div>
+              <div class="allocation-viz" id="allocationViz"></div>
+              <div class="foot-rule subtle-note" id="allocationNote"></div>
+            </section>
+
+            <section class="card span-5">
+              <div class="card-head"><div><div class="micro-label">YOUR PORTFOLIO PULSE</div><h2>Worth your attention</h2><p>Three signals from today's book.</p></div><button class="card-link" data-action="jump" data-page="analysis" data-to="healthCard">Open analysis ↗</button></div>
+              <div class="pulse-list" id="pulseItems"></div>
+            </section>
+
+            <section class="card span-7">
+              <div class="card-head"><div><div class="micro-label">MARKET MOVEMENT</div><h2>Leaders &amp; laggards</h2><p>Return today · select a position for detail.</p></div><button class="card-link" data-action="nav" data-page="holdings">All positions ↗</button></div>
+              <div class="mover-preview" id="overviewMovers"></div>
+            </section>
+
+            <section class="card span-5">
+              <div class="card-head"><div><div class="micro-label">CASH FLOW</div><h2>Income on the horizon</h2><p>Next 12 months · illustrative schedule.</p></div><button class="card-link" data-action="jump" data-page="performance" data-to="incomeCard">Calendar ↗</button></div>
+              <div id="overviewIncome"></div>
+            </section>
+          </div>
+        </section>
+
+        <!-- HOLDINGS -->
+        <section id="page-holdings" class="page" aria-label="Portfolio holdings" hidden>
+          <div class="page-head compact">
+            <div><div class="eyebrow">02 / THE POSITIONS</div><h1>Every dollar,<br><em>in proportion.</em></h1><p>Explore the map, filter the book, or inspect a holding.</p></div>
+            <div class="page-controls"><div id="holdingsViewModes"></div></div>
+          </div>
+          <div class="metrics-grid holding-page-stats" id="holdingsMetrics"></div>
+          <section class="card map-card" id="mapCard">
+            <div class="card-head">
+              <div><div class="micro-label">POSITION MAP</div><h2>Size is value. Colour is the question.</h2><p>Area represents market value within the current filter.</p></div>
+              <div id="mapColorModes"></div>
+            </div>
+            <div class="map-layout"><div class="map-frame" id="holdingMap" aria-label="Interactive holdings treemap"></div><aside class="map-inspector" id="mapInspector" aria-label="Selected holding"></aside></div>
+            <div class="map-footer"><span class="subtle-note">Select a tile for detail. Cash is included in portfolio value.</span><span class="subtle-note" id="mapCount"></span></div>
+          </section>
+
+          <section class="card table-card" id="holdingsTableCard">
+            <div class="card-head"><div><div class="micro-label">POSITION LEDGER</div><h2>Holdings</h2><p>Search, sort, and inspect the positions behind the map.</p></div><button class="card-link" data-action="export-holdings">Download CSV ↗</button></div>
+            <div class="table-toolbar">
+              <input id="holdingSearch" class="search-input" type="search" autocomplete="off" placeholder="Search ticker or company…" aria-label="Search holdings">
+              <select id="holdingClassFilter" class="plain-select" aria-label="Filter by asset class">
+                <option value="all">All asset classes</option>
+                <option>US Equity</option><option>International Equity</option><option>Fixed Income</option>
+                <option>Real Assets</option><option>Crypto</option><option>Cash</option>
+              </select>
+              <div class="spacer"></div><div id="gainFilterButtons"></div>
+            </div>
+            <div id="crossFilterBanner"></div>
+            <div class="breadth" id="holdingsBreadth" aria-label="Profitable versus underwater holdings"></div>
+            <div class="table-scroll">
+              <table class="holdings-table">
+                <thead><tr>
+                  <th><button data-action="sort-holdings" data-sort="name">Holding <span class="sort-glyph">↕</span></button></th>
+                  <th><button data-action="sort-holdings" data-sort="value">Market value <span class="sort-glyph">↕</span></button></th>
+                  <th><button data-action="sort-holdings" data-sort="weight">Weight <span class="sort-glyph">↕</span></button></th>
+                  <th><button data-action="sort-holdings" data-sort="day">Today <span class="sort-glyph">↕</span></button></th>
+                  <th><button data-action="sort-holdings" data-sort="gain">Total P/L <span class="sort-glyph">↕</span></button></th>
+                  <th><button data-action="sort-holdings" data-sort="return">Return <span class="sort-glyph">↕</span></button></th>
+                  <th>Units</th>
+                </tr></thead>
+                <tbody id="holdingsBody"></tbody>
+              </table>
+            </div>
+            <div class="table-footer subtle-note"><span id="tableCount"></span><span>Values are illustrative; quoted prices are not live.</span></div>
+          </section>
+
+          <section class="card concentration-card" id="concentrationCard">
+            <div class="card-head"><div><div class="micro-label">CONCENTRATION</div><h2>How much sits in the largest few?</h2></div><button class="card-link" data-action="jump" data-page="analysis" data-to="lookthroughCard">Look through funds ↗</button></div>
+            <div id="concentrationContent"></div>
+          </section>
+        </section>
+
+        <!-- PERFORMANCE -->
+        <section id="page-performance" class="page" aria-label="Portfolio performance" hidden>
+          <div class="page-head compact">
+            <div><div class="eyebrow">03 / THE TRACK RECORD</div><h1>The path, not just<br><em>the finish line.</em></h1><p>Compare returns, scan each month, and follow expected income.</p></div>
+            <div class="head-aside"><strong>INDEXED FOR COMPARISON</strong>100 at the start of the selected period</div>
+          </div>
+          <div class="metrics-grid holding-page-stats" id="performanceMetrics"></div>
+          <section class="card performance-chart-card">
+            <div class="card-head">
+              <div><div class="micro-label">RELATIVE PERFORMANCE</div><h2>The book against a benchmark</h2><p>Illustrative time-weighted growth · rebased to 100.</p></div>
+              <div class="page-controls"><div id="performanceRanges"></div>
+                <select id="performanceBenchmark" class="plain-select" aria-label="Performance benchmark">
+                  <option value="SP500">S&amp;P 500</option><option value="ACWI">MSCI ACWI</option>
+                  <option value="AGG">US bonds</option><option value="none">No benchmark</option>
+                </select>
+              </div>
+            </div>
+            <div class="chart-box" id="performanceChart"></div>
+            <div class="chart-foot"><span id="performanceChartFoot"></span><button class="text-button" data-action="returns-help">About return methods ⓘ</button></div>
+          </section>
+
+          <section class="card heatmap-card">
+            <div class="card-head">
+              <div><div class="micro-label">MONTH BY MONTH</div><h2>Returns at a glance</h2><p>Each cell is one month; select it for the comparison.</p></div>
+              <div id="heatmapModes"></div>
+            </div>
+            <div class="heat-scroll" id="heatmapContainer"></div>
+            <div class="heat-detail" id="heatmapDetail"></div>
+          </section>
+
+          <div class="performance-bottom">
+            <section class="card">
+              <div class="card-head"><div><div class="micro-label">THE MOVERS</div><h2>Who did the lifting?</h2><p>Position returns, not contribution rankings.</p></div><div id="moverModes"></div></div>
+              <div class="perf-movers-cols" id="performanceMovers"></div>
+            </section>
+            <section class="card" id="incomeCard">
+              <div class="card-head">
+                <div><div class="micro-label">DIVIDEND &amp; INTEREST FORECAST</div><h2>Cash the book may pay</h2><p>Forward estimates; payments are not guaranteed.</p></div>
+                <label class="checkline"><input id="includeCashInterest" type="checkbox" checked> Cash interest</label>
+              </div>
+              <div id="incomeForecast"></div>
+            </section>
+          </div>
+        </section>
+
+        <!-- ANALYSIS -->
+        <section id="page-analysis" class="page" aria-label="Portfolio analysis" hidden>
+          <div class="page-head compact">
+            <div><div class="eyebrow">04 / UNDER THE SURFACE</div><h1>See the trade-offs.<br><em>Choose deliberately.</em></h1><p>Risk, overlap, targets, and possible paths—all in one place.</p></div>
+            <div class="head-aside"><strong>ANALYSIS, NOT ADVICE</strong>Models use illustrative assumptions</div>
+          </div>
+
+          <div class="analysis-grid">
+            <section class="card span-7" id="healthCard">
+              <div class="card-head"><div><div class="micro-label">PORTFOLIO HEALTH</div><h2>Sound—with room to improve</h2><p>A transparent heuristic, not an investment rating.</p></div><button class="card-link" data-action="health-help">How it's scored ⓘ</button></div>
+              <div id="healthContent"></div>
+            </section>
+            <section class="card span-5">
+              <div class="card-head"><div><div class="micro-label">ISSUE QUEUE</div><h2>What needs a decision?</h2><p>Select an observation to investigate it.</p></div><div id="issueModes"></div></div>
+              <div id="issuesContent"></div>
+            </section>
+
+            <section class="card span-12" id="driftCard">
+              <div class="card-head"><div><div class="micro-label">ACTUAL VS WRITTEN POLICY</div><h2>Drift from target</h2><p>The dark tick is your policy weight. Dollar figures show the gap.</p></div><button class="card-link" data-action="jump" data-page="analysis" data-to="rebalanceCard">Model a rebalance ↗</button></div>
+              <div id="driftContent"></div>
+            </section>
+
+            <section class="card span-12" id="rebalanceCard">
+              <div class="card-head"><div><div class="micro-label">LIVE WORKSHEET</div><h2>Rebalance studio</h2><p>Move a target; the other targets rescale to keep the plan at 100%.</p></div><span class="chip">SIMULATION · NO ORDERS PLACED</span></div>
+              <div class="rebalance-layout">
+                <div><div class="target-controls" id="rebalanceControls"></div>
+                  <div class="plan-toolrow">
+                    <label class="checkline"><input type="checkbox" id="keepCash"> Preserve today's cash balance</label>
+                    <button class="text-button" data-action="reset-plan">Reset targets</button>
+                  </div>
+                </div>
+                <div class="plan-preview">
+                  <div class="micro-label">BEFORE → AFTER</div>
+                  <div id="rebalancePreview"></div>
+                  <div class="plan-toolrow">
+                    <button class="solid-button" data-action="save-plan">Save locally</button>
+                    <button class="outline-button" data-action="export-plan">Export plan CSV</button>
+                    <span class="subtle-note" id="planSaved"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="foot-rule subtle-note">Class-level estimates only. Taxes, spreads, fees and price changes are excluded. This tool cannot place trades.</div>
+            </section>
+
+            <section class="card span-7">
+              <div class="card-head"><div><div class="micro-label">WHAT-IF ENGINE</div><h2>What if conditions changed?</h2><p>Apply hypothetical asset-class shocks to today's allocation.</p></div></div>
+              <div id="stressContent"></div>
+            </section>
+            <section class="card span-5">
+              <div class="card-head"><div><div class="micro-label">MOVEMENT TOGETHER</div><h2>Correlation lens</h2><p>Simulated daily-return relationships; select a pair.</p></div><div id="correlationModes"></div></div>
+              <div id="correlationContent"></div>
+            </section>
+
+            <section class="card span-7" id="lookthroughCard">
+              <div class="card-head"><div><div class="micro-label">FUND LOOK-THROUGH</div><h2>What you actually own</h2><p>Direct shares plus approximate exposure inside selected funds.</p></div></div>
+              <div id="lookthroughContent"></div>
+            </section>
+            <section class="card span-5">
+              <div class="card-head"><div><div class="micro-label">THREE POSSIBLE FUTURES</div><h2>Same book. Different weather.</h2><p>Compound-return illustrations, not forecasts.</p></div></div>
+              <div class="projection-controls">
+                <label>Monthly contribution <strong id="contributionReadout"></strong><input id="projectionContribution" type="range" min="0" max="2500" step="50" value="500"></label>
+                <label>Time horizon <strong id="yearsReadout"></strong><input id="projectionYears" type="range" min="3" max="20" step="1" value="10"></label>
+              </div>
+              <div id="projectionContent"></div>
+              <div class="foot-rule subtle-note">Constant monthly contributions and fixed annual rates; no tax, inflation, or sequence-of-returns adjustment.</div>
+            </section>
+          </div>
+        </section>
+
+        <p class="workspace-footnote">Meridian portfolio prototype · All holdings, prices, returns, exchange rates, fund snapshots and scenarios are illustrative. Not live data or investment advice.</p>
+      </main>
+    </div>
+  </div>
+
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+  <aside class="holding-drawer" id="holdingDrawer" role="dialog" aria-modal="true" aria-label="Holding details" hidden></aside>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"></div>
+  </div>
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script>
+    "use strict";
+
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => [...document.querySelectorAll(selector)];
+    const escapeHTML = text => String(text).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+    const sum = arr => arr.reduce((a,b) => a+b, 0);
+    const slug = text => String(text).toLowerCase().replace(/[^a-z0-9]+/g,"-");
+    const ASOF = new Date(Date.UTC(2026, 1, 24));
+    const FX = { USD:1, GBP:.79, EUR:.92 };
+    const POLICY = {
+      "US Equity":45, "International Equity":22, "Fixed Income":18,
+      "Real Assets":10, "Crypto":2, "Cash":3
+    };
+    const CLASS_COLORS = {
+      "US Equity":"#2c7560", "International Equity":"#658dac",
+      "Fixed Income":"#ba9455", "Real Assets":"#9b7794",
+      "Crypto":"#836b70", "Cash":"#84968b"
+    };
+    const PALETTE = ["#29765c","#568cb0","#ad8552","#9877a1","#648b78","#b97060","#466a9c","#918673","#699eac","#836e98"];
+
+    // Current values sum to $420,000. Quantity × quoted price equals market value.
+    const HOLDINGS = [
+      {symbol:"VTI", name:"Vanguard Total Stock Market", value:92400, cost:73920, shares:240, day:.42, yield:1.25, fee:.03, class:"US Equity", sector:"Diversified", region:"United States", account:"Taxable"},
+      {symbol:"VXUS",name:"Vanguard Total International",value:62600,cost:59620,shares:1000,day:.23,yield:2.90,fee:.05,class:"International Equity",sector:"Diversified",region:"Global ex-US",account:"Retirement"},
+      {symbol:"BND", name:"Vanguard Total Bond Market",value:48900,cost:52580,shares:600,day:-.18,yield:3.70,fee:.03,class:"Fixed Income",sector:"Bonds",region:"United States",account:"Retirement"},
+      {symbol:"NVDA",name:"NVIDIA",value:43200,cost:24000,shares:240,day:2.84,yield:.03,fee:0,class:"US Equity",sector:"Technology",region:"United States",account:"Taxable"},
+      {symbol:"AAPL",name:"Apple",value:31600,cost:23500,shares:160,day:-.88,yield:.42,fee:0,class:"US Equity",sector:"Technology",region:"United States",account:"Taxable"},
+      {symbol:"MSFT",name:"Microsoft",value:29400,cost:19000,shares:70,day:1.24,yield:.75,fee:0,class:"US Equity",sector:"Technology",region:"United States",account:"Taxable"},
+      {symbol:"GLD", name:"SPDR Gold Shares",value:20200,cost:16400,shares:80,day:.74,yield:0,fee:.40,class:"Real Assets",sector:"Gold",region:"Global",account:"Retirement"},
+      {symbol:"VNQ", name:"Vanguard Real Estate",value:16600,cost:17500,shares:200,day:-.36,yield:3.60,fee:.13,class:"Real Assets",sector:"Real Estate",region:"United States",account:"Retirement"},
+      {symbol:"AVUV",name:"Avantis US Small Cap Value",value:15200,cost:13500,shares:160,day:.68,yield:1.40,fee:.25,class:"US Equity",sector:"Diversified",region:"United States",account:"Retirement"},
+      {symbol:"SCHD",name:"Schwab US Dividend Equity",value:11800,cost:10900,shares:400,day:.31,yield:3.50,fee:.06,class:"US Equity",sector:"Dividend Equity",region:"United States",account:"Retirement"},
+      {symbol:"IBIT",name:"iShares Bitcoin Trust",value:9600,cost:11000,shares:240,day:-1.40,yield:0,fee:.25,class:"Crypto",sector:"Digital Assets",region:"Global",account:"Taxable"},
+      {symbol:"IEMG",name:"iShares Core Emerging Markets",value:8700,cost:8400,shares:150,day:.56,yield:2.40,fee:.09,class:"International Equity",sector:"Diversified",region:"Emerging Markets",account:"Retirement"},
+      {symbol:"VGSH",name:"Vanguard Short-Term Treasury",value:5800,cost:5720,shares:100,day:.09,yield:3.80,fee:.03,class:"Fixed Income",sector:"Bonds",region:"United States",account:"Retirement"},
+      {symbol:"ASML",name:"ASML Holding",value:4000,cost:4500,shares:5,day:-.42,yield:.80,fee:0,class:"International Equity",sector:"Technology",region:"Europe",account:"Taxable"},
+      {symbol:"CASH",name:"Cash & money market",value:20000,cost:20000,shares:20000,day:0,yield:3.80,fee:0,class:"Cash",sector:"Cash",region:"United States",account:"Cash"}
+    ];
+    const BY_SYMBOL = Object.fromEntries(HOLDINGS.map(h => [h.symbol,h]));
+    const CLASSES = Object.keys(POLICY);
+    const TOTAL = sum(HOLDINGS.map(h => h.value));
+    const CASH = BY_SYMBOL.CASH.value;
+    const INVESTED = TOTAL-CASH;
+    const COST = sum(HOLDINGS.filter(h => h.symbol !== "CASH").map(h => h.cost));
+    const GAIN = INVESTED-COST;
+    const DAY_CHANGE = sum(HOLDINGS.map(h => h.value*(h.day/(100+h.day))));
+    const DAY_PERCENT = DAY_CHANGE/(TOTAL-DAY_CHANGE)*100;
+    const ANNUAL_INCOME = sum(HOLDINGS.map(h => h.value*h.yield/100));
+    const CLASS_VALUES = Object.fromEntries(CLASSES.map(c => [c,sum(HOLDINGS.filter(h => h.class===c).map(h => h.value))]));
+    const SORTED_BY_VALUE = [...HOLDINGS].sort((a,b) => b.value-a.value);
+    const TOP5 = sum(SORTED_BY_VALUE.slice(0,5).map(h => h.value))/TOTAL*100;
+    const BLENDED_FEE = sum(HOLDINGS.map(h => h.value*h.fee/100))/TOTAL*100;
+
+    const state = {
+      page:"overview", currency:"USD", range:"1Y", benchmark:"ACWI",
+      allocationDimension:"asset", allocationView:"donut",
+      holdingsView:"both", mapColor:"day", selectedHolding:"NVDA",
+      search:"", classFilter:"all", dimensionFilter:null, gainFilter:"all",
+      sortKey:"value", sortDirection:-1,
+      heatmapMode:"portfolio", selectedMonth:"2026-02",
+      moverMode:"day", incomeMonth:0, includeCashInterest:true,
+      issueFilter:"all", targets:{...POLICY}, keepCash:false,
+      selectedScenario:"Equity sell-off",
+      corrDays:252, corrThreshold:.45, corrPair:["VTI","NVDA"],
+      selectedUnderlying:"NVDA", selectedOverlap:0,
+      contribution:500, projectionYears:10,
+      drawer:null
+    };
+
+    const money = (value, options={}) => {
+      const digits = options.digits ?? (options.compact ? 1 : 0);
+      return new Intl.NumberFormat("en-US", {
+        style:"currency", currency:state.currency,
+        notation:options.compact ? "compact" : "standard",
+        minimumFractionDigits:digits, maximumFractionDigits:digits
+      }).format(value*FX[state.currency]);
+    };
+    const signedMoney = (n, options={}) => (n>0?"+":"") + money(n,options);
+    const percent = (n,digits=1,signed=false) =>
+      `${signed && n>0?"+":n<0?"−":""}${Math.abs(n).toFixed(digits)}%`;
+    const weight = h => h.value/TOTAL*100;
+    const totalReturn = h => (h.value/h.cost-1)*100;
+    const holdingDayDollars = h => h.value*h.day/(100+h.day);
+    const metricClass = n => n<0?"negative":n>0?"positive":"muted";
+    const dayString = n => percent(n,2,true);
+    const monthKey = date => `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,"0")}`;
+    const monthLabel = date => new Intl.DateTimeFormat("en-US",{month:"short",year:"numeric",timeZone:"UTC"}).format(date);
+    const shortDate = date => new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric",timeZone:"UTC"}).format(date);
+
+    function segmented(items, selected, action, key, dark=false) {
+      return `<div class="segmented ${dark?"dark":""}" role="group">${items.map(([value,label]) =>
+        `<button type="button" class="${selected===value?"active":""}" data-action="${action}" data-${key}="${escapeHTML(value)}" aria-pressed="${selected===value}">${escapeHTML(label)}</button>`
+      ).join("")}</div>`;
+    }
+
+    // Deterministic illustrative business-day indices, used consistently by
+    // both performance charts, range calculations, and the returns heatmap.
+    function makeHistory() {
+      const rows=[];
+      let p=100, s=100, a=100, b=100, tick=0;
+      for(let time=Date.UTC(2022,0,3); time<=ASOF.getTime(); time+=86400000) {
+        const d=new Date(time);
+        if(d.getUTCDay()===0 || d.getUTCDay()===6) continue;
+        if(tick) {
+          const wave=.0030*Math.sin(tick*.11)+.0021*Math.sin(tick*.37+.7)+.0015*Math.sin(tick*.93);
+          const early=tick>86 && tick<158 ? -.00105 : 0;
+          let pr=.00036+wave*.76+.0011*Math.sin(tick*.041+1.8)+early;
+          if(time===ASOF.getTime()) pr=DAY_PERCENT/100;
+          p*=Math.exp(pr);
+          s*=Math.exp(.00040+wave*.97+.0010*Math.sin(tick*.063+.4)+early*1.12);
+          a*=Math.exp(.00033+wave*.79+.00075*Math.sin(tick*.048+1)+early*.9);
+          b*=Math.exp(.00010-wave*.055+.00062*Math.sin(tick*.083)- (tick>80&&tick<210?.00024:0));
+        }
+        rows.push({date:d,portfolio:p,SP500:s,ACWI:a,AGG:b});
+        tick++;
+      }
+      return rows;
+    }
+    const HISTORY = makeHistory();
+    const BENCH_NAMES = {SP500:"S&P 500",ACWI:"MSCI ACWI",AGG:"US aggregate bonds",none:"No benchmark"};
+
+    function selectedHistory() {
+      const end=ASOF, start=new Date(end);
+      if(state.range==="YTD") start.setUTCMonth(0,1);
+      else if(state.range!=="ALL") {
+        const months={"1M":1,"3M":3,"6M":6,"1Y":12,"3Y":36}[state.range];
+        start.setUTCMonth(start.getUTCMonth()-months);
+      } else return HISTORY;
+      return HISTORY.filter(r => r.date>=start);
+    }
+    function rangeReturns() {
+      const rows=selectedHistory(), first=rows[0], last=rows[rows.length-1];
+      return {
+        rows,
+        portfolio:(last.portfolio/first.portfolio-1)*100,
+        benchmark:state.benchmark==="none"?null:(last[state.benchmark]/first[state.benchmark]-1)*100
+      };
+    }
+
+    // A genuine IRR of an explicitly assumed sample $800 monthly deposit schedule.
+    function sampleMoneyWeighted(rows) {
+      if(!rows || rows.length<3) return 0;
+      const first=rows[0], last=rows[rows.length-1];
+      const span=(last.date-first.date)/86400000;
+      if(span<3) return 0;
+      const flows=[];
+      for(let y=first.date.getUTCFullYear(); y<=last.date.getUTCFullYear(); y++) {
+        for(let m=0;m<12;m++) {
+          const depositDate=new Date(Date.UTC(y,m,15));
+          if(depositDate<=first.date || depositDate>=last.date) continue;
+          const at=rows.find(r => r.date>=depositDate);
+          if(at) flows.push({days:(at.date-first.date)/86400000,index:at.portfolio,amount:800});
+        }
+      }
+      const ratio=last.portfolio/first.portfolio;
+      const grownDeposits=sum(flows.map(f => f.amount*last.portfolio/f.index));
+      const startingBalance=(TOTAL-grownDeposits)/ratio;
+      if(startingBalance<=0) return (ratio-1)*100;
+      const npv=rate => -startingBalance
+        -sum(flows.map(f => f.amount/Math.pow(1+rate,f.days/365.25)))
+        +TOTAL/Math.pow(1+rate,span/365.25);
+      let lo=-.95, hi=4;
+      if(npv(lo)*npv(hi)>0) return (ratio-1)*100;
+      for(let i=0;i<75;i++) {
+        const mid=(lo+hi)/2;
+        if(npv(mid)>0) lo=mid; else hi=mid;
+      }
+      return (Math.pow(1+(lo+hi)/2,span/365.25)-1)*100;
+    }
+
+    function linePath(points, width, height, pad, lower, upper) {
+      const innerW=width-pad.l-pad.r, innerH=height-pad.t-pad.b;
+      return points.map((v,i) =>
+        `${i?"L":"M"}${(pad.l+i/(points.length-1)*innerW).toFixed(2)},${(pad.t+(upper-v)/(upper-lower)*innerH).toFixed(2)}`
+      ).join(" ");
+    }
+    function chartSVG(containerId, dark=false) {
+      const el=$("#"+containerId);
+      if(!el) return;
+      const {rows,portfolio,benchmark}=rangeReturns();
+      if(!rows.length) return;
+      const maxPoints=160, step=Math.max(1,Math.ceil(rows.length/maxPoints));
+      const samples=rows.filter((_,i)=>i%step===0);
+      if(samples[samples.length-1]!==rows[rows.length-1]) samples.push(rows[rows.length-1]);
+      const first=rows[0], base=samples.map(r=>100*r.portfolio/first.portfolio);
+      const comparison=state.benchmark==="none"?[]:samples.map(r=>100*r[state.benchmark]/first[state.benchmark]);
+      const all=base.concat(comparison), min=Math.min(...all), max=Math.max(...all);
+      const lower=Math.floor((min-2)/5)*5, upper=Math.ceil((max+2)/5)*5;
+      const width=900, height=dark?226:290, pad={l:43,r:14,t:18,b:29};
+      const plotBottom=height-pad.b;
+      const primaryPath=linePath(base,width,height,pad,lower,upper);
+      const area=`${primaryPath} L${width-pad.r},${plotBottom} L${pad.l},${plotBottom} Z`;
+      const benchPath=comparison.length?linePath(comparison,width,height,pad,lower,upper):"";
+      const grid=Array.from({length:4},(_,i)=>{
+        const v=lower+(upper-lower)*i/3, y=pad.t+(upper-v)/(upper-lower)*(height-pad.t-pad.b);
+        return `<line x1="${pad.l}" x2="${width-pad.r}" y1="${y}" y2="${y}" stroke="${dark?"#476460":"#e1e8e1"}" stroke-opacity="${dark?".55":"1"}"/>
+          <text x="3" y="${y+3}" fill="${dark?"#a2bdb4":"#88948e"}" font-size="10" font-family="monospace">${Math.round(v)}</text>`;
+      }).join("");
+      const ticks=Array.from({length:5},(_,i)=>{
+        const row=samples[Math.round(i*(samples.length-1)/4)];
+        const x=pad.l+i*(width-pad.l-pad.r)/4;
+        return `<text x="${x}" y="${height-5}" text-anchor="${i===0?"start":i===4?"end":"middle"}" fill="${dark?"#a2bdb4":"#89968f"}" font-size="10" font-family="monospace">${monthLabel(row.date)}</text>`;
+      }).join("");
+      const stroke=dark?"#9be2bd":"#16785c", benchStroke=dark?"#d6b789":"#bb956c";
+      el.innerHTML=`<svg viewBox="0 0 ${width} ${height}" role="img" tabindex="0"
+          aria-label="Illustrative indexed performance. Portfolio ${percent(portfolio,1,true)}${benchmark===null?"":`; ${BENCH_NAMES[state.benchmark]} ${percent(benchmark,1,true)}`}. Use arrow keys to inspect points.">
+          <defs><linearGradient id="fade-${containerId}" x1="0" y1="0" x2="0" y2="1">
+            <stop stop-color="${stroke}" stop-opacity="${dark?".23":".17"}"/>
+            <stop offset="1" stop-color="${stroke}" stop-opacity="0"/></linearGradient></defs>
+          ${grid}${ticks}
+          <path d="${area}" fill="url(#fade-${containerId})"/>
+          ${benchPath?`<path d="${benchPath}" fill="none" stroke="${benchStroke}" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round" stroke-linejoin="round"/>`:""}
+          <path d="${primaryPath}" fill="none" stroke="${stroke}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <line id="${containerId}-cross" x1="0" x2="0" y1="${pad.t}" y2="${plotBottom}" stroke="${dark?"#d6ecdf":"#667b70"}" stroke-dasharray="3 3" style="display:none"/>
+          <circle id="${containerId}-point" r="5" fill="${stroke}" stroke="${dark?"#17352f":"white"}" stroke-width="2" style="display:none"/>
+        </svg><div class="chart-tooltip" hidden></div>`;
+      const svg=el.querySelector("svg"), tooltip=el.querySelector(".chart-tooltip");
+      let current=samples.length-1;
+      function hover(i) {
+        current=clamp(i,0,samples.length-1);
+        const row=samples[current], x=pad.l+current/(samples.length-1)*(width-pad.l-pad.r);
+        const v=base[current], y=pad.t+(upper-v)/(upper-lower)*(height-pad.t-pad.b);
+        const cross=el.querySelector(`#${containerId}-cross`), point=el.querySelector(`#${containerId}-point`);
+        cross.setAttribute("x1",x); cross.setAttribute("x2",x); cross.style.display="";
+        point.setAttribute("cx",x); point.setAttribute("cy",y); point.style.display="";
+        tooltip.hidden=false;
+        const rect=svg.getBoundingClientRect();
+        tooltip.style.left=`${clamp(x/width*rect.width,90,rect.width-90)}px`;
+        tooltip.innerHTML=`<small>${shortDate(row.date)}</small>
+          <div><span style="color:${stroke}">Portfolio</span><strong>${v.toFixed(1)}</strong></div>
+          ${comparison.length?`<div><span style="color:${benchStroke}">${BENCH_NAMES[state.benchmark]}</span><strong>${comparison[current].toFixed(1)}</strong></div>`:""}`;
+      }
+      function clear() {
+        tooltip.hidden=true;
+        el.querySelector(`#${containerId}-cross`).style.display="none";
+        el.querySelector(`#${containerId}-point`).style.display="none";
+      }
+      svg.addEventListener("pointermove",e=>{
+        const rect=svg.getBoundingClientRect();
+        const px=(e.clientX-rect.left)/rect.width*width;
+        hover(Math.round((px-pad.l)/(width-pad.l-pad.r)*(samples.length-1)));
+      });
+      svg.addEventListener("pointerleave",clear);
+      svg.addEventListener("blur",clear);
+      svg.addEventListener("keydown",e=>{
+        if(e.key==="ArrowLeft"||e.key==="ArrowRight") {
+          e.preventDefault(); hover(current+(e.key==="ArrowLeft"?-1:1));
+        }
+      });
+    }
+
+    function monthlyReturns() {
+      const ends=new Map();
+      HISTORY.forEach(row=>ends.set(monthKey(row.date),row));
+      const out=[];
+      let previous=HISTORY[0];
+      for(let year=2022;year<=2026;year++) for(let m=0;m<12;m++) {
+        const key=`${year}-${String(m+1).padStart(2,"0")}`;
+        if(!ends.has(key)) continue;
+        const row=ends.get(key);
+        out.push({
+          key,year,month:m,date:new Date(Date.UTC(year,m,1)),
+          portfolio:(row.portfolio/previous.portfolio-1)*100,
+          SP500:(row.SP500/previous.SP500-1)*100,
+          ACWI:(row.ACWI/previous.ACWI-1)*100,
+          AGG:(row.AGG/previous.AGG-1)*100
+        });
+        previous=row;
+      }
+      return out;
+    }
+    const MONTHS=monthlyReturns();
+    const MONTH_LOOKUP=Object.fromEntries(MONTHS.map(m=>[m.key,m]));
+
+    // Income dates and amounts derive from the same current positions and yields.
+    const INCOME_SCHEDULE={
+      VTI:[0,3,6,9],VXUS:[2,5,8,11],BND:[0,1,2,3,4,5,6,7,8,9,10,11],
+      NVDA:[1,4,7,10],AAPL:[2,5,8,11],MSFT:[1,4,7,10],
+      VNQ:[0,3,6,9],AVUV:[0,3,6,9],SCHD:[0,3,6,9],
+      IEMG:[2,8],VGSH:[0,1,2,3,4,5,6,7,8,9,10,11],
+      ASML:[8],CASH:[0,1,2,3,4,5,6,7,8,9,10,11]
+    };
+    const INCOME=Array.from({length:12},(_,i)=>{
+      const date=new Date(Date.UTC(2026,2+i,1));
+      const events=HOLDINGS.flatMap(h=>{
+        const schedule=INCOME_SCHEDULE[h.symbol]||[];
+        return schedule.includes(i) && h.yield>0
+          ? [{symbol:h.symbol,name:h.name,amount:h.value*h.yield/100/schedule.length,
+              date:new Date(Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),h.symbol==="CASH"?28:h.symbol==="BND"?16:23))}]
+          : [];
+      });
+      return {date,events};
+    });
+    const incomeEvents=row=>row.events.filter(e=>state.includeCashInterest||e.symbol!=="CASH");
+    const incomeAmount=row=>sum(incomeEvents(row).map(e=>e.amount));
+
+    function healthFactors() {
+      const diversification=clamp(Math.round(58+(HOLDINGS.length-1)*1.4),0,100);
+      const concentration=clamp(Math.round(95-Math.max(0,TOP5-50)*2.1),0,100);
+      const risk=clamp(Math.round(86-Math.abs(CLASS_VALUES["Fixed Income"]/TOTAL*100-POLICY["Fixed Income"])*2.1-CLASS_VALUES.Crypto/TOTAL*100),0,100);
+      const cost=clamp(Math.round(100-BLENDED_FEE*80),0,100);
+      const cash=clamp(Math.round(90-Math.max(0,CLASS_VALUES.Cash/TOTAL*100-POLICY.Cash)*3),0,100);
+      const parts=[
+        {name:"Diversification",score:diversification,weight:25,color:"#4d9b78"},
+        {name:"Concentration",score:concentration,weight:25,color:"#d19b53"},
+        {name:"Risk fit",score:risk,weight:20,color:"#78a699"},
+        {name:"Cost",score:cost,weight:20,color:"#2c9672"},
+        {name:"Cash use",score:cash,weight:10,color:"#75a68b"}
+      ];
+      return {parts,total:Math.round(sum(parts.map(p=>p.score*p.weight))/100)};
+    }
+
+    function groupAllocation(dimension) {
+      const property={asset:"class",sector:"sector",region:"region",holding:"symbol"}[dimension];
+      const groups=new Map();
+      HOLDINGS.forEach(h=>groups.set(h[property],(groups.get(h[property])||0)+h.value));
+      return [...groups].map(([name,value],i)=>({
+        name,value,color:dimension==="asset"?CLASS_COLORS[name]:PALETTE[i%PALETTE.length]
+      })).sort((a,b)=>b.value-a.value);
+    }
+    function donut(groups, label, options={}) {
+      const size=192, r=70, circumference=2*Math.PI*r;
+      let offset=0;
+      const total=sum(groups.map(g=>g.value))||1;
+      const circles=groups.map(g=>{
+        const length=g.value/total*circumference;
+        const circle=`<circle class="${options.interactive?"donut-slice":""}"
+          cx="96" cy="96" r="${r}" fill="none" stroke="${g.color}"
+          stroke-width="23" stroke-dasharray="${Math.max(0,length-2)} ${circumference}"
+          stroke-dashoffset="${-offset}" transform="rotate(-90 96 96)"
+          ${options.interactive?`data-action="allocation-drill" data-group="${escapeHTML(g.name)}" role="button" aria-label="Explore ${escapeHTML(g.name)}"`:""}/>`;
+        offset+=length;
+        return circle;
+      }).join("");
+      return `<div class="donut-wrap"><svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Allocation chart: ${escapeHTML(label)}">
+          <circle cx="96" cy="96" r="${r}" fill="none" stroke="#eaf0ea" stroke-width="23"/>
+          ${circles}</svg><div class="donut-center"><small>${escapeHTML(label)}</small>
+          <strong>${options.center||money(total,{compact:true})}</strong></div></div>`;
+    }
+
+    // Squarified, area-proportional treemap layout.
+    function treemapLayout(items,W,H) {
+      if(!W||!H||!items.length) return [];
+      const total=sum(items.map(i=>i.value));
+      let pending=items.filter(i=>i.value>0).sort((a,b)=>b.value-a.value)
+        .map(item=>({...item,area:item.value/total*W*H}));
+      let x=0,y=0,w=W,h=H,row=[];
+      const result=[];
+      const worst=(list,side)=>{
+        if(!list.length||side<=0) return Infinity;
+        const areas=list.map(n=>n.area), S=sum(areas);
+        return Math.max(side*side*Math.max(...areas)/(S*S),S*S/(side*side*Math.min(...areas)));
+      };
+      function commit() {
+        if(!row.length) return;
+        const area=sum(row.map(n=>n.area));
+        if(w>=h) {
+          const thickness=area/w; let cx=x;
+          row.forEach(item=>{
+            const rw=item.area/thickness;
+            result.push({...item,x:cx,y,w:rw,h:thickness}); cx+=rw;
+          });
+          y+=thickness; h-=thickness;
+        } else {
+          const thickness=area/h; let cy=y;
+          row.forEach(item=>{
+            const rh=item.area/thickness;
+            result.push({...item,x,y:cy,w:thickness,h:rh}); cy+=rh;
+          });
+          x+=thickness; w-=thickness;
+        }
+        row=[];
+      }
+      while(pending.length) {
+        const next=pending[0], side=Math.min(w,h);
+        if(!row.length||worst([...row,next],side)<=worst(row,side)) row.push(pending.shift());
+        else commit();
+      }
+      commit();
+      return result;
+    }
+
+    function renderNavigation() {
+      const names={overview:"Overview",holdings:"Holdings",performance:"Performance",analysis:"Analysis"};
+      $("#crumbPage").textContent=names[state.page];
+      $$(".side-tab").forEach(b=>{
+        const active=b.dataset.page===state.page;
+        b.classList.toggle("active",active);
+        if(active) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
+      });
+      $("#currencySelect").value=state.currency;
+    }
+    function navigate(page,push=true) {
+      if(!["overview","holdings","performance","analysis"].includes(page)) return;
+      state.page=page;
+      $$(".page").forEach(el=>el.hidden=el.id!==`page-${page}`);
+      renderNavigation();
+      if(push && location.hash!=="#"+page) history.pushState(null,"","#"+page);
+      if(page==="holdings") requestAnimationFrame(()=>{ drawHoldingsMap(); });
+      if(page==="overview"&&state.allocationView==="mosaic") requestAnimationFrame(drawAllocationMosaic);
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+
+    function renderRangeControls() {
+      $("#overviewRanges").innerHTML=segmented([["1M","1M"],["6M","6M"],["1Y","1Y"],["ALL","ALL"]],state.range,"range","range",true);
+      $("#performanceRanges").innerHTML=segmented([["1M","1M"],["3M","3M"],["6M","6M"],["YTD","YTD"],["1Y","1Y"],["3Y","3Y"],["ALL","ALL"]],state.range,"range","range");
+      $("#overviewBenchmark").value=state.benchmark;
+      $("#performanceBenchmark").value=state.benchmark;
+    }
+    function renderCharts() {
+      renderRangeControls();
+      chartSVG("overviewChart",true);
+      chartSVG("performanceChart",false);
+      const r=rangeReturns(), excess=r.benchmark===null?null:r.portfolio-r.benchmark;
+      $("#overviewChartFoot").innerHTML=`<span style="color:#a7e1bd">━━ Portfolio ${percent(r.portfolio,1,true)}</span>
+        ${r.benchmark===null?"":`&nbsp; <span style="color:#d6b789">┄ ${BENCH_NAMES[state.benchmark]} ${percent(r.benchmark,1,true)}</span>`}`;
+      $("#performanceChartFoot").innerHTML=`<strong class="${metricClass(r.portfolio)}">Portfolio ${percent(r.portfolio,1,true)}</strong>
+        ${r.benchmark===null?"· No benchmark selected":`&nbsp; · &nbsp;${BENCH_NAMES[state.benchmark]} ${percent(r.benchmark,1,true)}
+          &nbsp; · &nbsp;Excess <strong class="${metricClass(excess)}">${percent(excess,1,true)}</strong>`}`;
+    }
+
+    function metricCard(label,value,note,accent="#20846a",valueClass="") {
+      return `<div class="card metric-card"><div><div class="micro-label">${label}</div><div class="metric-accent" style="--accent:${accent}"></div></div>
+        <div><div class="stat-value ${valueClass}">${value}</div><p class="subtle-note">${note}</p></div></div>`;
+    }
+
+    /* ============================ OVERVIEW ============================ */
+
+    function renderHero() {
+      $("#heroValue").textContent = money(TOTAL);
+      $("#heroDay").innerHTML = `<span style="color:#a8eac5">${dayString(DAY_PERCENT)}</span>
+        <span style="opacity:.85">${signedMoney(DAY_CHANGE)} today</span>`;
+      $("#heroBottom").innerHTML = `
+        <div><small>INVESTED</small><strong>${money(INVESTED,{compact:true})}</strong></div>
+        <div><small>UNREALISED GAIN</small><strong class="${metricClass(GAIN)}">${signedMoney(GAIN,{compact:true})}</strong></div>`;
+    }
+
+    function renderOverviewMetrics() {
+      const items = [
+        ["INVESTED CAPITAL", money(INVESTED,{compact:true}), `${HOLDINGS.length-1} positions plus cash`, "#2c7560", ""],
+        ["UNREALISED GAIN", signedMoney(GAIN,{compact:true}), `${percent(GAIN/COST*100,1,true)} on cost`, "#20846a", metricClass(GAIN)],
+        ["TODAY'S MOVE", signedMoney(DAY_CHANGE,{compact:true}), `${dayString(DAY_PERCENT)} since prior close`, "#568cb0", metricClass(DAY_CHANGE)],
+        ["BLENDED FEE", percent(BLENDED_FEE,2), `${money(ANNUAL_INCOME,{compact:true})} est. annual income`, "#ad8552", ""]
+      ];
+      $("#overviewMetrics").innerHTML = items.map(i => metricCard(...i)).join("");
+    }
+
+    function renderAllocation() {
+      $("#allocationDimensions").innerHTML = segmented(
+        [["asset","Asset class"],["sector","Sector"],["region","Region"],["holding","Holding"]],
+        state.allocationDimension, "alloc-dim","dim");
+      $("#allocationViews").innerHTML = segmented(
+        [["donut","Donut"],["bars","Bars"],["mosaic","Mosaic"]],
+        state.allocationView, "alloc-view","view");
+      const groups = groupAllocation(state.allocationDimension);
+      const viz = $("#allocationViz");
+      if (state.allocationView === "bars") {
+        viz.innerHTML = `<div class="alloc-bars">${groups.map(g => `
+          <button class="alloc-bar-row" data-action="allocation-drill" data-group="${escapeHTML(g.name)}">
+            <div class="alloc-bar-top"><span>${escapeHTML(g.name)}</span>
+              <span>${money(g.value,{compact:true})} · ${percent(g.value/TOTAL*100,1)}</span></div>
+            <div class="bar-track"><span class="bar-fill" style="width:${g.value/TOTAL*100}%; --bar:${g.color}"></span></div>
+          </button>`).join("")}</div>`;
+      } else if (state.allocationView === "mosaic") {
+        viz.innerHTML = `<div class="mini-mosaic" id="allocationMosaic"></div>`;
+        requestAnimationFrame(drawAllocationMosaic);
+      } else {
+        viz.innerHTML = `<div class="allocation-split">${donut(groups,"Total",{interactive:true,center:money(TOTAL,{compact:true})})}
+          <div class="alloc-list">${groups.map(g => `
+            <button class="alloc-row" data-action="allocation-drill" data-group="${escapeHTML(g.name)}">
+              <span class="dot" style="--dot:${g.color}"></span>
+              <span><strong>${escapeHTML(g.name)}</strong><small>${money(g.value,{compact:true})}</small></span>
+              <span>${percent(g.value/TOTAL*100,1)}</span>
+            </button>`).join("")}</div></div>`;
+      }
+      const dimNames = {asset:"asset class",sector:"sector",region:"region",holding:"holding"};
+      $("#allocationNote").textContent = `Grouped by ${dimNames[state.allocationDimension]}. Click any slice or row to filter the holdings table.`;
+    }
+
+    function drawAllocationMosaic() {
+      const el = $("#allocationMosaic");
+      if (!el || !el.offsetParent) return;
+      const rect = el.getBoundingClientRect();
+      if (!rect.width) return;
+      const groups = groupAllocation(state.allocationDimension);
+      const layout = treemapLayout(groups, rect.width, rect.height);
+      el.innerHTML = layout.map(t => `
+        <button class="mosaic-tile" data-action="allocation-drill" data-group="${escapeHTML(t.name)}"
+          style="left:${t.x}px;top:${t.y}px;width:${Math.max(0,t.w-3)}px;height:${Math.max(0,t.h-3)}px;background:${t.color}">
+          <span>${escapeHTML(t.name)}</span><small>${percent(t.value/TOTAL*100,1)}</small>
+        </button>`).join("");
+    }
+
+    function renderPulse() {
+      const cashWeight = CLASS_VALUES.Cash/TOTAL*100;
+      const fiWeight = CLASS_VALUES["Fixed Income"]/TOTAL*100;
+      const items = [
+        {warn:TOP5>50, title:`${percent(TOP5,1)} sits in your five largest positions`,
+         text:`Concentration is the largest single risk in the book. ${SORTED_BY_VALUE[0].symbol} alone is ${percent(weight(SORTED_BY_VALUE[0]),1)}.`,
+         page:"analysis", to:"lookthroughCard"},
+        {warn:fiWeight<POLICY["Fixed Income"], title:`Bonds are ${percent(POLICY["Fixed Income"]-fiWeight,1)} below policy`,
+         text:`Fixed income is ${percent(fiWeight,1)} versus a ${POLICY["Fixed Income"]}% target — the widest drift in the portfolio.`,
+         page:"analysis", to:"driftCard"},
+        {warn:cashWeight>POLICY.Cash, title:`Cash is ${money(CASH,{compact:true})} doing little`,
+         text:`Cash yields ${BY_SYMBOL.CASH.yield.toFixed(1)}% and is ${percent(cashWeight-POLICY.Cash,1)} above policy weight.`,
+         page:"performance", to:"incomeCard"}
+      ];
+      $("#pulseItems").innerHTML = items.map(i => `
+        <button class="pulse-item" data-action="jump" data-page="${i.page}" data-to="${i.to}">
+          <span class="pulse-icon ${i.warn?"warn":""}">◆</span>
+          <span><strong>${i.title}</strong><small>${i.text}</small></span>
+          <span style="color:var(--muted)">→</span>
+        </button>`).join("");
+    }
+
+    function renderOverviewMovers() {
+      const sorted = [...HOLDINGS].filter(h=>h.symbol!=="CASH").sort((a,b)=>b.day-a.day);
+      const leaders = sorted.slice(0,3), laggards = sorted.slice(-3).reverse();
+      const col = (title, rows, cls) => `
+        <div><div class="mover-col-title ${cls}">${title}</div>
+        ${rows.map(h => `
+          <button class="mover-row" data-action="open-holding" data-symbol="${h.symbol}">
+            <span><strong>${h.symbol}</strong><small>${escapeHTML(h.name)}</small></span>
+            <span style="text-align:right"><strong class="${metricClass(h.day)}">${dayString(h.day)}</strong>
+              <small>${signedMoney(holdingDayDollars(h))}</small></span>
+          </button>`).join("")}</div>`;
+      $("#overviewMovers").innerHTML = col("LEADERS", leaders, "positive") + col("LAGGARDS", laggards, "negative");
+    }
+
+    function renderOverviewIncome() {
+      const max = Math.max(...INCOME.map(incomeAmount), 1);
+      const next = INCOME[0];
+      $("#overviewIncome").innerHTML = `
+        <div class="income-preview-bars">${INCOME.map(row =>
+          `<span style="height:${Math.max(4, incomeAmount(row)/max*100)}%" title="${monthLabel(row.date)}: ${money(incomeAmount(row))}"></span>`).join("")}</div>
+        <div class="stat-value" style="font-size:22px">${money(sum(INCOME.map(incomeAmount)))}</div>
+        <p class="subtle-note" style="margin-top:4px">Forward twelve-month estimate · ${money(ANNUAL_INCOME)} annualised yield on today's values.</p>
+        <div class="foot-rule">
+          <div class="micro-label">NEXT PAYMENT</div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px">
+            <span>${monthLabel(next.date)}</span><strong>${money(incomeAmount(next))}</strong></div>
+        </div>`;
+    }
+
+    /* ============================ HOLDINGS ============================ */
+
+    function renderHoldingsMetrics() {
+      const positions = HOLDINGS.length - 1;
+      const items = [
+        ["POSITIONS", positions, `${CLASSES.length-1} asset classes plus cash`, "#2c7560", ""],
+        ["MARKET VALUE", money(TOTAL,{compact:true}), `as of ${shortDate(ASOF)}`, "#568cb0", ""],
+        ["TOTAL P/L", signedMoney(GAIN,{compact:true}), `${percent(GAIN/COST*100,1,true)} on cost`, "#20846a", metricClass(GAIN)],
+        ["BLENDED FEE", percent(BLENDED_FEE,2), `${money(ANNUAL_INCOME,{compact:true})} est. income`, "#ad8552", ""]
+      ];
+      $("#holdingsMetrics").innerHTML = items.map(i => metricCard(...i)).join("");
+    }
+
+    function renderMapColorModes() {
+      $("#mapColorModes").innerHTML = segmented(
+        [["day","Today"],["gain","Total P/L"],["class","Asset class"],["weight","Weight"]],
+        state.mapColor, "map-color", "color");
+    }
+
+    function matchesDimension(h, f) {
+      if (!f) return true;
+      if (f.dim === "asset") return h.class === f.value;
+      if (f.dim === "sector") return h.sector === f.value;
+      if (f.dim === "region") return h.region === f.value;
+      if (f.dim === "holding") return h.symbol === f.value;
+      return true;
+    }
+    function filteredHoldings() {
+      return HOLDINGS.filter(h => {
+        if (state.classFilter !== "all" && h.class !== state.classFilter) return false;
+        if (state.gainFilter === "gain" && h.value < h.cost) return false;
+        if (state.gainFilter === "loss" && h.value >= h.cost) return false;
+        if (state.dimensionFilter && !matchesDimension(h, state.dimensionFilter)) return false;
+        if (state.search) {
+          const q = state.search.toLowerCase();
+          if (!h.symbol.toLowerCase().includes(q) && !h.name.toLowerCase().includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function mapColor(h) {
+      if (state.mapColor === "class") return CLASS_COLORS[h.class] || "#84968b";
+      if (state.mapColor === "weight") {
+        const maxW = Math.max(...HOLDINGS.map(weight));
+        const t = clamp(weight(h)/maxW, 0, 1);
+        return `hsl(160, ${28+t*38}%, ${72-t*34}%)`;
+      }
+      const value = state.mapColor === "gain" ? clamp(totalReturn(h)/40, -1.6, 1.6) : clamp(h.day/2.5, -1.6, 1.6);
+      if (value === 0) return "#84968b";
+      const a = Math.abs(value);
+      return value > 0
+        ? `hsl(155, ${30+a*40}%, ${68-a*26}%)`
+        : `hsl(8, ${42+a*30}%, ${70-a*24}%)`;
+    }
+
+    function drawHoldingsMap() {
+      const frame = $("#holdingMap");
+      if (!frame || !frame.offsetParent) return;
+      const rect = frame.getBoundingClientRect();
+      if (!rect.width) return;
+      const rows = filteredHoldings();
+      const items = rows.map(h => ({...h, value: h.value, color: mapColor(h)}));
+      const layout = treemapLayout(items, rect.width, rect.height);
+      frame.innerHTML = layout.map(t => {
+        const cls = t.value < 3000 ? "micro" : t.value < 9000 ? "tiny" : "";
+        return `<button class="map-tile ${cls} ${state.selectedHolding===t.symbol?"selected":""}"
+          data-action="select-holding" data-symbol="${t.symbol}"
+          style="left:${t.x}px;top:${t.y}px;width:${Math.max(0,t.w-3)}px;height:${Math.max(0,t.h-3)}px;background:${t.color}"
+          title="${t.symbol} · ${money(t.value)}">
+          <span class="tile-weight">${percent(weight(t),1)}</span>
+          <span><strong>${t.symbol}</strong><small>${escapeHTML(t.name)}</small></span>
+        </button>`;
+      }).join("");
+      $("#mapCount").textContent = `${rows.length} of ${HOLDINGS.length} positions shown`;
+      renderMapInspector();
+    }
+
+    function renderMapInspector() {
+      const h = BY_SYMBOL[state.selectedHolding] || SORTED_BY_VALUE[0];
+      if (!h) return;
+      $("#mapInspector").innerHTML = `
+        <div><div class="micro-label">SELECTED POSITION</div>
+          <div class="inspector-symbol">${h.symbol}</div>
+          <div class="inspector-name">${escapeHTML(h.name)}</div></div>
+        <div><div class="inspector-value">${money(h.value)}</div>
+          <div class="subtle-note" style="color:#a6c0b4">${percent(weight(h),1)} of portfolio · ${h.account}</div>
+          <div class="inspector-grid">
+            <div><small>Today</small><strong style="color:${h.day>=0?"#8fe0b8":"#f0a9a1"}">${dayString(h.day)}</strong></div>
+            <div><small>Total P/L</small><strong style="color:${totalReturn(h)>=0?"#8fe0b8":"#f0a9a1"}">${percent(totalReturn(h),1,true)}</strong></div>
+            <div><small>Sector</small><strong>${escapeHTML(h.sector)}</strong></div>
+            <div><small>Yield</small><strong>${h.yield.toFixed(2)}%</strong></div>
+          </div></div>
+        <button class="outline-button" data-action="open-holding" data-symbol="${h.symbol}">Full detail ↗</button>`;
+    }
+
+    function renderGainFilterButtons() {
+      $("#gainFilterButtons").innerHTML = segmented(
+        [["all","All"],["gain","In profit"],["loss","Underwater"]],
+        state.gainFilter, "gain-filter","gain");
+    }
+
+    function renderHoldingsTable() {
+      const rows = filteredHoldings().sort((a,b) => {
+        const dir = state.sortDirection;
+        const get = h => {
+          switch(state.sortKey) {
+            case "name": return h.symbol;
+            case "value": return h.value;
+            case "weight": return weight(h);
+            case "day": return h.day;
+            case "gain": return h.value - h.cost;
+            case "return": return totalReturn(h);
+            default: return h.value;
+          }
+        };
+        const av = get(a), bv = get(b);
+        if (typeof av === "string") return av.localeCompare(bv) * dir;
+        return av < bv ? dir : av > bv ? -dir : 0;
+      });
+      $("#holdingsBody").innerHTML = rows.map(h => {
+        const pl = h.value - h.cost;
+        const ret = totalReturn(h);
+        return `<tr>
+          <td><span class="holding-name"><span class="ticker-badge">${h.symbol.slice(0,4)}</span>
+            <button data-action="open-holding" data-symbol="${h.symbol}"><strong>${h.symbol}</strong><small>${escapeHTML(h.name)}</small></button></span></td>
+          <td>${money(h.value)}</td>
+          <td>${percent(weight(h),1)}</td>
+          <td class="${metricClass(h.day)}">${dayString(h.day)}</td>
+          <td class="${metricClass(pl)}">${signedMoney(pl)}</td>
+          <td class="${metricClass(ret)}">${percent(ret,1,true)}</td>
+          <td>${h.symbol==="CASH"?money(h.shares):h.shares.toLocaleString()}</td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="7" class="muted" style="text-align:center;padding:20px">No holdings match this filter.</td></tr>`;
+
+      const winners = rows.filter(h => h.day > 0), losers = rows.filter(h => h.day < 0);
+      const wTotal = sum(winners.map(h=>h.value)), lTotal = sum(losers.map(h=>h.value));
+      $("#holdingsBreadth").innerHTML = `
+        <button class="up" style="flex:${Math.max(wTotal,1)}">${winners.length} up today</button>
+        <button class="down" style="flex:${Math.max(lTotal,1)}">${losers.length} down</button>`;
+
+      $("#tableCount").textContent = `${rows.length} positions · ${money(sum(rows.map(h=>h.value)))} shown`;
+
+      const banner = $("#crossFilterBanner");
+      banner.innerHTML = state.dimensionFilter
+        ? `<div class="filter-banner">Filtered to <strong>${escapeHTML(state.dimensionFilter.value)}</strong>
+             <button data-action="clear-dimension">Clear</button></div>`
+        : "";
+
+      $$(".holdings-table th button").forEach(b => {
+        const g = b.querySelector(".sort-glyph");
+        if (!g) return;
+        g.textContent = b.dataset.sort === state.sortKey ? (state.sortDirection === -1 ? "↓" : "↑") : "↕";
+      });
+    }
+
+    function renderConcentration() {
+      const top1 = weight(SORTED_BY_VALUE[0]);
+      const top3 = sum(SORTED_BY_VALUE.slice(0,3).map(weight));
+      const top5 = sum(SORTED_BY_VALUE.slice(0,5).map(weight));
+      const strip = SORTED_BY_VALUE.slice(0,5).map((h,i) =>
+        `<span style="width:${weight(h)}%;background:${PALETTE[i]}"></span>`).join("")
+        + `<span style="width:${Math.max(0,100-top5)}%;background:#dde5dd"></span>`;
+      $("#concentrationContent").innerHTML = `
+        <div class="concentration-grid">
+          <div><span class="micro-label">LARGEST POSITION</span><strong>${percent(top1,1)}</strong>
+            <small>${SORTED_BY_VALUE[0].symbol} · ${money(SORTED_BY_VALUE[0].value)}</small></div>
+          <div><span class="micro-label">TOP THREE</span><strong>${percent(top3,1)}</strong>
+            <small>${SORTED_BY_VALUE.slice(0,3).map(h=>h.symbol).join(", ")}</small></div>
+          <div><span class="micro-label">TOP FIVE</span><strong>${percent(top5,1)}</strong>
+            <small>${TOP5>50?"Above the 50% heuristic":"Within the 50% heuristic"}</small></div>
+        </div>
+        <div class="concentration-strip">${strip}</div>
+        <div class="subtle-note">The strip shows the five largest positions against the rest of the book.</div>`;
+    }
+
+    function renderHoldingsViewModes() {
+      $("#holdingsViewModes").innerHTML = segmented(
+        [["both","Both"],["map","Map"],["table","Table"]],
+        state.holdingsView, "holding-view","view");
+    }
+    function updateHoldingsView() {
+      $("#mapCard").hidden = state.holdingsView === "table";
+      $("#holdingsTableCard").hidden = state.holdingsView === "map";
+      if (state.holdingsView !== "table") requestAnimationFrame(drawHoldingsMap);
+    }
+
+    /* ============================ PERFORMANCE ============================ */
+
+    function renderPerformanceMetrics() {
+      const r = rangeReturns();
+      const mwr = sampleMoneyWeighted(selectedHistory());
+      const excess = r.benchmark === null ? null : r.portfolio - r.benchmark;
+      const items = [
+        [`PORTFOLIO · ${state.range}`, percent(r.portfolio,1,true), "Time-weighted, rebased to 100", "#20846a", metricClass(r.portfolio)],
+        [r.benchmark===null?"BENCHMARK":"BENCHMARK · "+state.range, r.benchmark===null?"—":percent(r.benchmark,1,true),
+          r.benchmark===null?"No comparison selected":BENCH_NAMES[state.benchmark], "#568cb0", r.benchmark===null?"muted":metricClass(r.benchmark)],
+        ["EXCESS RETURN", excess===null?"—":percent(excess,1,true),
+          excess===null?"Select a benchmark":(excess>=0?"Ahead of the benchmark":"Behind the benchmark"), "#ad8552", excess===null?"muted":metricClass(excess)],
+        ["MONEY-WEIGHTED", percent(mwr,1,true), "Assumes $800 monthly deposits", "#9877a1", metricClass(mwr)]
+      ];
+      $("#performanceMetrics").innerHTML = items.map(i => metricCard(...i)).join("");
+    }
+
+    function heatColor(v) {
+      const a = Math.min(1, Math.abs(v)/9);
+      return v >= 0
+        ? `rgba(47,153,114,${0.10+a*0.55})`
+        : `rgba(184,88,82,${0.10+a*0.55})`;
+    }
+    function renderHeatmap() {
+      $("#heatmapModes").innerHTML = segmented(
+        [["portfolio","Portfolio"],["SP500","S&P 500"],["ACWI","ACWI"],["AGG","Bonds"]],
+        state.heatmapMode, "heat-mode","mode");
+      const key = state.heatmapMode;
+      const years = [...new Set(MONTHS.map(m=>m.year))];
+      const monthNames = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+      let html = `<table class="heatmap"><thead><tr><th></th>${monthNames.map(m=>`<th>${m}</th>`).join("")}<th>YEAR</th></tr></thead><tbody>`;
+      years.forEach(y => {
+        const rows = MONTHS.filter(m=>m.year===y);
+        const yearReturn = rows.length ? (rows.reduce((acc,m)=>acc*(1+m[key]/100),1)*100-100) : 0;
+        html += `<tr><td class="heat-year">${y}</td>`;
+        for (let m=0;m<12;m++) {
+          const row = rows.find(r=>r.month===m);
+          if (!row) { html += `<td><div class="heat-empty">·</div></td>`; continue; }
+          const v = row[key];
+          html += `<td><button class="heat-cell ${v>=0?"positive":"negative"} ${state.selectedMonth===row.key?"active":""}"
+            data-action="select-month" data-month="${row.key}"
+            style="--cell:${heatColor(v)}" aria-label="${monthLabel(row.date)} ${percent(v,1,true)}">${v>=0?"+":"−"}${Math.abs(v).toFixed(1)}</button></td>`;
+        }
+        html += `<td class="year-return ${yearReturn>=0?"positive":"negative"}">${yearReturn>=0?"+":"−"}${Math.abs(yearReturn).toFixed(1)}%</td></tr>`;
+      });
+      html += `</tbody></table>`;
+      $("#heatmapContainer").innerHTML = html;
+      renderHeatmapDetail();
+    }
+    function renderHeatmapDetail() {
+      const row = MONTH_LOOKUP[state.selectedMonth] || MONTHS[MONTHS.length-1];
+      if (!row) { $("#heatmapDetail").innerHTML = ""; return; }
+      const b = state.benchmark === "none" ? null : row[state.benchmark];
+      $("#heatmapDetail").innerHTML = `
+        <div><span class="micro-label">SELECTED MONTH</span><div style="margin-top:4px"><strong>${monthLabel(row.date)}</strong></div></div>
+        <div style="display:flex;gap:24px;text-align:right">
+          <div><span class="micro-label">PORTFOLIO</span><div class="${metricClass(row.portfolio)}" style="font-weight:700">${percent(row.portfolio,2,true)}</div></div>
+          ${b===null?"":`<div><span class="micro-label">${BENCH_NAMES[state.benchmark]}</span><div class="${metricClass(b)}" style="font-weight:700">${percent(b,2,true)}</div></div>
+          <div><span class="micro-label">DIFFERENCE</span><div class="${metricClass(row.portfolio-b)}" style="font-weight:700">${percent(row.portfolio-b,2,true)}</div></div>`}
+        </div>`;
+    }
+
+    function renderPerformanceMovers() {
+      $("#moverModes").innerHTML = segmented(
+        [["day","Today"],["total","Total return"]], state.moverMode, "mover-mode","mode");
+      const isDay = state.moverMode === "day";
+      const value = h => isDay ? h.day : totalReturn(h);
+      const sorted = [...HOLDINGS].filter(h=>h.symbol!=="CASH").sort((a,b)=>value(b)-value(a));
+      const col = (title, rows, cls) => `
+        <div><div class="mover-col-title ${cls}">${title}</div>
+        ${rows.map(h => `
+          <button class="mover-row" data-action="open-holding" data-symbol="${h.symbol}">
+            <span><strong>${h.symbol}</strong><small>${escapeHTML(h.name)}</small></span>
+            <span style="text-align:right"><strong class="${metricClass(value(h))}">${percent(value(h),2,true)}</strong>
+              <small>${isDay?signedMoney(holdingDayDollars(h)):signedMoney(h.value-h.cost)}</small></span>
+          </button>`).join("")}</div>`;
+      $("#performanceMovers").innerHTML = col("LEADERS", sorted.slice(0,3), "positive") + col("LAGGARDS", sorted.slice(-3).reverse(), "negative");
+    }
+
+    function renderIncomeForecast() {
+      const max = Math.max(...INCOME.map(incomeAmount), 1);
+      const selected = INCOME[state.incomeMonth] || INCOME[0];
+      const events = incomeEvents(selected).sort((a,b)=>b.amount-a.amount);
+      $("#incomeForecast").innerHTML = `
+        <div class="income-chart">${INCOME.map((row,i) => `
+          <button class="income-month ${i===state.incomeMonth?"active":""}" data-action="income-month" data-month="${i}"
+            aria-label="${monthLabel(row.date)} ${money(incomeAmount(row))}">
+            <i style="height:${Math.max(4, incomeAmount(row)/max*100)}%"></i>
+            <span>${new Intl.DateTimeFormat("en-US",{month:"short",timeZone:"UTC"}).format(row.date)}</span>
+          </button>`).join("")}</div>
+        <div class="foot-rule" style="display:flex;justify-content:space-between;align-items:baseline">
+          <div><span class="micro-label">${monthLabel(selected.date)}</span>
+            <div class="stat-value" style="font-size:22px">${money(incomeAmount(selected))}</div></div>
+          <div class="subtle-note" style="text-align:right">${events.length} payment${events.length===1?"":"s"}<br>12-month total ${money(sum(INCOME.map(incomeAmount)))}</div>
+        </div>
+        <div class="foot-rule">${events.length?events.map(e=>`
+          <div class="income-event"><span><strong>${e.symbol}</strong><small>${escapeHTML(e.name)}</small></span>
+            <span style="text-align:right"><strong>${money(e.amount)}</strong><small>${shortDate(e.date)}</small></span></div>`).join(""):`<div class="subtle-note">No payments scheduled this month.</div>`}</div>`;
+    }
+
+    /* ============================ ANALYSIS ============================ */
+
+    function renderHealth() {
+      const {parts,total} = healthFactors();
+      const grade = total>=90?"A":total>=80?"B+":total>=70?"B":total>=60?"C+":"C";
+      $("#healthContent").innerHTML = `
+        <div class="health-layout">
+          <div class="health-ring" style="--score:${total*3.6}deg"><div><strong>${grade}</strong><small>${total}/100</small></div></div>
+          <div class="health-bars">
+            ${parts.map(p => `
+              <div><div class="health-bar-head"><span>${p.name}</span><strong>${p.score}</strong></div>
+                <div class="health-bar-track"><span style="width:${p.score}%;--bar:${p.color}"></span></div></div>`).join("")}
+          </div>
+        </div>
+        <p class="subtle-note" style="margin-top:16px">Weighted heuristic across diversification, concentration, risk fit, cost and cash use. It is a conversation starter, not a rating.</p>`;
+    }
+
+    function buildIssues() {
+      const issues = [];
+      const fiWeight = CLASS_VALUES["Fixed Income"]/TOTAL*100;
+      const cashWeight = CLASS_VALUES.Cash/TOTAL*100;
+      const techWeight = sum(HOLDINGS.filter(h=>h.sector==="Technology").map(h=>h.value))/TOTAL*100;
+      if (TOP5>50) issues.push({severity:"HIGH", severityClass:"", title:`Top five holdings are ${percent(TOP5,1)} of the book`, text:"Concentration above the 50% heuristic.", page:"analysis", to:"lookthroughCard"});
+      if (fiWeight < POLICY["Fixed Income"]) issues.push({severity:"MED", severityClass:"med", title:`Bonds are ${percent(POLICY["Fixed Income"]-fiWeight,1)} below policy`, text:"Fixed income is the widest drift from target.", page:"analysis", to:"driftCard"});
+      if (techWeight > 25) issues.push({severity:"MED", severityClass:"med", title:`Technology is ${percent(techWeight,1)} of the book`, text:"A single sector above a quarter of assets.", page:"analysis", to:"lookthroughCard"});
+      if (cashWeight > POLICY.Cash) issues.push({severity:"NOTE", severityClass:"note", title:`Cash is ${percent(cashWeight-POLICY.Cash,1)} above policy`, text:"Idle cash is a drag if it is not earmarked.", page:"analysis", to:"rebalanceCard"});
+      issues.push({severity:"NOTE", severityClass:"note", title:`Blended fee is ${percent(BLENDED_FEE,2)}`, text:"Low-cost construction leaves little to trim.", page:"holdings", to:""});
+      return issues;
+    }
+    function renderIssues() {
+      $("#issueModes").innerHTML = segmented(
+        [["all","All"],["HIGH","High"],["MED","Medium"],["NOTE","Notes"]],
+        state.issueFilter, "issue-filter","filter");
+      const list = buildIssues().filter(i => state.issueFilter === "all" || i.severity === state.issueFilter);
+      $("#issuesContent").innerHTML = list.length ? list.map(i => `
+        <button class="issue-item" data-action="jump" data-page="${i.page}" data-to="${i.to}">
+          <span class="severity ${i.severityClass}">${i.severity}</span>
+          <span><strong>${i.title}</strong><small>${i.text}</small></span>
+          <span style="color:var(--muted)">→</span>
+        </button>`).join("") : `<div class="subtle-note" style="padding:14px 0">Nothing in this category.</div>`;
+    }
+
+    function renderDrift() {
+      $("#driftContent").innerHTML = `<div class="drift-rows">${CLASSES.map(c => {
+        const actual = CLASS_VALUES[c]/TOTAL*100;
+        const target = state.targets[c];
+        const diff = actual - target;
+        const dollars = diff/100*TOTAL;
+        const max = Math.max(actual, target, 30);
+        const color = Math.abs(diff) < 1 ? "#2f9972" : diff > 0 ? "#b85852" : "#568cb0";
+        return `<div class="drift-row">
+          <div class="drift-row-label"><strong>${c}</strong><small>${money(CLASS_VALUES[c],{compact:true})}</small></div>
+          <div class="drift-track">
+            <div class="drift-fill" style="width:${clamp(actual/max*100,0,100)}%;--bar:${color}"></div>
+            <div class="target-tick" style="left:${clamp(target/max*100,0,100)}%"></div>
+          </div>
+          <div class="drift-note ${Math.abs(diff)<1?"muted":metricClass(diff)}">${Math.abs(diff)<1?"ON TARGET":(diff>0?"+":"−")+money(Math.abs(dollars),{compact:true})}</div>
+        </div>`;
+      }).join("")}</div>
+      <div class="foot-rule subtle-note">Actual weights use today's values. Policy targets come from the rebalance studio below.</div>`;
+    }
+
+    function renderRebalance() {
+      $("#rebalanceControls").innerHTML = CLASSES.map(c => `
+        <div class="target-row">
+          <div class="target-head"><span>${c}</span><span id="target-${slug(c)}">${state.targets[c].toFixed(0)}%</span></div>
+          <input type="range" min="0" max="100" step="1" value="${state.targets[c]}" data-action="target-change" data-class="${escapeHTML(c)}" aria-label="${escapeHTML(c)} target weight">
+          <small>Now ${percent(CLASS_VALUES[c]/TOTAL*100,1)} · ${money(CLASS_VALUES[c],{compact:true})}</small>
+        </div>`).join("");
+      renderRebalancePreview();
+    }
+
+    function setTarget(cls, value) {
+      value = clamp(value, 0, 100);
+      const others = CLASSES.filter(c => c !== cls);
+      const otherSum = sum(others.map(c => state.targets[c]));
+      const remaining = 100 - value;
+      others.forEach(c => {
+        state.targets[c] = otherSum <= 0 ? remaining/others.length : state.targets[c]/otherSum*remaining;
+      });
+      state.targets[cls] = value;
+      CLASSES.forEach(c => {
+        const slider = document.querySelector(`input[data-class="${c}"]`);
+        if (slider && document.activeElement !== slider) slider.value = state.targets[c];
+        const label = document.getElementById(`target-${slug(c)}`);
+        if (label) label.textContent = state.targets[c].toFixed(0) + "%";
+      });
+      renderRebalancePreview();
+      renderDrift();
+    }
+
+    function renderRebalancePreview() {
+      let before = CLASSES.map(c => ({name:c, value:CLASS_VALUES[c], color:CLASS_COLORS[c]}));
+      let after = CLASSES.map(c => ({name:c, value:state.targets[c]/100*TOTAL, color:CLASS_COLORS[c]}));
+      if (state.keepCash) {
+        const cashTarget = CLASS_VALUES.Cash;
+        const others = CLASSES.filter(c => c !== "Cash");
+        const otherSum = sum(others.map(c => state.targets[c])) || 1;
+        const rest = TOTAL - cashTarget;
+        after = CLASSES.map(c => c === "Cash"
+          ? {name:c, value:cashTarget, color:CLASS_COLORS[c]}
+          : {name:c, value:state.targets[c]/otherSum*rest, color:CLASS_COLORS[c]});
+      }
+      const trades = CLASSES.map(c => {
+        const targetValue = after.find(a=>a.name===c).value;
+        return {name:c, delta: targetValue - CLASS_VALUES[c], color:CLASS_COLORS[c]};
+      }).filter(t => Math.abs(t.delta) > TOTAL*0.002);
+      $("#rebalancePreview").innerHTML = `
+        <div class="preview-donuts">
+          ${donut(before,"Before",{center:money(TOTAL,{compact:true})})}
+          <span class="preview-arrow">→</span>
+          ${donut(after,"After",{center:"100%"})}
+        </div>
+        <div class="trade-list">${trades.length?trades.map(t => `
+          <div class="trade-row"><span><span class="trade-type ${t.delta>0?"buy":"sell"}">${t.delta>0?"BUY":"SELL"}</span> ${t.name}</span>
+            <strong>${signedMoney(Math.abs(t.delta))}</strong></div>`).join(""):`<div class="subtle-note">Targets already match the book.</div>`}</div>`;
+    }
+
+    const SCENARIOS = {
+      "Equity sell-off": {"US Equity":-20, "International Equity":-18, "Fixed Income":2, "Real Assets":-6, "Crypto":-30, "Cash":0},
+      "Inflation shock": {"US Equity":-8, "International Equity":-6, "Fixed Income":-9, "Real Assets":8, "Crypto":-12, "Cash":0},
+      "Tech correction": {"US Equity":-14, "International Equity":-7, "Fixed Income":3, "Real Assets":-2, "Crypto":-22, "Cash":0},
+      "Rate-cut rally": {"US Equity":11, "International Equity":9, "Fixed Income":7, "Real Assets":5, "Crypto":24, "Cash":0}
+    };
+    function stressBars(shock) {
+      const max = Math.max(...CLASSES.map(c=>Math.abs(shock[c])),1);
+      return CLASSES.map((c,i) => {
+        const v = shock[c];
+        const h = Math.abs(v)/max*42;
+        const x = 8 + i*24;
+        const y = v>=0 ? 55-h : 55;
+        return `<rect x="${x}" y="${y}" width="15" height="${Math.max(2,h)}" rx="3" fill="${v>=0?"#2f9972":"#b85852"}"/>
+          <text x="${x+7.5}" y="102" text-anchor="middle" font-size="8" fill="#85948d" font-family="monospace">${escapeHTML(c.split(" ")[0].slice(0,7))}</text>`;
+      }).join("");
+    }
+    function renderStress() {
+      const names = Object.keys(SCENARIOS);
+      const shock = SCENARIOS[state.selectedScenario];
+      const impact = sum(CLASSES.map(c => CLASS_VALUES[c]*shock[c]/100));
+      const pct = impact/TOTAL*100;
+      const after = TOTAL + impact;
+      $("#stressContent").innerHTML = `
+        <div class="scenario-options">${names.map(n => {
+          const imp = sum(CLASSES.map(c=>CLASS_VALUES[c]*SCENARIOS[n][c]/100));
+          return `<button class="scenario-option ${n===state.selectedScenario?"active":""}" data-action="scenario" data-scenario="${escapeHTML(n)}">
+            <strong>${escapeHTML(n)}</strong>
+            <span style="color:${imp<0?"var(--red)":"var(--teal)"}">${percent(imp/TOTAL*100,1,true)}</span>
+          </button>`;
+        }).join("")}</div>
+        <div class="stress-readout">
+          <div><span class="micro-label">PORTFOLIO IMPACT</span>
+            <strong class="${metricClass(pct)}">${percent(pct,1,true)}</strong>
+            <div class="subtle-note">${signedMoney(impact)} · portfolio would be ${money(after,{compact:true})}</div></div>
+          <svg viewBox="0 0 155 110" aria-hidden="true">${stressBars(shock)}</svg>
+        </div>
+        <div class="shock-chips">${CLASSES.map(c => `<span class="chip ${shock[c]<0?"warn":shock[c]>0?"good":""}">${c} ${percent(shock[c],0,true)}</span>`).join("")}</div>
+        <details class="assumptions"><summary>Assumptions</summary>
+          <div class="assumption-list">Instantaneous class-level shocks; no trading, taxes, or cross-asset correlations.</div></details>`;
+    }
+
+    function corrValue(a, b) {
+      if (a === b) return 1;
+      const A = BY_SYMBOL[a], B = BY_SYMBOL[b];
+      if (!A || !B) return 0;
+      const key = [a,b].sort().join("|");
+      let h = 0;
+      for (let i=0;i<key.length;i++) h = (h*31 + key.charCodeAt(i)) % 1000;
+      const noise = (h/1000 - .5) * .22;
+      let base;
+      if (A.class === B.class) base = .74;
+      else if (A.class === "Cash" || B.class === "Cash") base = .02;
+      else if (A.class === "Fixed Income" && B.class === "Fixed Income") base = .86;
+      else if (A.class === "Fixed Income" || B.class === "Fixed Income") base = .10;
+      else if (A.class === "Crypto" || B.class === "Crypto") base = .28;
+      else if (A.region === B.region) base = .66;
+      else base = .50;
+      return clamp(base + noise, -.95, .99);
+    }
+    function corrColor(v) {
+      const a = Math.min(1, Math.abs(v));
+      return v >= 0 ? `rgba(47,153,114,${0.10+a*0.5})` : `rgba(184,88,82,${0.10+a*0.5})`;
+    }
+    function corrText(v) {
+      if (v > .75) return "Very high — these positions tend to move together, so the pair adds little diversification.";
+      if (v > .5) return "High — meaningful shared exposure to the same market factor.";
+      if (v > .25) return "Moderate — some shared movement, but still distinct.";
+      if (v > -.1) return "Low — largely independent day-to-day behaviour.";
+      return "Negative — they have tended to move in opposite directions.";
+    }
+    function renderCorrelation() {
+      $("#correlationModes").innerHTML = segmented(
+        [["1Y","1Y"],["2Y","2Y"]], state.corrDays===252?"1Y":"2Y", "corr-days","days");
+      const syms = ["VTI","NVDA","AAPL","MSFT","VXUS","BND","GLD","IBIT"];
+      const table = `<table class="corr-table"><thead><tr><th></th>${syms.map(s=>`<th>${s}</th>`).join("")}</tr></thead><tbody>
+        ${syms.map(a => `<tr><th>${a}</th>${syms.map(b => {
+          if (a===b) return `<td><div class="corr-diagonal">1.00</div></td>`;
+          const v = corrValue(a,b);
+          const isSel = (state.corrPair[0]===a&&state.corrPair[1]===b)||(state.corrPair[0]===b&&state.corrPair[1]===a);
+          return `<td><button data-action="corr-pair" data-a="${a}" data-b="${b}"
+            class="${isSel?"active":""}" style="--corr:${corrColor(v)}" aria-label="${a} vs ${b} ${v.toFixed(2)}">${v.toFixed(2)}</button></td>`;
+        }).join("")}</tr>`).join("")}
+      </tbody></table>`;
+      const [a,b] = state.corrPair;
+      const v = corrValue(a,b);
+      const pairs = [];
+      for (let i=0;i<syms.length;i++) for (let j=i+1;j<syms.length;j++) pairs.push([syms[i],syms[j],corrValue(syms[i],syms[j])]);
+      pairs.sort((x,y)=>Math.abs(y[2])-Math.abs(x[2]));
+      $("#correlationContent").innerHTML = `
+        <div class="corr-layout">${table}
+          <div><div class="corr-insight"><span class="micro-label">SELECTED PAIR</span>
+            <strong>${a} · ${b}</strong>
+            <p>${corrText(v)}</p></div>
+            <div class="corr-slider">Show pairs above <strong>${state.corrThreshold.toFixed(2)}</strong>
+              <input type="range" min="0" max="0.95" step="0.05" value="${state.corrThreshold}" data-action="corr-threshold" aria-label="Correlation threshold"></div>
+            <div class="corr-pairs">${pairs.filter(p=>Math.abs(p[2])>=state.corrThreshold).slice(0,10).map(p =>
+              `<div><span>${p[0]} · ${p[1]}</span><strong>${p[2].toFixed(2)}</strong></div>`).join("") || `<div class="muted" style="padding:4px 0">No pairs above the threshold.</div>`}</div>
+          </div></div>`;
+    }
+
+    const FUND_UNDERLYING = {
+      VTI: {"NVDA":6.2,"AAPL":5.8,"MSFT":5.5,"AMZN":3.2,"META":2.4,"GOOGL":2.1,"BRK.B":1.6,"AVGO":1.5},
+      VXUS: {"TSM":2.6,"TCEHY":1.1,"ASML":0.8,"NVO":0.7,"SAP":0.6,"SONY":0.5},
+      SCHD: {"AVGO":4.2,"HD":4.0,"ABBV":3.9,"MRK":3.8,"PEP":3.7,"KO":3.6,"CSCO":3.4},
+      AVUV: {"SPSM":0.9,"MTG":0.7,"TBBK":0.6,"MHO":0.6,"PRDO":0.5},
+      IEMG: {"TSM":7.4,"TCEHY":4.1,"SSNLF":3.2,"BABA":2.3,"INFY":1.5},
+      VNQ: {"PLD":7.0,"AMT":5.1,"EQIX":4.8,"WELL":4.4,"SPG":4.0},
+      GLD: {"Gold bullion":100},
+      IBIT: {"Bitcoin":100},
+      BND: {"US Treasuries":45,"US MBS":22,"IG credit":20,"Other bonds":13},
+      VGSH: {"US Treasuries 1-3y":100}
+    };
+    function renderRouteDetail(rows) {
+      const r = rows.find(x => x.name === state.selectedUnderlying) || rows[0];
+      if (!r) return "";
+      return `<div class="micro-label">HOW ${r.name} REACHES THE BOOK</div>
+        <div style="margin-top:6px">Direct shares <strong>${money(r.directValue)}</strong> · inside funds <strong>${money(r.fundValue)}</strong> · total <strong>${percent(r.total/TOTAL*100,2)}</strong></div>
+        <div class="route-chips">${r.routes.slice(0,5).map(x => `<span class="chip">${x.fund} · ${x.pct.toFixed(1)}% · ${money(x.value,{compact:true})}</span>`).join("") || `<span class="chip">No fund routes</span>`}</div>`;
+    }
+    function renderLookthrough() {
+      const top = ["NVDA","AAPL","MSFT","AMZN","META","TSM","AVGO","GOOGL"];
+      const rows = top.map(name => {
+        const direct = HOLDINGS.find(h => h.symbol === name);
+        const directValue = direct ? direct.value : 0;
+        let fundValue = 0;
+        const routes = [];
+        Object.entries(FUND_UNDERLYING).forEach(([fund, map]) => {
+          if (map[name] && BY_SYMBOL[fund]) {
+            const v = BY_SYMBOL[fund].value * map[name]/100;
+            fundValue += v;
+            routes.push({fund, pct: map[name], value: v});
+          }
+        });
+        return {name, directValue, fundValue, total: directValue + fundValue, routes: routes.sort((a,b)=>b.value-a.value)};
+      }).sort((a,b)=>b.total-a.total);
+      $("#lookthroughContent").innerHTML = `
+        <div class="underlying-grid">${rows.slice(0,6).map(r => `
+          <button class="underlying-card ${state.selectedUnderlying===r.name?"active":""}" data-action="underlying" data-name="${escapeHTML(r.name)}">
+            <strong>${r.name}</strong>
+            <span class="big">${percent(r.total/TOTAL*100,2)}</span>
+            <small>${money(r.total)} total exposure</small>
+            <div class="split-mini"><span class="direct" style="width:${r.total?r.directValue/r.total*100:0}%"></span>
+              <span class="fund" style="width:${r.total?r.fundValue/r.total*100:0}%"></span></div>
+          </button>`).join("")}</div>
+        <div class="route-detail">${renderRouteDetail(rows)}</div>
+        <div class="foot-rule subtle-note">Fund holdings are approximate look-through snapshots, not live disclosures. Direct green = shares held outright; light green = reached through funds.</div>`;
+    }
+
+    function projectionCurve(start, contrib, monthly, months, color) {
+      const points = [];
+      let bal = start;
+      const step = Math.max(1, Math.floor(months/24));
+      for (let i=0;i<=months;i+=step) {
+        points.push(bal);
+        for (let k=0;k<step && i+k<months;k++) bal = bal*(1+monthly) + contrib;
+      }
+      points.push(bal);
+      const max = Math.max(...points), min = Math.min(...points);
+      const path = points.map((v,i) => {
+        const x = i/(points.length-1)*100;
+        const y = 26 - (v-min)/((max-min)||1)*22;
+        return `${i?"L":"M"}${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(" ");
+      return `<path d="${path}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round"/>`;
+    }
+    function renderProjection() {
+      $("#contributionReadout").textContent = money(state.contribution) + " / mo";
+      $("#yearsReadout").textContent = state.projectionYears + " years";
+      $("#projectionContribution").value = state.contribution;
+      $("#projectionYears").value = state.projectionYears;
+      const scenarios = [
+        {name:"Conservative", rate:.04, color:"#84968b"},
+        {name:"Base case", rate:.07, color:"#2f9972"},
+        {name:"Optimistic", rate:.10, color:"#568cb0"}
+      ];
+      const months = state.projectionYears*12;
+      const rows = scenarios.map(s => {
+        const monthly = s.rate/12;
+        const fv = TOTAL*Math.pow(1+monthly,months) + (monthly>0 ? state.contribution*((Math.pow(1+monthly,months)-1)/monthly) : state.contribution*months);
+        return {...s, fv};
+      });
+      $("#projectionContent").innerHTML = `<div class="future-grid">${rows.map(r => `
+        <div class="future-card"><span class="micro-label">${r.name}</span>
+          <strong>${money(r.fv,{compact:true})}</strong>
+          <small>${percent(r.rate*100,1)} annual · ${money(state.contribution*months,{compact:true})} contributed</small>
+          <svg viewBox="0 0 100 28" aria-hidden="true">${projectionCurve(TOTAL, state.contribution, r.rate/12, months, r.color)}</svg>
+        </div>`).join("")}</div>`;
+    }
+
+    /* ============================ DRAWER / MODAL / TOAST ============================ */
+
+    function drawerSpark(h) {
+      let seed = 0;
+      for (let i=0;i<h.symbol.length;i++) seed = (seed*31 + h.symbol.charCodeAt(i)) % 997;
+      const points = [];
+      let v = 100;
+      for (let i=0;i<48;i++) {
+        v *= 1 + Math.sin((i+seed)*.5)*.012 + Math.cos((i*seed)*.13)*.006 + (h.day/100)*.02;
+        points.push(v);
+      }
+      const min = Math.min(...points), max = Math.max(...points);
+      const path = points.map((p,i) => {
+        const x = i/47*300;
+        const y = 100 - (p-min)/((max-min)||1)*80 - 10;
+        return `${i?"L":"M"}${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(" ");
+      return `<svg viewBox="0 0 300 105" preserveAspectRatio="none"><path d="${path}" fill="none" stroke="${h.day>=0?"#2f9972":"#b85852"}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    }
+    function openDrawer(symbol) {
+      const h = BY_SYMBOL[symbol];
+      if (!h) return;
+      state.drawer = symbol;
+      const pl = h.value - h.cost;
+      const ret = totalReturn(h);
+      $("#holdingDrawer").innerHTML = `
+        <div class="drawer-top"><span class="micro-label">POSITION DETAIL</span>
+          <button class="icon-button" data-action="close-drawer" aria-label="Close">×</button></div>
+        <h2 class="drawer-title">${h.symbol}</h2>
+        <div class="muted">${escapeHTML(h.name)}</div>
+        <div class="drawer-price">${money(h.value)}</div>
+        <div class="chip ${metricClass(h.day)}">${dayString(h.day)} today · ${signedMoney(holdingDayDollars(h))}</div>
+        <div class="drawer-spark">${drawerSpark(h)}</div>
+        <div class="drawer-grid">
+          <div><small>Cost basis</small><strong>${money(h.cost)}</strong></div>
+          <div><small>Total P/L</small><strong class="${metricClass(pl)}">${signedMoney(pl)}</strong></div>
+          <div><small>Return</small><strong class="${metricClass(ret)}">${percent(ret,1,true)}</strong></div>
+          <div><small>Weight</small><strong>${percent(weight(h),1)}</strong></div>
+          <div><small>Units</small><strong>${h.symbol==="CASH"?money(h.shares):h.shares.toLocaleString()}</strong></div>
+          <div><small>Yield</small><strong>${h.yield.toFixed(2)}%</strong></div>
+          <div><small>Asset class</small><strong>${h.class}</strong></div>
+          <div><small>Sector</small><strong>${escapeHTML(h.sector)}</strong></div>
+        </div>
+        <div class="plan-toolrow">
+          <button class="outline-button" data-action="close-drawer">Close</button>
+        </div>`;
+      $("#holdingDrawer").hidden = false;
+      $("#drawerBackdrop").hidden = false;
+      document.body.classList.add("overlay-open");
+    }
+    function closeDrawer() {
+      state.drawer = null;
+      $("#holdingDrawer").hidden = true;
+      $("#drawerBackdrop").hidden = true;
+      if ($("#modalBackdrop").hidden) document.body.classList.remove("overlay-open");
+    }
+    function showModal(title, body) {
+      $("#modal").innerHTML = `<div class="drawer-top"><h2 id="modalTitle" style="margin:0;font:26px Georgia,serif">${title}</h2>
+        <button class="icon-button" data-action="close-modal" aria-label="Close">×</button></div>${body}`;
+      $("#modalBackdrop").hidden = false;
+      document.body.classList.add("overlay-open");
+    }
+    function closeModal() {
+      $("#modalBackdrop").hidden = true;
+      if (!state.drawer) document.body.classList.remove("overlay-open");
+    }
+    let toastTimer;
+    function toast(message) {
+      const el = $("#toast");
+      el.textContent = message;
+      el.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.hidden = true, 2600);
+    }
+
+    /* ============================ EXPORT / SAVE ============================ */
+
+    function download(content, filename) {
+      const blob = new Blob([content], {type:"text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    function exportHoldings() {
+      const header = ["Symbol","Name","Class","Value","Cost","Return %","Weight %","Units"];
+      const rows = filteredHoldings().map(h => [
+        h.symbol, `"${h.name}"`, h.class, h.value.toFixed(0), h.cost.toFixed(0),
+        totalReturn(h).toFixed(2), weight(h).toFixed(2), h.shares
+      ]);
+      download([header.join(","), ...rows.map(r => r.join(","))].join("\n"), "meridian-holdings.csv");
+      toast("Holdings CSV exported.");
+    }
+    function exportPlan() {
+      const header = ["Class","Current %","Target %","Current value","Target value","Delta"];
+      const rows = CLASSES.map(c => {
+        const target = state.targets[c]/100*TOTAL;
+        return [c, (CLASS_VALUES[c]/TOTAL*100).toFixed(2), state.targets[c].toFixed(2),
+          CLASS_VALUES[c].toFixed(0), target.toFixed(0), (target-CLASS_VALUES[c]).toFixed(0)];
+      });
+      download([header.join(","), ...rows.map(r => r.join(","))].join("\n"), "meridian-rebalance-plan.csv");
+      toast("Rebalance plan exported.");
+    }
+    function savePlan() {
+      try {
+        localStorage.setItem("meridian-plan", JSON.stringify(state.targets));
+        $("#planSaved").textContent = "Saved to this browser.";
+        toast("Target allocation saved locally.");
+      } catch {
+        toast("Could not save in this browser.");
+      }
+    }
+
+    /* ============================ RENDER ALL ============================ */
+
+    function renderAll() {
+      renderHero();
+      renderOverviewMetrics();
+      renderAllocation();
+      renderPulse();
+      renderOverviewMovers();
+      renderOverviewIncome();
+      renderHoldingsMetrics();
+      renderMapColorModes();
+      renderGainFilterButtons();
+      renderHoldingsTable();
+      renderConcentration();
+      renderPerformanceMetrics();
+      renderCharts();
+      renderHeatmap();
+      renderPerformanceMovers();
+      renderIncomeForecast();
+      renderHealth();
+      renderIssues();
+      renderDrift();
+      renderRebalance();
+      renderStress();
+      renderCorrelation();
+      renderLookthrough();
+      renderProjection();
+      renderHoldingsViewModes();
+      updateHoldingsView();
+      if (state.page === "holdings") requestAnimationFrame(drawHoldingsMap);
+      if (state.page === "overview" && state.allocationView === "mosaic") requestAnimationFrame(drawAllocationMosaic);
+    }
+
+    /* ============================ EVENTS ============================ */
+
+    document.addEventListener("click", e => {
+      const trigger = e.target.closest("[data-action]");
+      if (!trigger) return;
+      const action = trigger.dataset.action;
+      switch(action) {
+        case "nav": navigate(trigger.dataset.page); break;
+        case "jump": {
+          const page = trigger.dataset.page;
+          navigate(page);
+          const to = trigger.dataset.to;
+          if (to) setTimeout(() => {
+            const el = document.getElementById(to);
+            if (el) {
+              el.scrollIntoView({behavior:"smooth",block:"start"});
+              el.style.transition = "box-shadow .4s";
+              el.style.boxShadow = "0 0 0 3px #7ec9a3";
+              setTimeout(() => el.style.boxShadow = "", 1600);
+            }
+          }, 260);
+          break;
+        }
+        case "range":
+          state.range = trigger.dataset.range;
+          renderCharts(); renderPerformanceMetrics(); renderHeatmapDetail();
+          break;
+        case "alloc-dim":
+          state.allocationDimension = trigger.dataset.dim;
+          state.dimensionFilter = null;
+          renderAllocation(); renderHoldingsTable();
+          break;
+        case "alloc-view":
+          state.allocationView = trigger.dataset.view;
+          renderAllocation();
+          break;
+        case "allocation-drill": {
+          const dim = state.allocationDimension;
+          state.dimensionFilter = {dim, value: trigger.dataset.group};
+          navigate("holdings");
+          renderHoldingsTable();
+          break;
+        }
+        case "clear-dimension":
+          state.dimensionFilter = null;
+          renderHoldingsTable();
+          break;
+        case "gain-filter": {
+          const g = trigger.dataset.gain;
+          state.gainFilter = state.gainFilter === g ? "all" : g;
+          renderGainFilterButtons(); renderHoldingsTable();
+          break;
+        }
+        case "map-color":
+          state.mapColor = trigger.dataset.color;
+          renderMapColorModes(); drawHoldingsMap();
+          break;
+        case "select-holding":
+          state.selectedHolding = trigger.dataset.symbol;
+          drawHoldingsMap();
+          break;
+        case "open-holding":
+          openDrawer(trigger.dataset.symbol);
+          break;
+        case "close-drawer":
+          closeDrawer();
+          break;
+        case "close-modal":
+          closeModal();
+          break;
+        case "sort-holdings": {
+          const key = trigger.dataset.sort;
+          if (state.sortKey === key) state.sortDirection *= -1;
+          else { state.sortKey = key; state.sortDirection = key === "name" ? 1 : -1; }
+          renderHoldingsTable();
+          break;
+        }
+        case "holding-view":
+          state.holdingsView = trigger.dataset.view;
+          renderHoldingsViewModes();
+          updateHoldingsView();
+          break;
+        case "heat-mode":
+          state.heatmapMode = trigger.dataset.mode;
+          renderHeatmap();
+          break;
+        case "select-month":
+          state.selectedMonth = trigger.dataset.month;
+          renderHeatmap();
+          break;
+        case "mover-mode":
+          state.moverMode = trigger.dataset.mode;
+          renderPerformanceMovers();
+          break;
+        case "income-month":
+          state.incomeMonth = +trigger.dataset.month;
+          renderIncomeForecast();
+          break;
+        case "issue-filter":
+          state.issueFilter = trigger.dataset.filter;
+          renderIssues();
+          break;
+        case "scenario":
+          state.selectedScenario = trigger.dataset.scenario;
+          renderStress();
+          break;
+        case "corr-pair":
+          state.corrPair = [trigger.dataset.a, trigger.dataset.b];
+          renderCorrelation();
+          break;
+        case "corr-days":
+          state.corrDays = trigger.dataset.days === "1Y" ? 252 : 504;
+          renderCorrelation();
+          break;
+        case "underlying":
+          state.selectedUnderlying = trigger.dataset.name;
+          renderLookthrough();
+          break;
+        case "reset-plan":
+          state.targets = {...POLICY};
+          renderRebalance(); renderDrift();
+          break;
+        case "save-plan": savePlan(); break;
+        case "export-plan": exportPlan(); break;
+        case "export-holdings": exportHoldings(); break;
+        case "demo-info":
+          showModal("About this demo", `<p>Every holding, price, return, exchange rate, fund snapshot and scenario in this workspace is illustrative. Nothing here is live market data, and none of it is investment advice.</p>
+            <p>The performance series is a deterministic simulation, the correlation lens uses approximate simulated relationships, and the look-through exposure is an approximation based on representative fund compositions.</p>
+            <p style="margin-bottom:0">Use the sample as a design reference, not as a source of financial information.</p>`);
+          break;
+        case "returns-help":
+          showModal("About return methods", `<p><strong>Time-weighted return</strong> removes the effect of cash-flow timing and measures the strategy itself, rebased to 100 at the start of the selected period.</p>
+            <p><strong>Money-weighted return</strong> is the internal rate of return of the portfolio's actual cash flows. In this demo it is derived from an explicitly assumed sample schedule of $800 monthly deposits, so it is a demonstration of the method rather than a figure from real history.</p>
+            <p style="margin-bottom:0">Both are shown in the same currency as the rest of the workspace.</p>`);
+          break;
+        case "health-help":
+          showModal("How the health score works", `<p>The score is a transparent weighted heuristic, not a rating or recommendation.</p>
+            <ul>
+              <li><strong>Diversification (25%)</strong> rewards a larger, broader set of positions.</li>
+              <li><strong>Concentration (25%)</strong> penalises a heavy top-five weight.</li>
+              <li><strong>Risk fit (20%)</strong> compares the fixed-income and crypto weights to the written policy.</li>
+              <li><strong>Cost (20%)</strong> rewards a low asset-weighted fee.</li>
+              <li><strong>Cash use (10%)</strong> penalises cash sitting well above policy.</li>
+            </ul>
+            <p style="margin-bottom:0">Each factor is scored 0–100 and combined with the weights above.</p>`);
+          break;
+      }
+    });
+
+    document.addEventListener("input", e => {
+      const t = e.target;
+      if (t.id === "holdingSearch") { state.search = t.value; renderHoldingsTable(); }
+      if (t.id === "projectionContribution") { state.contribution = +t.value; renderProjection(); }
+      if (t.id === "projectionYears") { state.projectionYears = +t.value; renderProjection(); }
+      if (t.matches("[data-action='target-change']")) { setTarget(t.dataset.class, +t.value); }
+      if (t.matches("[data-action='corr-threshold']")) { state.corrThreshold = +t.value; renderCorrelation(); }
+    });
+
+    document.addEventListener("change", e => {
+      const t = e.target;
+      if (t.id === "holdingClassFilter") { state.classFilter = t.value; renderHoldingsTable(); }
+      if (t.id === "currencySelect") { state.currency = t.value; renderAll(); }
+      if (t.id === "overviewBenchmark" || t.id === "performanceBenchmark") {
+        state.benchmark = t.value;
+        renderCharts(); renderPerformanceMetrics(); renderHeatmapDetail();
+      }
+      if (t.id === "includeCashInterest") {
+        state.includeCashInterest = t.checked;
+        renderIncomeForecast(); renderOverviewIncome();
+      }
+      if (t.id === "keepCash") {
+        state.keepCash = t.checked;
+        renderRebalancePreview();
+      }
+    });
+
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (state.page === "holdings") drawHoldingsMap();
+        if (state.page === "overview" && state.allocationView === "mosaic") drawAllocationMosaic();
+      }, 140);
+    });
+
+    window.addEventListener("hashchange", () => {
+      const hash = location.hash.replace("#","");
+      if (["overview","holdings","performance","analysis"].includes(hash) && hash !== state.page) navigate(hash, false);
+    });
+
+    /* ============================ INIT ============================ */
+
+    function init() {
+      try {
+        const saved = localStorage.getItem("meridian-plan");
+        if (saved) state.targets = {...POLICY, ...JSON.parse(saved)};
+      } catch {}
+      const hash = location.hash.replace("#","");
+      if (["overview","holdings","performance","analysis"].includes(hash)) state.page = hash;
+      $$(".page").forEach(el => el.hidden = el.id !== `page-${state.page}`);
+      renderNavigation();
+      renderAll();
+      requestAnimationFrame(() => {
+        if (state.page === "holdings") drawHoldingsMap();
+        if (state.page === "overview" && state.allocationView === "mosaic") drawAllocationMosaic();
+      });
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape") {
+          if (!$("#modalBackdrop").hidden) closeModal();
+          else if (!$("#holdingDrawer").hidden) closeDrawer();
+        }
+      });
+      $("#drawerBackdrop").addEventListener("click", closeDrawer);
+      $("#modalBackdrop").addEventListener("click", e => { if (e.target.id === "modalBackdrop") closeModal(); });
+    }
+
+    init();
+  </script>
+</body>
+</html>
