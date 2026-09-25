@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meridian - Portfolio Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-accent: #00D9FF;
+            --success: #00D97F;
+            --danger: #FF6B6B;
+            --warning: #FFA500;
+            --neutral: #A0AEC0;
+            --bg-dark: #0F172A;
+            --bg-card: #1A202C;
+            --bg-hover: #2D3748;
+            --text-primary: #E2E8F0;
+            --text-secondary: #CBD5E0;
+            --border: #2D3748;
+            --grid: 8px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: calc(var(--grid) * 2) calc(var(--grid) * 3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: calc(var(--grid) * 3);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--primary-accent), #00D97F);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: calc(var(--grid) * 2);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: -17px;
+        }
+
+        .nav-tab {
+            padding: calc(var(--grid) * 2) calc(var(--grid) * 2.5);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+            transition: color 200ms ease-out;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            color: var(--primary-accent);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-accent);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: calc(var(--grid) * 2);
+        }
+
+        .sync-chip {
+            display: flex;
+            align-items: center;
+            gap: calc(var(--grid) * 0.75);
+            padding: calc(var(--grid) * 0.75) calc(var(--grid) * 1.5);
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 200ms ease-out;
+        }
+
+        .sync-chip:hover {
+            background: rgba(0, 217, 255, 0.15);
+            color: var(--primary-accent);
+        }
+
+        .sync-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .icon-btn {
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 200ms ease-out;
+        }
+
+        .icon-btn:hover {
+            background: var(--primary-accent);
+            color: var(--bg-dark);
+            border-color: var(--primary-accent);
+        }
+
+        /* ===== MAIN CONTAINER ===== */
+        .container {
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: calc(var(--grid) * 3);
+        }
+
+        /* ===== PAGE SECTIONS ===== */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 300ms ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ===== HERO CARD ===== */
+        .hero-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: calc(var(--grid) * 3);
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(0, 217, 255, 0.05) 100%);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: calc(var(--grid) * 3);
+            margin-bottom: calc(var(--grid) * 3);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-metric {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--grid) * 1.5);
+        }
+
+        .hero-metric h3 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: var(--text-primary);
+        }
+
+        .hero-metric.positive h3 {
+            color: var(--success);
+        }
+
+        .hero-metric.danger h3 {
+            color: var(--danger);
+        }
+
+        .hero-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .hero-subtext {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .hero-grade {
+            display: flex;
+            align-items: flex-end;
+            gap: calc(var(--grid) * 2);
+        }
+
+        .grade-ring {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grade-text {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .grade-info {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--grid) * 0.75);
+        }
+
+        .grade-score {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .grade-badge {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== KEY FIGURES STRIP ===== */
+        .key-figures {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: calc(var(--grid) * 2);
+            margin-bottom: calc(var(--grid) * 3);
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: calc(var(--grid) * 2);
+            transition: all 200ms ease-out;
+            cursor: pointer;
+        }
+
+        .metric-card:hover {
+            background: var(--bg-hover);
+            border-color: var(--primary-accent);
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .metric-icon {
+            font-size: 20px;
+            margin-bottom: calc(var(--grid) * 1);
+            opacity: 0.7;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: calc(var(--grid) * 0.5);
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: calc(var(--grid) * 1);
+        }
+
+        .metric-mini-chart {
+            width: 100%;
+            height: 30px;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mini-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--primary-accent), transparent);
+        }
+
+        /* ===== GRID LAYOUT ===== */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: calc(var(--grid) * 2);
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: calc(var(--grid) * 2);
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: calc(var(--grid) * 2.5);
+            overflow: hidden;
+            transition: all 200ms ease-out;
+        }
+
+        .card:hover {
+            border-color: var(--primary-accent);
+            box-shadow: 0 8px 24px rgba(0, 217, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: calc(var(--grid) * 2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== CHART CONTAINERS ===== */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin-bottom: calc(var(--grid) * 2);
+        }
+
+        .chart-container-small {
+            position: relative;
+            width: 100%;
+            height: 200px;
+        }
+
+        /* ===== DONUT CHART ===== */
+        .donut-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: calc(var(--grid) * 2);
+            align-items: center;
+        }
+
+        .donut-legend {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--grid) * 1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: calc(var(--grid) * 1);
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-label {
+            flex: 1;
+        }
+
+        .legend-value {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* ===== NARRATIVE CARDS ===== */
+        .narrative-pill {
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 8px;
+            padding: calc(var(--grid) * 1.5);
+            margin-bottom: calc(var(--grid) * 1);
+            transition: all 200ms ease-out;
+        }
+
+        .narrative-pill:hover {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: var(--primary-accent);
+        }
+
+        .pill-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: calc(var(--grid) * 0.5);
+            display: flex;
+            align-items: center;
+            gap: calc(var(--grid) * 0.75);
+        }
+
+        .pill-icon {
+            font-size: 16px;
+        }
+
+        .pill-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ===== DRIFT BAR CHART ===== */
+        .drift-row {
+            display: flex;
+            align-items: center;
+            gap: calc(var(--grid) * 1.5);
+            margin-bottom: calc(var(--grid) * 2);
+        }
+
+        .drift-label {
+            flex: 0 0 120px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .drift-bar-container {
+            flex: 1;
+            position: relative;
+            height: 28px;
+            background: var(--bg-hover);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .drift-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-accent), var(--success));
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-dark);
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 200ms ease-out;
+        }
+
+        .drift-bar:hover {
+            filter: brightness(1.1);
+        }
+
+        .drift-bar.over {
+            background: linear-gradient(90deg, var(--warning), var(--danger));
+        }
+
+        .drift-action {
+            flex: 0 0 200px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: right;
+            cursor: pointer;
+            transition: color 200ms;
+        }
+
+        .drift-action:hover {
+            color: var(--primary-accent);
+        }
+
+        /* ===== HEATMAP ===== */
+        .heatmap {
+            overflow-x: auto;
+            margin-bottom: calc(var(--grid) * 1);
+        }
+
+        .heatmap-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .heatmap-th {
+            background: var(--bg-hover);
+            padding: calc(var(--grid) * 0.75);
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            min-width: 50px;
+        }
+
+        .heatmap-td {
+            padding: calc(var(--grid) * 0.75);
+            text-align: center;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 200ms;
+            min-width: 50px;
+        }
+
+        .heatmap-td:hover {
+            filter: brightness(1.2);
+            z-index: 10;
+        }
+
+        .heat-cold {
+            background: #FF6B6B;
+            color: white;
+        }
+
+        .heat-warm {
+            background: #FFD93D;
+            color: var(--bg-dark);
+        }
+
+        .heat-hot {
+            background: #00D97F;
+            color: var(--bg-dark);
+        }
+
+        /* ===== GAUGE ===== */
+        .gauge-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .gauge-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .gauge-text {
+            position: absolute;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            width: 100%;
+        }
+
+        /* ===== TABLES ===== */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: calc(var(--grid) * 1.5);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: var(--bg-hover);
+        }
+
+        th {
+            padding: calc(var(--grid) * 1.5);
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+            transition: all 200ms;
+        }
+
+        th:hover {
+            color: var(--primary-accent);
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        td {
+            padding: calc(var(--grid) * 1.5);
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .positive {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .negative {
+            color: var(--danger);
+            font-weight: 500;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: calc(var(--grid) * 1) calc(var(--grid) * 2);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 200ms ease-out;
+            display: inline-flex;
+            align-items: center;
+            gap: calc(var(--grid) * 0.75);
+        }
+
+        .btn-primary {
+            background: var(--primary-accent);
+            color: var(--bg-dark);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(0.9);
+        }
+
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        /* ===== MODALS ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: calc(var(--grid) * 3);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 300ms ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: calc(var(--grid) * 2);
+            padding-bottom: calc(var(--grid) * 1.5);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 200ms;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        /* ===== TREEMAP ===== */
+        .treemap {
+            display: grid;
+            gap: 4px;
+            grid-auto-flow: dense;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            padding: calc(var(--grid) * 1);
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: calc(var(--grid) * 2);
+        }
+
+        .treemap-item {
+            padding: calc(var(--grid) * 1.5);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 200ms ease-out;
+            min-height: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .treemap-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            opacity: 0;
+            transition: opacity 200ms;
+        }
+
+        .treemap-item:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        .treemap-item:hover::before {
+            opacity: 1;
+        }
+
+        .treemap-label {
+            z-index: 2;
+            position: relative;
+        }
+
+        .treemap-value {
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: calc(var(--grid) * 0.5);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1400px) {
+            .hero-card {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .key-figures {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-card {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-2, .grid-3, .key-figures {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                gap: calc(var(--grid) * 1);
+                overflow-x: auto;
+            }
+
+            .nav-tab {
+                padding: calc(var(--grid) * 1.5) calc(var(--grid) * 1.5);
+                white-space: nowrap;
+            }
+
+            .container {
+                padding: calc(var(--grid) * 1.5);
+            }
+        }
+
+        /* ===== UTILITY ===== */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-2 {
+            margin-top: calc(var(--grid) * 2);
+        }
+
+        .mb-2 {
+            margin-bottom: calc(var(--grid) * 2);
+        }
+
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .opacity-75 {
+            opacity: 0.75;
+        }
+
+        /* ===== TOGGLES ===== */
+        .toggle-group {
+            display: flex;
+            gap: calc(var(--grid) * 1);
+            margin-bottom: calc(var(--grid) * 2);
+        }
+
+        .toggle-btn {
+            padding: calc(var(--grid) * 0.75) calc(var(--grid) * 1.5);
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 200ms;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary-accent);
+            color: var(--bg-dark);
+            border-color: var(--primary-accent);
+        }
+
+        .toggle-btn:hover {
+            border-color: var(--primary-accent);
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">⬡ MERIDIAN</div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-page="overview">Overview</button>
+                <button class="nav-tab" data-page="holdings">Holdings</button>
+                <button class="nav-tab" data-page="performance">Performance</button>
+                <button class="nav-tab" data-page="analysis">Analysis</button>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="sync-chip">
+                <div class="sync-dot"></div>
+                Synced 6m ago
+            </div>
+            <button class="icon-btn">⚙</button>
+            <button class="icon-btn">↓</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- OVERVIEW PAGE -->
+        <div class="page active" id="overview">
+            <!-- HERO CARD -->
+            <div class="hero-card">
+                <div class="hero-metric">
+                    <h3>$354,214</h3>
+                    <div class="hero-label">Portfolio Value</div>
+                    <div class="hero-subtext">Updated just now</div>
+                </div>
+                <div class="hero-metric positive">
+                    <h3>+$11,312</h3>
+                    <div class="hero-label">Today's Change</div>
+                    <div class="hero-subtext">+0.92% | vs S&P +0.45%</div>
+                </div>
+                <div class="hero-metric">
+                    <div class="hero-grade">
+                        <div class="grade-ring">
+                            <div class="grade-text">B+</div>
+                        </div>
+                        <div class="grade-info">
+                            <div class="grade-score">78/100</div>
+                            <div class="grade-badge">Excellent diversification</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KEY FIGURES STRIP -->
+            <div class="key-figures">
+                <div class="metric-card">
+                    <div class="metric-icon">💰</div>
+                    <div class="metric-value">$278k</div>
+                    <div class="metric-label">Invested</div>
+                    <div class="metric-label" style="color: var(--text-secondary); font-size: 11px;">Cost basis</div>
+                    <div class="metric-mini-chart">
+                        <div class="mini-line" style="animation: shimmer 2s ease-in-out infinite;"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">💵</div>
+                    <div class="metric-value">$34.1k</div>
+                    <div class="metric-label">Cash</div>
+                    <div class="metric-label" style="color: var(--success);">4.13% yield</div>
+                    <div class="metric-mini-chart">
+                        <div class="mini-line" style="animation: shimmer 2s ease-in-out infinite; background: linear-gradient(90deg, transparent, var(--success), transparent);"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">📈</div>
+                    <div class="metric-value" style="color: var(--success);">+$76.2k</div>
+                    <div class="metric-label">Unrealized Gain</div>
+                    <div class="metric-label" style="color: var(--success);">+27.4% on cost</div>
+                    <div class="metric-mini-chart">
+                        <div class="mini-line" style="animation: shimmer 2s ease-in-out infinite; background: linear-gradient(90deg, transparent, var(--success), transparent);"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">📊</div>
+                    <div class="metric-value positive">+$2.3k</div>
+                    <div class="metric-label">Today</div>
+                    <div class="metric-label" style="color: var(--success);">+0.67%</div>
+                    <div class="metric-mini-chart">
+                        <div class="mini-line" style="animation: shimmer 2s ease-in-out infinite; background: linear-gradient(90deg, transparent, var(--primary-accent), transparent);"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ALLOCATION STORY -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Your Allocation</div>
+                    <div class="chart-container">
+                        <canvas id="donutChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Shape of Your Book</div>
+                    <div class="narrative-pill">
+                        <div class="pill-title">
+                            <span class="pill-icon">⚡</span>
+                            A Core with Satellites
+                        </div>
+                        <div class="pill-text">
+                            VOO at 37% dominates. Everything else orbits—good for EAFE balance, natural for indexing.
+                        </div>
+                    </div>
+                    <div class="narrative-pill">
+                        <div class="pill-title">
+                            <span class="pill-icon">🛡️</span>
+                            Thin Defensive Line
+                        </div>
+                        <div class="pill-text">
+                            Only 5% bonds vs 15% plan. Wide structural drift—target allocation wide gap to close.
+                        </div>
+                    </div>
+                    <div class="narrative-pill">
+                        <div class="pill-title">
+                            <span class="pill-icon">💤</span>
+                            Cash Doing Nothing
+                        </div>
+                        <div class="pill-text">
+                            $34k earning 4.1% while bonds yield 5.2%. Deploy strategically to underweights.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DRIFT DETECTION -->
+            <div class="card">
+                <div class="card-title flex-between">
+                    <span>Allocation Drift Detection</span>
+                    <button class="btn btn-secondary">Rebalance</button>
+                </div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: calc(var(--grid) * 2);">
+                    Compare current vs target allocation. Click to rebalance.
+                </div>
+
+                <div class="drift-row">
+                    <div class="drift-label">US Equities</div>
+                    <div class="drift-bar-container">
+                        <div class="drift-bar over" style="width: 62.7%;">62.7%</div>
+                    </div>
+                    <div class="drift-action">→ Move out $27.2k</div>
+                </div>
+
+                <div class="drift-row">
+                    <div class="drift-label">Intl Equities</div>
+                    <div class="drift-bar-container">
+                        <div class="drift-bar" style="width: 16.8%;">16.8%</div>
+                    </div>
+                    <div class="drift-action">→ Move in $11.2k</div>
+                </div>
+
+                <div class="drift-row">
+                    <div class="drift-label">Bonds</div>
+                    <div class="drift-bar-container">
+                        <div class="drift-bar" style="width: 5%;">5%</div>
+                    </div>
+                    <div class="drift-action">→ Move in $35.5k</div>
+                </div>
+
+                <div class="drift-row">
+                    <div class="drift-label">Cash</div>
+                    <div class="drift-bar-container">
+                        <div class="drift-bar over" style="width: 9.6%;">9.6%</div>
+                    </div>
+                    <div class="drift-action">→ Move out $16.6k</div>
+                </div>
+
+                <div class="drift-row">
+                    <div class="drift-label">Alternatives</div>
+                    <div class="drift-bar-container">
+                        <div class="drift-bar" style="width: 5.9%; background: var(--success);">5.9%</div>
+                    </div>
+                    <div class="drift-action">✓ On target</div>
+                </div>
+            </div>
+
+            <!-- HEATMAP -->
+            <div class="card">
+                <div class="card-title">Monthly Returns Heatmap</div>
+                <div class="card-subtitle">How your portfolio performed each month</div>
+                <div class="heatmap">
+                    <table class="heatmap-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left;">Year</th>
+                                <th class="heatmap-th">JAN</th>
+                                <th class="heatmap-th">FEB</th>
+                                <th class="heatmap-th">MAR</th>
+                                <th class="heatmap-th">APR</th>
+                                <th class="heatmap-th">MAY</th>
+                                <th class="heatmap-th">JUN</th>
+                                <th class="heatmap-th">JUL</th>
+                                <th class="heatmap-th">AUG</th>
+                                <th class="heatmap-th">SEP</th>
+                                <th class="heatmap-th">OCT</th>
+                                <th class="heatmap-th">NOV</th>
+                                <th class="heatmap-th">DEC</th>
+                                <th style="text-align: center;">YEAR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 600;">2025</td>
+                                <td class="heatmap-td heat-hot">+2.4%</td>
+                                <td class="heatmap-td heat-cold">-1.8%</td>
+                                <td class="heatmap-td heat-hot">+6.6%</td>
+                                <td class="heatmap-td heat-hot">+5.8%</td>
+                                <td class="heatmap-td heat-hot">+2.3%</td>
+                                <td class="heatmap-td heat-hot">+5.9%</td>
+                                <td class="heatmap-td heat-cold">-3.8%</td>
+                                <td class="heatmap-td heat-hot">+7.3%</td>
+                                <td class="heatmap-td heat-hot">+4.5%</td>
+                                <td class="heatmap-td heat-hot">+2.3%</td>
+                                <td class="heatmap-td heat-hot">+5.4%</td>
+                                <td class="heatmap-td heat-hot">+4.4%</td>
+                                <td style="text-align: center; color: var(--success); font-weight: 600;">+48.3%</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">2024</td>
+                                <td class="heatmap-td heat-hot">+1.2%</td>
+                                <td class="heatmap-td heat-hot">+3.4%</td>
+                                <td class="heatmap-td heat-hot">+2.1%</td>
+                                <td class="heatmap-td heat-cold">-3.1%</td>
+                                <td class="heatmap-td heat-hot">+2.4%</td>
+                                <td class="heatmap-td heat-hot">+1.1%</td>
+                                <td class="heatmap-td heat-hot">+8.6%</td>
+                                <td class="heatmap-td heat-hot">+1.5%</td>
+                                <td class="heatmap-td heat-hot">+1.4%</td>
+                                <td class="heatmap-td heat-cold">-1.2%</td>
+                                <td class="heatmap-td heat-hot">+4.6%</td>
+                                <td class="heatmap-td heat-cold">-8.8%</td>
+                                <td style="text-align: center; color: var(--success); font-weight: 600;">+13.9%</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600;">2023</td>
+                                <td class="heatmap-td heat-hot">+1.2%</td>
+                                <td class="heatmap-td heat-cold">-1.2%</td>
+                                <td class="heatmap-td heat-hot">+1.3%</td>
+                                <td class="heatmap-td heat-hot">+8.1%</td>
+                                <td class="heatmap-td heat-cold">-6.4%</td>
+                                <td class="heatmap-td heat-hot">+3.2%</td>
+                                <td class="heatmap-td heat-hot">+2.1%</td>
+                                <td class="heatmap-td heat-cold">-1.5%</td>
+                                <td class="heatmap-td heat-hot">+2.3%</td>
+                                <td class="heatmap-td heat-cold">-1.4%</td>
+                                <td class="heatmap-td heat-hot">+1.4%</td>
+                                <td class="heatmap-td heat-hot">+3.1%</td>
+                                <td style="text-align: center; color: var(--success); font-weight: 600;">+12.7%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RISK GAUGE -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Risk Level</div>
+                    <div style="text-align: center; padding: calc(var(--grid) * 2) 0;">
+                        <div class="gauge-container" style="margin: 0 auto;">
+                            <svg class="gauge-svg" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" fill="none" stroke="var(--border)" stroke-width="8"/>
+                                <circle cx="50" cy="50" r="45" fill="none" stroke="var(--warning)" stroke-width="8" stroke-dasharray="70.7 282.7" stroke-linecap="round"/>
+                                <line x1="50" y1="50" x2="50" y2="10" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round" style="transform-origin: 50px 50px; transform: rotate(155deg);"/>
+                            </svg>
+                        </div>
+                        <div style="margin-top: calc(var(--grid) * 2); font-size: 18px; font-weight: 700;">Elevated</div>
+                        <div style="color: var(--text-secondary); font-size: 12px; margin-top: calc(var(--grid) * 1);">Crypto &amp; NVIDIA large</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Risk Breakdown</div>
+                    <table style="width: 100%; font-size: 13px;">
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: calc(var(--grid) * 1); color: var(--text-secondary);">Volatility</td>
+                            <td style="padding: calc(var(--grid) * 1); text-align: right; font-weight: 600;">12.4% <span style="color: var(--danger);">↑ 11%</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: calc(var(--grid) * 1); color: var(--text-secondary);">Concentration</td>
+                            <td style="padding: calc(var(--grid) * 1); text-align: right; font-weight: 600;">0.19 <span style="color: var(--success);">↓ 0.6</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: calc(var(--grid) * 1); color: var(--text-secondary);">Worst Drawdown</td>
+                            <td style="padding: calc(var(--grid) * 1); text-align: right; font-weight: 600;">-18.4% <span style="color: var(--success);">vs -20.1%</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: calc(var(--grid) * 1); color: var(--text-secondary);">Illiquid Share</td>
+                            <td style="padding: calc(var(--grid) * 1); text-align: right; font-weight: 600;">0.0%</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: calc(var(--grid) * 1); color: var(--text-secondary);">Non-USD Exposure</td>
+                            <td style="padding: calc(var(--grid) * 1); text-align: right; font-weight: 600;">21.6% <span style="color: var(--warning);">vs 24.0%</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOLDINGS PAGE -->
+        <div class="page" id="holdings">
+            <div class="card">
+                <div class="card-title flex-between">
+                    <span>Holdings Overview</span>
+                    <div class="toggle-group">
+                        <button class="toggle-btn active" data-toggle="treemap">🎨 Map</button>
+                        <button class="toggle-btn" data-toggle="table">📋 Table</button>
+                    </div>
+                </div>
+
+                <!-- TREEMAP -->
+                <div id="treemapView" class="treemap">
+                    <div class="treemap-item" style="background: linear-gradient(135deg, #FF6B6B, #FFB3B3); grid-column: span 3; grid-row: span 2;">
+                        <div class="treemap-label">NVDA</div>
+                        <div class="treemap-value">10.9%</div>
+                        <div style="font-size: 11px; margin-top: calc(var(--grid) * 0.5);">+$16.5k</div>
+                    </div>
+                    <div class="treemap-item" style="background: linear-gradient(135deg, #FFB3D9, #FFE5F0); grid-column: span 2; grid-row: span 2;">
+                        <div class="treemap-label">MSFT</div>
+                        <div class="treemap-value">10.6%</div>
+                        <div style="font-size: 11px; margin-top: calc(var(--grid) * 0.5);">+$8.2k</div>
+                    </div>
+                    <div class="treemap-item" style="background: linear-gradient(135deg, #00D9FF, #5FFFFE); grid-column: span 2; grid-row: span 2;">
+                        <div class="treemap-label">AAPL</div>
+                        <div class="treemap-value">8.3%</div>
+                        <div style="font-size: 11px; margin-top: calc(var(--grid) * 0.5);">+$2.1k</div>
+                    </div>
+                    <div class="treemap-item" style="background: linear-gradient(135deg, #00D97F, #5FFFB3);">
+                        <div class="treemap-label">VTI</div>
+                        <div class="treemap-value">7.2%</div>
+                    </div>
+                    <div class="treemap-item" style="background: linear-gradient(135deg, #00D97F, #5FFFB3);">
+                        <div class="treemap-label">VXUS</div>
+                        <div class="treemap-value">7.1%</div>
+                    </div>
+                    <div class="treemap-item" style="background: linear-gradient(135deg, #FFD93D, #FFEE9C);">
+                        <div class="treemap-label">BND</div>
+                        <div class="treemap-value">5.2%</div>
+                    </div>
+                    <div class="treemap-item" style="background: linear-gradient(135deg, #A0AEC0, #D0D8E8);">
+                        <div class="treemap-label">CASH</div>
+                        <div class="treemap-value">9.6%</div>
+                    </div>
+                    <div class="treemap-item" style="background: linear-gradient(135deg, #8B7355, #C4A69D);">
+                        <div class="treemap-label">GLD</div>
+                        <div class="treemap-value">2.0%</div>
+                    </div>
+                    <div class="treemap-item" style="background: linear-gradient(135deg, #6B5B95, #9D8FB8);">
+                        <div class="treemap-label">VGIT</div>
+                        <div class="treemap-value">3.2%</div>
+                    </div>
+                    <div class="treemap-item" style="background: linear-gradient(135deg, #2E8B57, #7BC98F);">
+                        <div class="treemap-label">VOO</div>
+                        <div class="treemap-value">6.8%</div>
+                    </div>
+                </div>
+
+                <!-- TABLE -->
+                <div id="tableView" style="display: none;">
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ticker</th>
+                                    <th>Company</th>
+                                    <th>Shares</th>
+                                    <th>Cost Basis</th>
+                                    <th>Market Value</th>
+                                    <th>Gain/Loss</th>
+                                    <th>% of Book</th>
+                                    <th>1Y Return</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr onclick="openPositionModal('NVDA')">
+                                    <td style="font-weight: 600;">NVDA</td>
+                                    <td>NVIDIA Corp</td>
+                                    <td>310</td>
+                                    <td>$22,165</td>
+                                    <td>$38,533</td>
+                                    <td class="positive">+$16,493</td>
+                                    <td>10.9%</td>
+                                    <td class="positive">+74.4%</td>
+                                </tr>
+                                <tr onclick="openPositionModal('MSFT')">
+                                    <td style="font-weight: 600;">MSFT</td>
+                                    <td>Microsoft Corp</td>
+                                    <td>163</td>
+                                    <td>$70,769</td>
+                                    <td>$37,541</td>
+                                    <td class="negative">-$825</td>
+                                    <td>10.6%</td>
+                                    <td class="positive">+48.0%</td>
+                                </tr>
+                                <tr onclick="openPositionModal('AAPL')">
+                                    <td style="font-weight: 600;">AAPL</td>
+                                    <td>Apple Inc</td>
+                                    <td>310</td>
+                                    <td>$71,870</td>
+                                    <td>$29,572</td>
+                                    <td class="positive">+$825</td>
+                                    <td>8.3%</td>
+                                    <td class="positive">+27.5%</td>
+                                </tr>
+                                <tr onclick="openPositionModal('VTI')">
+                                    <td style="font-weight: 600;">VTI</td>
+                                    <td>Vanguard Total Stock</td>
+                                    <td>1,680</td>
+                                    <td>$198,000</td>
+                                    <td>$254,820</td>
+                                    <td class="positive">+$56,820</td>
+                                    <td>7.2%</td>
+                                    <td class="positive">+28.7%</td>
+                                </tr>
+                                <tr onclick="openPositionModal('VXUS')">
+                                    <td style="font-weight: 600;">VXUS</td>
+                                    <td>Vanguard Intl Stock</td>
+                                    <td>2,480</td>
+                                    <td>$164,790</td>
+                                    <td>$187,893</td>
+                                    <td class="positive">+$23,103</td>
+                                    <td>7.1%</td>
+                                    <td class="positive">+14.0%</td>
+                                </tr>
+                                <tr onclick="openPositionModal('BND')">
+                                    <td style="font-weight: 600;">BND</td>
+                                    <td>Vanguard Bond ETF</td>
+                                    <td>2,200</td>
+                                    <td>$310,945</td>
+                                    <td>$344,210</td>
+                                    <td class="positive">+$21,431</td>
+                                    <td>5.2%</td>
+                                    <td class="positive">+6.9%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PERFORMANCE PAGE -->
+        <div class="page" id="performance">
+            <!-- RETURN COMPARISON -->
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-title">Money-Weighted Return</div>
+                    <h3 style="font-size: 32px; font-weight: 700; margin-bottom: calc(var(--grid) * 1);">+11.4%</h3>
+                    <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                        Sensitive to when cash arrived. More accurate for portfolio managers.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Time-Weighted Return</div>
+                    <h3 style="font-size: 32px; font-weight: 700; margin-bottom: calc(var(--grid) * 1); color: var(--primary-accent);">+9.8%</h3>
+                    <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                        Pure portfolio performance independent of cash flows. True skill.
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">vs Benchmark</div>
+                    <h3 style="font-size: 32px; font-weight: 700; margin-bottom: calc(var(--grid) * 1); color: var(--success);">+1.2%</h3>
+                    <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                        Outperformance vs S&amp;P 500. Your actual alpha earned.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERFORMANCE CHART -->
+            <div class="card">
+                <div class="card-title flex-between">
+                    <span>Performance Over Time</span>
+                    <div class="toggle-group">
+                        <button class="toggle-btn">1M</button>
+                        <button class="toggle-btn">3M</button>
+                        <button class="toggle-btn">YTD</button>
+                        <button class="toggle-btn active">1Y</button>
+                        <button class="toggle-btn">5Y</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- CONTRIBUTION ANALYSIS -->
+            <div class="card">
+                <div class="card-title">Where Did Your Returns Come From?</div>
+                <div class="chart-container-small">
+                    <canvas id="contributionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- SECTOR PERFORMANCE -->
+            <div class="card">
+                <div class="card-title">Sector Performance</div>
+                <div class="chart-container">
+                    <canvas id="sectorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANALYSIS PAGE -->
+        <div class="page" id="analysis">
+            <!-- CORRELATION HEATMAP -->
+            <div class="card">
+                <div class="card-title">Correlation Matrix</div>
+                <div class="card-subtitle mb-2">How your holdings move together</div>
+                <div class="heatmap">
+                    <table class="heatmap-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left; padding: calc(var(--grid) * 1);">Ticker</th>
+                                <th class="heatmap-th">NVDA</th>
+                                <th class="heatmap-th">MSFT</th>
+                                <th class="heatmap-th">AAPL</th>
+                                <th class="heatmap-th">BND</th>
+                                <th class="heatmap-th">VXUS</th>
+                                <th class="heatmap-th">GLD</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 600; padding: calc(var(--grid) * 1);">NVDA</td>
+                                <td class="heatmap-td heat-hot">1.0</td>
+                                <td class="heatmap-td heat-hot">0.78</td>
+                                <td class="heatmap-td heat-hot">0.82</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">-0.04</td>
+                                <td class="heatmap-td heat-warm">0.65</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">0.12</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600; padding: calc(var(--grid) * 1);">MSFT</td>
+                                <td class="heatmap-td heat-hot">0.78</td>
+                                <td class="heatmap-td heat-hot">1.0</td>
+                                <td class="heatmap-td heat-hot">0.76</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">0.02</td>
+                                <td class="heatmap-td heat-warm">0.68</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">0.08</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600; padding: calc(var(--grid) * 1);">AAPL</td>
+                                <td class="heatmap-td heat-hot">0.82</td>
+                                <td class="heatmap-td heat-hot">0.76</td>
+                                <td class="heatmap-td heat-hot">1.0</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">-0.01</td>
+                                <td class="heatmap-td heat-warm">0.62</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">0.10</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600; padding: calc(var(--grid) * 1);">BND</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">-0.04</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">0.02</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">-0.01</td>
+                                <td class="heatmap-td heat-hot">1.0</td>
+                                <td class="heatmap-td heat-warm">0.18</td>
+                                <td class="heatmap-td heat-warm">0.34</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600; padding: calc(var(--grid) * 1);">VXUS</td>
+                                <td class="heatmap-td heat-warm">0.65</td>
+                                <td class="heatmap-td heat-warm">0.68</td>
+                                <td class="heatmap-td heat-warm">0.62</td>
+                                <td class="heatmap-td heat-warm">0.18</td>
+                                <td class="heatmap-td heat-hot">1.0</td>
+                                <td class="heatmap-td heat-warm">0.22</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 600; padding: calc(var(--grid) * 1);">GLD</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">0.12</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">0.08</td>
+                                <td class="heatmap-td" style="background: rgba(160,174,192,0.3);">0.10</td>
+                                <td class="heatmap-td heat-warm">0.34</td>
+                                <td class="heatmap-td heat-warm">0.22</td>
+                                <td class="heatmap-td heat-hot">1.0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="background: rgba(255,165,0,0.1); border: 1px solid rgba(255,165,0,0.3); border-radius: 8px; padding: calc(var(--grid) * 1.5); margin-top: calc(var(--grid) * 2);">
+                    <div style="font-size: 13px; font-weight: 600; margin-bottom: calc(var(--grid) * 0.75);">⚠️ Biggest Cluster: NVDA, MSFT, AAPL</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">
+                        These three are highly correlated (0.76-0.82). They explain 51% of portfolio correlation. A tech correction would hurt your 3 largest holdings. Consider whether this reflects conviction or drift.
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONCENTRATION -->
+            <div class="card">
+                <div class="card-title">Concentration Analysis</div>
+                <div style="margin-bottom: calc(var(--grid) * 2);">
+                    <div style="margin-bottom: calc(var(--grid) * 1);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: calc(var(--grid) * 0.5);">
+                            <span style="font-size: 13px; font-weight: 500;">Top 1 holding</span>
+                            <span style="font-size: 13px; font-weight: 600;">10.9%</span>
+                        </div>
+                        <div style="width: 100%; height: 24px; background: var(--bg-hover); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 10.9%; height: 100%; background: linear-gradient(90deg, var(--primary-accent), var(--success));">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: calc(var(--grid) * 1);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: calc(var(--grid) * 0.5);">
+                            <span style="font-size: 13px; font-weight: 500;">Top 3 holdings</span>
+                            <span style="font-size: 13px; font-weight: 600;">29.8%</span>
+                        </div>
+                        <div style="width: 100%; height: 24px; background: var(--bg-hover); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 29.8%; height: 100%; background: linear-gradient(90deg, var(--primary-accent), var(--success));">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: calc(var(--grid) * 0.5);">
+                            <span style="font-size: 13px; font-weight: 500;">Top 5 holdings</span>
+                            <span style="font-size: 13px; font-weight: 600;">52.3%</span>
+                        </div>
+                        <div style="width: 100%; height: 24px; background: var(--bg-hover); border-radius: 4px; overflow: hidden;">
+                            <div style="width: 52.3%; height: 100%; background: linear-gradient(90deg, var(--warning), var(--danger));">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(255,165,0,0.1); border: 1px solid rgba(255,165,0,0.3); border-radius: 8px; padding: calc(var(--grid) * 1.5);">
+                    <div style="font-size: 13px; font-weight: 600; margin-bottom: calc(var(--grid) * 0.75);">🟡 Yellow Flag: 52.3% in Top 5</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">
+                        Your portfolio is moderately concentrated. S&amp;P average concentration is much lower. Consider whether you want to trim winners or let conviction ride.
+                    </div>
+                </div>
+            </div>
+
+            <!-- WINNERS / LOSERS -->
+            <div class="card">
+                <div class="card-title">This Week's Movers</div>
+                <div class="grid-2">
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600; color: var(--success); margin-bottom: calc(var(--grid) * 1);">✅ Winners</div>
+                        <div style="font-size: 12px; line-height: 1.8; color: var(--text-secondary);">
+                            <div><strong style="color: var(--text-primary);">NVDA</strong> +4.1% (+$1,212)</div>
+                            <div><strong style="color: var(--text-primary);">MSFT</strong> +1.8% (+$245)</div>
+                            <div><strong style="color: var(--text-primary);">GLD</strong> +5.1% (+$623)</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600; color: var(--danger); margin-bottom: calc(var(--grid) * 1);">❌ Laggards</div>
+                        <div style="font-size: 12px; line-height: 1.8; color: var(--text-secondary);">
+                            <div><strong style="color: var(--text-primary);">AAPL</strong> -0.88% (-$164)</div>
+                            <div><strong style="color: var(--text-primary);">VNQ</strong> -0.42% (-$51)</div>
+                            <div><strong style="color: var(--text-primary);">ASML</strong> -1.2% (-$87)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- POSITION MODAL -->
+    <div class="modal" id="positionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="modalTicker">NVDA</h3>
+                    <div class="card-subtitle">NVIDIA Corp</div>
+                </div>
+                <button class="modal-close" onclick="closePositionModal()">×</button>
+            </div>
+            <div style="margin-bottom: calc(var(--grid) * 2);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: calc(var(--grid) * 1);">
+                    <div style="font-size: 24px; font-weight: 700;">$124.30</div>
+                    <div class="positive" style="font-size: 14px;">+2.84% today</div>
+                </div>
+                <div style="display: flex; gap: calc(var(--grid) * 3); margin-bottom: calc(var(--grid) * 2); font-size: 13px;">
+                    <div>
+                        <div class="card-subtitle">Shares</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">310</div>
+                    </div>
+                    <div>
+                        <div class="card-subtitle">Cost Basis</div>
+                        <div style="font-weight: 600; color: var(--text-primary);">$71.50</div>
+                    </div>
+                    <div>
+                        <div class="card-subtitle">Current Value</div>
+                        <div class="positive" style="font-weight: 600;">$38,533</div>
+                    </div>
+                    <div>
+                        <div class="card-subtitle">Total Gain</div>
+                        <div class="positive" style="font-weight: 600;">+$16,493</div>
+                    </div>
+                </div>
+                <div style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: calc(var(--grid) * 1.5) 0; margin-bottom: calc(var(--grid) * 2);">
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: calc(var(--grid) * 0.75);">
+                        <span class="card-subtitle">Cost Basis</span>
+                        <span style="font-weight: 600;">$22,165</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--success);">
+                        <span class="card-subtitle">Return on Cost</span>
+                        <span style="font-weight: 600;">+74.4%</span>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-bottom: calc(var(--grid) * 2);">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: calc(var(--grid) * 1);">Quick Info</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--grid) * 1); font-size: 12px;">
+                    <div>
+                        <div class="card-subtitle">52-Week Range</div>
+                        <div>$71 — $144.50</div>
+                    </div>
+                    <div>
+                        <div class="card-subtitle">Market Cap</div>
+                        <div>$3.1T</div>
+                    </div>
+                    <div>
+                        <div class="card-subtitle">P/E Ratio</div>
+                        <div>32.4</div>
+                    </div>
+                    <div>
+                        <div class="card-subtitle">Dividend Yield</div>
+                        <div>0.04%</div>
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; gap: calc(var(--grid) * 1);">
+                <button class="btn btn-primary" style="flex: 1;">Buy More</button>
+                <button class="btn btn-secondary" style="flex: 1;">Sell</button>
+                <button class="btn btn-secondary" style="flex: 1;">View Analysis</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes shimmer {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+    </style>
+
+    <script>
+        // Navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.page).classList.add('active');
+
+                // Initialize charts if needed
+                if (tab.dataset.page === 'performance') {
+                    setTimeout(initPerformanceCharts, 100);
+                }
+            });
+        });
+
+        // Toggle views
+        document.querySelectorAll('[data-toggle]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-toggle]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                if (btn.dataset.toggle === 'treemap') {
+                    document.getElementById('treemapView').style.display = 'grid';
+                    document.getElementById('tableView').style.display = 'none';
+                } else {
+                    document.getElementById('treemapView').style.display = 'none';
+                    document.getElementById('tableView').style.display = 'block';
+                }
+            });
+        });
+
+        // Modal functions
+        function openPositionModal(ticker) {
+            document.getElementById('positionModal').classList.add('active');
+            document.getElementById('modalTicker').textContent = ticker;
+        }
+
+        function closePositionModal() {
+            document.getElementById('positionModal').classList.remove('active');
+        }
+
+        document.getElementById('positionModal').addEventListener('click', (e) => {
+            if (e.target.id === 'positionModal') {
+                closePositionModal();
+            }
+        });
+
+        // Chart initialization
+        function initCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#CBD5E0',
+                            font: { family: 'Inter', size: 12 }
+                        }
+                    }
+                }
+            };
+
+            // Donut Chart
+            const donutCtx = document.getElementById('donutChart');
+            if (donutCtx) {
+                new Chart(donutCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['US Equities', 'Intl Equities', 'Bonds', 'Cash', 'Alternatives'],
+                        datasets: [{
+                            data: [62.7, 16.8, 5.0, 9.6, 5.9],
+                            backgroundColor: [
+                                '#00D9FF',
+                                '#00D97F',
+                                '#FFD93D',
+                                '#A0AEC0',
+                                '#FF6B6B'
+                            ],
+                            borderColor: '#1A202C',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        ...chartOptions,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.label + ': ' + context.parsed + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initPerformanceCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#CBD5E0',
+                            font: { family: 'Inter', size: 12 }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: '#CBD5E0' },
+                        grid: { color: '#2D3748' }
+                    },
+                    x: {
+                        ticks: { color: '#CBD5E0' },
+                        grid: { color: '#2D3748' }
+                    }
+                }
+            };
+
+            // Performance Chart
+            const perfCtx = document.getElementById('performanceChart');
+            if (perfCtx) {
+                new Chart(perfCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [
+                            {
+                                label: 'Your Portfolio',
+                                data: [100, 102.4, 101.0, 107.1, 112.5, 114.8, 122.3, 124.3, 125.8, 124.2, 129.1, 134.5],
+                                borderColor: '#00D9FF',
+                                backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                borderWidth: 2
+                            },
+                            {
+                                label: 'S&P 500',
+                                data: [100, 101.2, 99.8, 104.3, 109.2, 111.1, 118.5, 119.8, 120.2, 119.1, 123.5, 128.2],
+                                borderColor: '#FFD93D',
+                                backgroundColor: 'rgba(255, 217, 61, 0.1)',
+                                tension: 0.4,
+                                fill: false,
+                                borderWidth: 2,
+                                borderDash: [5, 5]
+                            }
+                        ]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            // Contribution Chart
+            const contribCtx = document.getElementById('contributionChart');
+            if (contribCtx) {
+                new Chart(contribCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Unrealized Gains', 'Dividends', 'FX Gains', 'Fees'],
+                        datasets: [{
+                            label: 'Contribution to Return',
+                            data: [7.2, 2.1, 1.8, -0.7],
+                            backgroundColor: [
+                                '#00D97F',
+                                '#00D97F',
+                                '#00D97F',
+                                '#FF6B6B'
+                            ],
+                            borderColor: '#1A202C',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: chartOptions
+                });
+            }
+
+            // Sector Chart
+            const sectorCtx = document.getElementById('sectorChart');
+            if (sectorCtx) {
+                new Chart(sectorCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Technology', 'Healthcare', 'Financials', 'Industrials', 'Consumer', 'Energy'],
+                        datasets: [
+                            {
+                                label: 'Your Return',
+                                data: [18.4, 12.3, 8.9, 6.4, -2.1, 4.2],
+                                backgroundColor: '#00D9FF'
+                            },
+                            {
+                                label: 'Sector Average',
+                                data: [22.1, 14.2, 9.1, 7.3, -0.8, 3.1],
+                                backgroundColor: '#FFD93D'
+                            }
+                        ]
+                    },
+                    options: {
+                        ...chartOptions,
+                        indexAxis: 'y'
+                    }
+                });
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initCharts);
+    </script>
+</body>
+</html>
