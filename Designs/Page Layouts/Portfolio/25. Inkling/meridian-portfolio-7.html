@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meridian — Portfolio Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#0b0e14',
+            surface: '#0f1117',
+            surface2: '#131620',
+            surface3: '#181b28',
+            surface4: '#1e2232',
+            border: '#1f2538',
+            gold: '#d4a843',
+            goldDim: '#a3823a',
+            emerald: '#2ec4a0',
+            emeraldDim: '#1f7a5e',
+            coral: '#e87a5d',
+            coralDim: '#b85a40',
+            slateText: '#c2c8dc',
+            slateMuted: '#7a8198',
+            slateDark: '#4a5068',
+            frost: '#e8f0fb',
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #0b0e14; color: #c2c8dc; font-family: 'DM Sans', system-ui, sans-serif; overflow-x: hidden; }
+    ::selection { background: rgba(212,168,67,0.15); color: #f0e6c8; }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #1f2538; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2a3048; }
+
+    /* Noise texture overlay */
+    .noise::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* Animated gradient blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.35;
+      pointer-events: none;
+      animation: floatOrb 25s ease-in-out infinite alternate;
+    }
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 15px) scale(0.95); }
+      100% { transform: translate(10px, -10px) scale(1.02); }
+    }
+
+    /* Glass cards */
+    .glass-card {
+      background: rgba(15,17,23,0.65);
+      backdrop-filter: blur(24px) saturate(1.2);
+      -webkit-backdrop-filter: blur(24px) saturate(1.2);
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    /* Subtle glow accents */
+    .glow-gold { box-shadow: 0 0 40px rgba(212,168,67,0.08); }
+    .glow-emerald { box-shadow: 0 0 40px rgba(46,196,160,0.08); }
+
+    /* Animated border on hover */
+    .hover-glow {
+      position: relative;
+      overflow: hidden;
+    }
+    .hover-glow::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(212,168,67,0.3), transparent, rgba(46,196,160,0.3));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .hover-glow:hover::after { opacity: 1; }
+
+    /* Typography refinements */
+    .label { letter-spacing: 0.15em; text-transform: uppercase; font-size: 0.7rem; font-weight: 600; color: #7a8198; }
+    .number { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
+    /* Nav pill */
+    .nav-pill { transition: all 0.3s ease; position: relative; }
+    .nav-pill.active { color: #f0e6c8; }
+    .nav-pill.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #d4a843;
+      transform: translateX(-50%);
+      box-shadow: 0 0 8px rgba(212,168,67,0.5);
+    }
+
+    /* Animated bars for treemap */
+    .treemap-cell { transition: transform 0.2s ease, opacity 0.2s ease; }
+    .treemap-cell:hover { transform: scale(0.98); opacity: 0.9; z-index: 2; }
+
+    /* Chart animations */
+    .fade-up {
+      animation: fadeUp 0.6s ease-out forwards;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      animation: revealLine 0.8s ease forwards;
+      opacity: 0;
+    }
+    @keyframes revealLine {
+      from { opacity: 0; transform: scaleX(0); transform-origin: left; }
+      to { opacity: 1; transform: scaleX(1); transform-origin: left; }
+    }
+  </style>
+</head>
+
+<body class="noise min-h-screen">
+
+  <!-- Ambient background blobs -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="blob w-[600px] h-[600px] bg-emerald/20 -top-[10%] -left-[5%]"></div>
+    <div class="blob w-[500px] h-[500px] bg-gold/15 top-[20%] -right-[10%]" style="animation-delay:-10s; animation-duration:30s"></div>
+    <div class="blob w-[400px] h-[400px] bg-coral/10 bottom-[10%] left-[20%]" style="animation-delay:-15s; animation-duration:22s"></div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="sticky top-0 z-50 glass-card border-b border-border/40">
+    <div class="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
+      <a href="#" onclick="navTo('overview'); return false;" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-gold/90 to-goldDim/80 flex items-center justify-center shadow-[0_0_20px_rgba(212,168,67,0.3)] group-hover:shadow-[0_0_30px_rgba(212,168,67,0.5)] transition-shadow">
+          <i class="ph-fill ph-trend-up text-ink text-lg"></i>
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-serif text-xl tracking-tight text-frost">Meridian</span>
+          <span class="text-[10px] uppercase tracking-[0.15em] text-slateMuted">Portfolio Intelligence</span>
+        </div>
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+        <a href="#" onclick="navTo('overview'); return false;" id="nav-overview" class="nav-pill active text-slateText hover:text-frost transition-colors">Overview</a>
+        <a href="#" onclick="navTo('holdings'); return false;" id="nav-holdings" class="nav-pill text-slateText hover:text-frost transition-colors">Holdings</a>
+        <a href="#" onclick="navTo('performance'); return false;" id="nav-performance" class="nav-pill text-slateText hover:text-frost transition-colors">Performance</a>
+        <a href="#" onclick="navTo('analysis'); return false;" id="nav-analysis" class="nav-pill text-slateText hover:text-frost transition-colors">Analysis</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex items-center gap-2 text-xs text-slateMuted font-mono">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald animate-pulse"></span>
+          LIVE DATA
+        </div>
+        <button onclick="toggleTheme()" class="w-9 h-9 rounded-full bg-surface2 border border-border flex items-center justify-center hover:border-gold/40 transition-colors text-gold hover:text-amber-300" title="Toggle Theme" aria-label="Theme toggle">
+          <i class="ph ph-moon-stars text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-6 md:px-10 pt-10 pb-24 relative z-10">
+
+    <!-- === OVERVIEW === -->
+    <section id="page-overview" class="space-y-8">
+      <!-- Hero -->
+      <header class="fade-up">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-2">
+          <div>
+            <p class="label mb-2">Market Session · 02:14 PM ET</p>
+            <h1 class="font-serif text-5xl md:text-7xl text-frost leading-[0.92] tracking-tight">
+              Your portfolio is <span class="italic text-gold">+4.72%</span><br>ahead of the market.
+            </h1>
+          </div>
+          <div class="flex gap-3">
+            <div class="glass-card glow-gold rounded-2xl px-6 py-5 min-w-[160px]">
+              <p class="text-xs text-slateMuted mb-1">Total Value</p>
+              <p class="font-mono text-2xl text-frost tracking-tight">$2,847,930</p>
+              <p class="text-xs text-emerald mt-1">+$128,140 YTD</p>
+            </div>
+            <div class="glass-card rounded-2xl px-6 py-5 min-w-[160px]">
+              <p class="text-xs text-slateMuted mb-1">Alpha</p>
+              <p class="font-mono text-2xl text-frost tracking-tight">+1.83%</p>
+              <p class="text-xs text-emerald mt-1">vs. S&P 500</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="h-px bg-gradient-to-r from-transparent via-border to-transparent reveal"></div>
+
+      <!-- Top row: Risk & Health | Allocation -->
+      <div class="grid lg:grid-cols-2 gap-6">
+        <!-- Risk & Health -->
+        <article class="glass-card glow-emerald rounded-3xl p-7 md:p-9 hover-glow">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="font-serif text-2xl text-frost">Risk & Health</h2>
+            <span class="label text-emerald">HEALTHY</span>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-5 mb-8">
+            <div class="bg-surface2/60 rounded-xl p-4 border border-white/[0.03]">
+              <p class="text-[10px] text-slateMuted uppercase tracking-wider mb-1">Beta</p>
+              <p class="font-mono text-xl text-frost">0.92</p>
+              <p class="text-xs text-slateMuted mt-0.5">Slightly defensive</p>
+            </div>
+            <div class="bg-surface2/60 rounded-xl p-4 border border-white/[0.03]">
+              <p class="text-[10px] text-slateMuted uppercase tracking-wider mb-1">Sharpe</p>
+              <p class="font-mono text-xl text-emerald">1.64</p>
+              <p class="text-xs text-slateMuted mt-0.5">Strong risk-adjusted</p>
+            </div>
+            <div class="bg-surface2/60 rounded-xl p-4 border border-white/[0.03]">
+              <p class="text-[10px] text-slateMuted uppercase tracking-wider mb-1">Drawdown</p>
+              <p class="font-mono text-xl text-coral">-8.2%</p>
+              <p class="text-xs text-slateMuted mt-0.5">Max peak-to-trough</p>
+            </div>
+          </div>
+
+          <!-- Risk Profile Visual -->
+          <div class="relative h-28 rounded-2xl overflow-hidden bg-gradient-to-r from-ink via-surface2 to-surface3">
+            <canvas id="riskChart" class="absolute inset-0 w-full h-full"></canvas>
+            <div class="absolute bottom-3 left-3 right-3 flex justify-between text-[10px] font-mono text-slateMuted">
+              <span>LOW</span><span>MODERATE</span><span>HIGH</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Allocation Chart -->
+        <article class="glass-card glow-gold rounded-3xl p-7 md:p-9 hover-glow">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="font-serif text-2xl text-frost">Allocation</h2>
+            <a href="#" onclick="navTo('holdings'); return false;" class="text-xs text-gold hover:text-frost transition-colors underline underline-offset-4 decoration-gold/30">View Full Map</a>
+          </div>
+          <p class="text-sm text-slateMuted mb-6">Sector exposure weighted by market value</p>
+          <div class="relative h-64">
+            <canvas id="allocChart"></canvas>
+          </div>
+          <div class="flex flex-wrap gap-3 mt-5">
+            <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-emerald/10 text-emerald border border-emerald/10"><span class="w-1.5 h-1.5 rounded-full bg-emerald"></span> Technology</span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-gold/10 text-gold border border-gold/10"><span class="w-1.5 h-1.5 rounded-full bg-gold"></span> Energy</span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-coral/10 text-coral border border-coral/10"><span class="w-1.5 h-1.5 rounded-full bg-coral"></span> Healthcare</span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-blue-400/10 text-blue-400 border border-blue-400/10"><span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> Finance</span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-violet-400/10 text-violet-400 border border-violet-400/10"><span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span> Industrials</span>
+          </div>
+        </article>
+      </div>
+
+      <!-- Middle: Leaders & Laggards -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <div class="flex items-end justify-between mb-7">
+          <div>
+            <h2 class="font-serif text-2xl text-frost">Leaders & Laggards</h2>
+            <p class="text-sm text-slateMuted mt-1">Best and worst performers over the last 30 days</p>
+          </div>
+          <span class="label">LAST 30 DAYS</span>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <!-- Leaders -->
+          <div class="bg-gradient-to-br from-emerald/5 to-transparent rounded-2xl p-6 border border-emerald/10">
+            <h3 class="text-xs uppercase tracking-[0.15em] text-emerald font-semibold mb-4">Top Performers</h3>
+            <div class="space-y-4">
+              <div class="group flex items-center gap-4 hover:bg-emerald/[0.03] -mx-2 px-2 py-2 rounded-xl transition-colors cursor-default">
+                <div class="w-10 h-10 rounded-xl bg-emerald/15 text-emerald flex items-center justify-center shrink-0 text-sm shadow-[0_0_15px_rgba(46,196,160,0.15)]">
+                  <i class="ph-fill ph-caret-up"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between items-baseline">
+                    <span class="font-medium text-frost truncate">NVIDIA Corp.</span>
+                    <span class="font-mono text-emerald text-sm">+18.4%</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs text-slateMuted mt-0.5">
+                    <span>NVDA</span>
+                    <span class="w-0.5 h-0.5 rounded-full bg-slateMuted"></span>
+                    <span class="truncate">AI infrastructure, datacenter</span>
+                  </div>
+                </div>
+                <div class="hidden sm:block text-xs font-mono text-slateMuted text-right min-w-[60px]">$124.2K</div>
+              </div>
+              <div class="group flex items-center gap-4 hover:bg-emerald/[0.03] -mx-2 px-2 py-2 rounded-xl transition-colors cursor-default">
+                <div class="w-10 h-10 rounded-xl bg-emerald/15 text-emerald flex items-center justify-center shrink-0 text-sm shadow-[0_0_15px_rgba(46,196,160,0.15)]">
+                  <i class="ph-fill ph-caret-up"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between items-baseline">
+                    <span class="font-medium text-frost truncate">Broadcom Inc.</span>
+                    <span class="font-mono text-emerald text-sm">+14.1%</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs text-slateMuted mt-0.5">
+                    <span>AVGO</span>
+                    <span class="w-0.5 h-0.5 rounded-full bg-slateMuted"></span>
+                    <span class="truncate">Semiconductor networking</span>
+                  </div>
+                </div>
+                <div class="hidden sm:block text-xs font-mono text-slateMuted text-right min-w-[60px]">$87.5K</div>
+              </div>
+              <div class="group flex items-center gap-4 hover:bg-emerald/[0.03] -mx-2 px-2 py-2 rounded-xl transition-colors cursor-default">
+                <div class="w-10 h-10 rounded-xl bg-emerald/15 text-emerald flex items-center justify-center shrink-0 text-sm shadow-[0_0_15px_rgba(46,196,160,0.15)]">
+                  <i class="ph-fill ph-caret-up"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between items-baseline">
+                    <span class="font-medium text-frost truncate">Tesla Inc.</span>
+                    <span class="font-mono text-emerald text-sm">+11.2%</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs text-slateMuted mt-0.5">
+                    <span>TSLA</span>
+                    <span class="w-0.5 h-0.5 rounded-full bg-slateMuted"></span>
+                    <span class="truncate">EVs, battery storage</span>
+                  </div>
+                </div>
+                <div class="hidden sm:block text-xs font-mono text-slateMuted text-right min-w-[60px]">$72.3K</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Laggards -->
+          <div class="bg-gradient-to-br from-coral/5 to-transparent rounded-2xl p-6 border border-coral/10">
+            <h3 class="text-xs uppercase tracking-[0.15em] text-coral font-semibold mb-4">Laggards</h3>
+            <div class="space-y-4">
+              <div class="group flex items-center gap-4 hover:bg-coral/[0.03] -mx-2 px-2 py-2 rounded-xl transition-colors cursor-default">
+                <div class="w-10 h-10 rounded-xl bg-coral/15 text-coral flex items-center justify-center shrink-0 text-sm shadow-[0_0_15px_rgba(232,122,93,0.15)]">
+                  <i class="ph-fill ph-caret-down"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between items-baseline">
+                    <span class="font-medium text-frost truncate">Intel Corp.</span>
+                    <span class="font-mono text-coral text-sm">-9.7%</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs text-slateMuted mt-0.5">
+                    <span>INTC</span>
+                    <span class="w-0.5 h-0.5 rounded-full bg-slateMuted"></span>
+                    <span class="truncate">Foundry challenges, guidance cut</span>
+                  </div>
+                </div>
+                <div class="hidden sm:block text-xs font-mono text-slateMuted text-right min-w-[60px]">$38.1K</div>
+              </div>
+              <div class="group flex items-center gap-4 hover:bg-coral/[0.03] -mx-2 px-2 py-2 rounded-xl transition-colors cursor-default">
+                <div class="w-10 h-10 rounded-xl bg-coral/15 text-coral flex items-center justify-center shrink-0 text-sm shadow-[0_0_15px_rgba(232,122,93,0.15)]">
+                  <i class="ph-fill ph-caret-down"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between items-baseline">
+                    <span class="font-medium text-frost truncate">Boeing Co.</span>
+                    <span class="font-mono text-coral text-sm">-6.3%</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs text-slateMuted mt-0.5">
+                    <span>BA</span>
+                    <span class="w-0.5 h-0.5 rounded-full bg-slateMuted"></span>
+                    <span class="truncate">Labor strike, production delays</span>
+                  </div>
+                </div>
+                <div class="hidden sm:block text-xs font-mono text-slateMuted text-right min-w-[60px]">$45.6K</div>
+              </div>
+              <div class="group flex items-center gap-4 hover:bg-coral/[0.03] -mx-2 px-2 py-2 rounded-xl transition-colors cursor-default">
+                <div class="w-10 h-10 rounded-xl bg-coral/15 text-coral flex items-center justify-center shrink-0 text-sm shadow-[0_0_15px_rgba(232,122,93,0.15)]">
+                  <i class="ph-fill ph-caret-down"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between items-baseline">
+                    <span class="font-medium text-frost truncate">Apple Inc.</span>
+                    <span class="font-mono text-coral text-sm">-3.4%</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs text-slateMuted mt-0.5">
+                    <span>AAPL</span>
+                    <span class="w-0.5 h-0.5 rounded-full bg-slateMuted"></span>
+                    <span class="truncate">Slower iPhone cycle, China concerns</span>
+                  </div>
+                </div>
+                <div class="hidden sm:block text-xs font-mono text-slateMuted text-right min-w-[60px]">$112.3K</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Calendar -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <div class="flex items-end justify-between mb-6">
+          <div>
+            <h2 class="font-serif text-2xl text-frost">Coming Up</h2>
+            <p class="text-sm text-slateMuted mt-1">Key earnings reports and macro events</p>
+          </div>
+          <span class="label">NEXT 7 DAYS</span>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <a href="#" onclick="showEvent('AAPL Earnings'); return false;" class="group relative overflow-hidden rounded-2xl bg-surface2 border border-white/[0.03] p-5 hover:border-gold/20 transition-all hover:-translate-y-0.5">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-gold/[0.04] rounded-full -translate-y-1/3 translate-x-1/3 blur-2xl"></div>
+            <div class="relative">
+              <p class="text-[10px] font-mono text-slateMuted mb-1">MON, NOV 4</p>
+              <h4 class="font-medium text-frost text-sm leading-tight mb-2">Apple Q4 Earnings</h4>
+              <p class="text-[11px] text-slateMuted">EPS est. $1.60 · Revenue $89.5B</p>
+              <div class="mt-3 text-xs text-gold">In portfolio · AAPL</div>
+            </div>
+          </a>
+          <a href="#" onclick="showEvent('NVDA Earnings'); return false;" class="group relative overflow-hidden rounded-2xl bg-surface2 border border-white/[0.03] p-5 hover:border-gold/20 transition-all hover:-translate-y-0.5">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-gold/[0.04] rounded-full -translate-y-1/3 translate-x-1/3 blur-2xl"></div>
+            <div class="relative">
+              <p class="text-[10px] font-mono text-slateMuted mb-1">WED, NOV 6</p>
+              <h4 class="font-medium text-frost text-sm leading-tight mb-2">NVIDIA Earnings</h4>
+              <p class="text-[11px] text-slateMuted">EPS est. $0.72 · Revenue $32.8B</p>
+              <div class="mt-3 text-xs text-gold">In portfolio · NVDA</div>
+            </div>
+          </a>
+          <a href="#" onclick="showEvent('Fed Rate Decision'); return false;" class="group relative overflow-hidden rounded-2xl bg-surface2 border border-white/[0.03] p-5 hover:border-emerald/20 transition-all hover:-translate-y-0.5">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-emerald/[0.04] rounded-full -translate-y-1/3 translate-x-1/3 blur-2xl"></div>
+            <div class="relative">
+              <p class="text-[10px] font-mono text-slateMuted mb-1">THU, NOV 7</p>
+              <h4 class="font-medium text-frost text-sm leading-tight mb-2">Fed Rate Decision</h4>
+              <p class="text-[11px] text-slateMuted">Expected hold at 4.50–4.75%</p>
+              <div class="mt-3 text-xs text-emerald">Macro event</div>
+            </div>
+          </a>
+          <a href="#" onclick="showEvent('TSM Earnings'); return false;" class="group relative overflow-hidden rounded-2xl bg-surface2 border border-white/[0.03] p-5 hover:border-gold/20 transition-all hover:-translate-y-0.5">
+            <div class="absolute top-0 right-0 w-16 h-16 bg-gold/[0.04] rounded-full -translate-y-1/3 translate-x-1/3 blur-2xl"></div>
+            <div class="relative">
+              <p class="text-[10px] font-mono text-slateMuted mb-1">FRI, NOV 8</p>
+              <h4 class="font-medium text-frost text-sm leading-tight mb-2">TSMC Earnings</h4>
+              <p class="text-[11px] text-slateMuted">EPS est. $1.95 · Foundry demand</p>
+              <div class="mt-3 text-xs text-gold">In portfolio · TSM</div>
+            </div>
+          </a>
+        </div>
+      </article>
+
+      <!-- Top Holdings -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <div class="flex items-end justify-between mb-6">
+          <div>
+            <h2 class="font-serif text-2xl text-frost">Top Holdings</h2>
+            <p class="text-sm text-slateMuted mt-1">Your largest positions by value</p>
+          </div>
+          <a href="#" onclick="navTo('holdings'); return false;" class="text-xs text-gold hover:text-frost transition-colors underline underline-offset-4 decoration-gold/30">See All</a>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-ink to-surface3 p-5 border border-white/[0.04] hover:border-gold/15 transition-all hover:-translate-y-0.5">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-gold/[0.05] rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl"></div>
+            <div class="relative flex items-start gap-4">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-gold/80 to-goldDim flex items-center justify-center shadow-lg shadow-gold/10 text-ink font-bold text-sm shrink-0">NV</div>
+              <div>
+                <h3 class="font-medium text-frost">NVIDIA Corp.</h3>
+                <p class="text-xs text-slateMuted">NVDA · Technology</p>
+                <div class="flex items-baseline gap-3 mt-2">
+                  <span class="font-mono text-xl text-frost">$124.2K</span>
+                  <span class="text-xs font-mono text-emerald">+18.4%</span>
+                </div>
+                <div class="mt-3 w-full h-1 rounded-full bg-surface4 overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-gold to-goldDim rounded-full" style="width: 4.4%"></div>
+                </div>
+                <p class="text-[10px] text-slateMuted mt-1">4.35% of portfolio</p>
+              </div>
+            </div>
+          </div>
+          <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-ink to-surface3 p-5 border border-white/[0.04] hover:border-gold/15 transition-all hover:-translate-y-0.5">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-emerald/[0.05] rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl"></div>
+            <div class="relative flex items-start gap-4">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald to-emeraldDim flex items-center justify-center shadow-lg shadow-emerald/10 text-ink font-bold text-sm shrink-0">AP</div>
+              <div>
+                <h3 class="font-medium text-frost">Apple Inc.</h3>
+                <p class="text-xs text-slateMuted">AAPL · Technology</p>
+                <div class="flex items-baseline gap-3 mt-2">
+                  <span class="font-mono text-xl text-frost">$112.3K</span>
+                  <span class="text-xs font-mono text-coral">-3.4%</span>
+                </div>
+                <div class="mt-3 w-full h-1 rounded-full bg-surface4 overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-coral to-coralDim rounded-full" style="width: 3.95%"></div>
+                </div>
+                <p class="text-[10px] text-slateMuted mt-1">3.95% of portfolio</p>
+              </div>
+            </div>
+          </div>
+          <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-ink to-surface3 p-5 border border-white/[0.04] hover:border-gold/15 transition-all hover:-translate-y-0.5">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-blue-400/[0.05] rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl"></div>
+            <div class="relative flex items-start gap-4">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/10 text-white font-bold text-sm shrink-0">MS</div>
+              <div>
+                <h3 class="font-medium text-frost">Microsoft Corp.</h3>
+                <p class="text-xs text-slateMuted">MSFT · Technology</p>
+                <div class="flex items-baseline gap-3 mt-2">
+                  <span class="font-mono text-xl text-frost">$98.4K</span>
+                  <span class="text-xs font-mono text-emerald">+7.2%</span>
+                </div>
+                <div class="mt-3 w-full h-1 rounded-full bg-surface4 overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" style="width: 3.45%"></div>
+                </div>
+                <p class="text-[10px] text-slateMuted mt-1">3.45% of portfolio</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- === HOLDINGS === -->
+    <section id="page-holdings" class="hidden space-y-8">
+      <header>
+        <p class="label mb-2">Portfolio Structure</p>
+        <h1 class="font-serif text-4xl md:text-6xl text-frost tracking-tight">Holdings</h1>
+        <p class="text-slateMuted mt-3 max-w-xl">A granular view of your capital allocation across sectors, regions, and asset classes.</p>
+      </header>
+
+      <!-- Treemap -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <div class="flex items-end justify-between mb-6">
+          <div>
+            <h2 class="font-serif text-2xl text-frost">Portfolio Treemap</h2>
+            <p class="text-sm text-slateMuted mt-1">Market value visualization by sector and holding</p>
+          </div>
+          <span class="label">LIVE</span>
+        </div>
+        <div id="treemap" class="w-full h-[420px] rounded-2xl overflow-hidden border border-white/[0.03] bg-gradient-to-br from-ink via-surface3 to-ink"></div>
+        <div class="mt-4 flex items-center gap-4 text-[10px] font-mono text-slateMuted">
+          <span><span class="inline-block w-2 h-2 rounded-full bg-emerald mr-1"></span> Technology</span>
+          <span><span class="inline-block w-2 h-2 rounded-full bg-gold mr-1"></span> Energy</span>
+          <span><span class="inline-block w-2 h-2 rounded-full bg-coral mr-1"></span> Healthcare</span>
+          <span><span class="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1"></span> Finance</span>
+          <span><span class="inline-block w-2 h-2 rounded-full bg-violet-400 mr-1"></span> Industrials</span>
+          <span><span class="inline-block w-2 h-2 rounded-full bg-teal-300 mr-1"></span> Consumer</span>
+        </div>
+      </article>
+
+      <!-- Allocation Weight Ribbon -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <h2 class="font-serif text-2xl text-frost mb-2">Allocation Weight Ribbon</h2>
+        <p class="text-sm text-slateMuted mb-6">Proportional weight of each holding within the portfolio</p>
+        <div id="weightRibbon" class="flex items-stretch gap-0.5 h-8 rounded-xl overflow-hidden"></div>
+        <div id="weightLabels" class="flex items-center gap-2 mt-3 text-[10px] font-mono text-slateMuted"></div>
+      </article>
+
+      <!-- Full Holdings Table -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <h2 class="font-serif text-2xl text-frost mb-1">Full Holdings Table</h2>
+        <p class="text-sm text-slateMuted mb-6">Complete inventory with weights, P&L, and exposure metrics</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="text-[10px] uppercase tracking-wider text-slateMuted font-semibold border-b border-white/[0.05]">
+              <tr>
+                <th class="py-3">Ticker</th>
+                <th class="py-3">Company</th>
+                <th class="py-3">Sector</th>
+                <th class="py-3">Weight</th>
+                <th class="py-3 text-right">Value</th>
+                <th class="py-3 text-right">P&L %</th>
+                <th class="py-3">Exposure</th>
+              </tr>
+            </thead>
+            <tbody id="holdingsTable" class="divide-y divide-white/[0.03]"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- World Map / Globe -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow overflow-hidden relative">
+        <div class="flex items-end justify-between mb-4 relative z-10">
+          <div>
+            <h2 class="font-serif text-2xl text-frost">Global Exposure</h2>
+            <p class="text-sm text-slateMuted mt-1">Geographic distribution of underlying revenue</p>
+          </div>
+          <span class="label">INTERACTIVE</span>
+        </div>
+        <div class="relative h-[500px] rounded-2xl overflow-hidden bg-gradient-to-b from-[#0a1225] via-[#050810] to-[#020408] border border-white/[0.03]">
+          <canvas id="globeCanvas" class="w-full h-full"></canvas>
+          <div class="absolute bottom-6 left-6 right-6 flex gap-4 text-[10px] font-mono">
+            <div class="glass-card rounded-lg px-3 py-2">
+              <span class="text-gold">55%</span> <span class="text-slateMuted">Americas</span>
+            </div>
+            <div class="glass-card rounded-lg px-3 py-2">
+              <span class="text-emerald">28%</span> <span class="text-slateMuted">EMEA</span>
+            </div>
+            <div class="glass-card rounded-lg px-3 py-2">
+              <span class="text-coral">17%</span> <span class="text-slateMuted">APAC</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- === PERFORMANCE === -->
+    <section id="page-performance" class="hidden space-y-8">
+      <header>
+        <p class="label mb-2">Performance Analytics</p>
+        <h1 class="font-serif text-4xl md:text-6xl text-frost tracking-tight">Performance</h1>
+        <p class="text-slateMuted mt-3 max-w-xl">How your capital has performed across timeframes, benchmarks, and risk-adjusted measures.</p>
+      </header>
+
+      <!-- Performance Waterfall -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <h2 class="font-serif text-xl text-frost mb-6">Contribution Waterfall — YTD</h2>
+        <p class="text-sm text-slateMuted mb-6">How each sector contributed to the total return of +4.72% YTD</p>
+        <div class="h-72">
+          <canvas id="waterfallChart"></canvas>
+        </div>
+      </article>
+
+      <!-- Monthly Heatmap -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <div class="flex items-end justify-between mb-6">
+          <div>
+            <h2 class="font-serif text-xl text-frost">Monthly Heatmap</h2>
+            <p class="text-sm text-slateMuted">Return intensity by month and sector</p>
+          </div>
+          <span class="label">YEAR-TO-DATE</span>
+        </div>
+        <div id="heatmap" class="grid grid-cols-12 gap-1.5"></div>
+        <div class="flex items-center gap-2 mt-4 text-[10px] text-slateMuted font-mono">
+          <span class="w-3 h-3 rounded bg-[#0f2e1f]"></span> Low
+          <span class="w-3 h-3 rounded bg-[#1a6b3d]"></span> Moderate
+          <span class="w-3 h-3 rounded bg-[#2ec4a0]"></span> High
+          <span class="w-3 h-3 rounded bg-[#f0d878]"></span> Peak
+        </div>
+      </article>
+
+      <!-- Benchmark Comparison -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <h2 class="font-serif text-xl text-frost mb-2">Benchmark Comparison</h2>
+        <p class="text-sm text-slateMuted mb-6">Your portfolio versus major indices over the past 12 months</p>
+        <div class="h-72">
+          <canvas id="benchmarkChart"></canvas>
+        </div>
+      </article>
+    </section>
+
+    <!-- === ANALYSIS === -->
+    <section id="page-analysis" class="hidden space-y-8">
+      <header>
+        <p class="label mb-2">Deep Intelligence</p>
+        <h1 class="font-serif text-4xl md:text-6xl text-frost tracking-tight">Analysis</h1>
+        <p class="text-slateMuted mt-3 max-w-xl">Expanded insights drawn from your portfolio's structure, news sentiment, and cross-asset correlations.</p>
+      </header>
+
+      <!-- Correlation Matrix -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <h2 class="font-serif text-xl text-frost mb-2">Cross-Asset Correlation</h2>
+        <p class="text-sm text-slateMuted mb-6">How your holdings move relative to one another and to macro factors</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-center border-collapse">
+            <thead>
+              <tr><th class="py-2 text-slateMuted font-mono">Asset</th>
+                <th class="py-2 text-slateMuted font-mono">NVDA</th>
+                <th class="py-2 text-slateMuted font-mono">AAPL</th>
+                <th class="py-2 text-slateMuted font-mono">MSFT</th>
+                <th class="py-2 text-slateMuted font-mono">TSLA</th>
+                <th class="py-2 text-slateMuted font-mono">AVGO</th>
+                <th class="py-2 text-slateMuted font-mono">S&P 500</th>
+              </tr>
+            </thead>
+            <tbody id="corrMatrix" class="font-mono text-frost"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- Sentiment / News Enrichment -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <h2 class="font-serif text-xl text-frost mb-2">News Sentiment & Enrichment</h2>
+        <p class="text-sm text-slateMuted mb-6">Recent headlines evaluated for sentiment impact relative to your holdings</p>
+        <div id="newsSentiment" class="space-y-4"></div>
+      </article>
+
+      <!-- Macro Signal -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <div class="flex items-end justify-between mb-4">
+          <div>
+            <h2 class="font-serif text-xl text-frost">Macro Signal</h2>
+            <p class="text-sm text-slateMuted">Broader signals and macro correlations</p>
+          </div>
+          <span class="label">MACRO</span>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="bg-surface2/40 rounded-xl p-5 border border-white/[0.03]">
+            <p class="text-[10px] uppercase tracking-wider text-slateMuted mb-2">Interest Rate</p>
+            <p class="font-serif text-2xl text-frost">4.50%</p>
+            <p class="text-xs text-slateMuted mt-1">Fed funds effective. Stable expectations.</p>
+          </div>
+          <div class="bg-surface2/40 rounded-xl p-5 border border-white/[0.03]">
+            <p class="text-[10px] uppercase tracking-wider text-slateMuted mb-2">Yield Curve</p>
+            <p class="font-serif text-2xl text-gold">Inverting</p>
+            <p class="text-xs text-slateMuted mt-1">2Y - 10Y spread at -0.12%. Recession signal muted.</p>
+          </div>
+          <div class="bg-surface2/40 rounded-xl p-5 border border-white/[0.03]">
+            <p class="text-[10px] uppercase tracking-wider text-slateMuted mb-2">Dollar Index (DXY)</p>
+            <p class="font-serif text-2xl text-emerald">108.4</p>
+            <p class="text-xs text-slateMuted mt-1">Strength reinforces tech export pressure mildly.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Valuation Metrics -->
+      <article class="glass-card rounded-3xl p-7 md:p-9 hover-glow">
+        <h2 class="font-serif text-xl text-frost mb-6">Valuation Metrics — Deep Dive</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-gradient-to-br from-ink to-surface3 rounded-2xl p-6 border border-white/[0.03] hover-glow">
+            <h4 class="text-xs uppercase tracking-[0.15em] text-slateMuted mb-2">P/E Forward</h4>
+            <p class="font-mono text-3xl text-frost">22.3x</p>
+            <p class="text-[11px] text-slateMuted mt-2">Premium to historical 19x mean. Justified by AI exposure.</p>
+          </div>
+          <div class="bg-gradient-to-br from-ink to-surface3 rounded-2xl p-6 border border-white/[0.03] hover-glow">
+            <h4 class="text-xs uppercase tracking-[0.15em] text-slateMuted mb-2">EV / EBITDA</h4>
+            <p class="font-mono text-3xl text-frost">18.1x</p>
+            <p class="text-[11px] text-slateMuted mt-2">Elevated, but within tech sector quartile.</p>
+          </div>
+          <div class="bg-gradient-to-br from-ink to-surface3 rounded-2xl p-6 border border-white/[0.03] hover-glow">
+            <h4 class="text-xs uppercase tracking-[0.15em] text-slateMuted mb-2">Dividend Yield</h4>
+            <p class="font-mono text-3xl text-emerald">0.85%</p>
+            <p class="text-[11px] text-slateMuted mt-2">Below market average. Growth-focused allocation.</p>
+          </div>
+          <div class="bg-gradient-to-br from-ink to-surface3 rounded-2xl p-6 border border-white/[0.03] hover-glow">
+            <h4 class="text-xs uppercase tracking-[0.15em] text-slateMuted mb-2">PEG Ratio</h4>
+            <p class="font-mono text-3xl text-gold">1.34</p>
+            <p class="text-[11px] text-slateMuted mt-2">Near parity. Suggests fair growth pricing.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-7xl mx-auto px-6 md:px-10 pb-10 pt-6 border-t border-border/30">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] text-slateMuted font-mono">
+      <div>Meridian · Portfolio Intelligence · Not financial advice</div>
+      <div>Built as a design prototype · No real-time data</div>
+    </div>
+  </footer>
+
+  <!-- Modal -->
+  <div id="modal" onclick="closeModal(event)" class="fixed inset-0 z-[100] hidden items-start justify-center p-6 backdrop-blur-md bg-ink/60">
+    <div onclick="event.stopPropagation()" class="glass-card rounded-3xl p-8 max-w-md w-full mt-20 shadow-2xl border border-white/[0.08] relative">
+      <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-surface2 border border-border flex items-center justify-center hover:text-frost text-slateMuted transition-colors">
+        <i class="ph ph-x text-sm"></i>
+      </button>
+      <h3 id="modalTitle" class="font-serif text-2xl text-frost mb-2">Event</h3>
+      <p id="modalBody" class="text-sm text-slateMuted">Details will appear here.</p>
+    </div>
+  </div>
+
+  <script>
+    // === NAVIGATION ===
+    function navTo(page) {
+      ['overview','holdings','performance','analysis'].forEach(p => {
+        document.getElementById('page-'+p).classList.add('hidden');
+        document.getElementById('nav-'+p).classList.remove('active');
+      });
+      document.getElementById('page-'+page).classList.remove('hidden');
+      document.getElementById('nav-'+page).classList.add('active');
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function showEvent(title) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').textContent = 'This is a simulated event notification from the Meridian intelligence layer. It connects your holdings to macro and earnings calendar events, allowing rapid cross-reference.';
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+    }
+    function closeModal(e) {
+      if (!e || e.target === document.getElementById('modal')) {
+        document.getElementById('modal').classList.add('hidden');
+        document.getElementById('modal').classList.remove('flex');
+      }
+    }
+
+    // === RISK CHART ===
+    const riskCtx = document.getElementById('riskChart').getContext('2d');
+    new Chart(riskCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+        datasets: [{
+          data: [0.82,0.86,0.88,0.94,0.91,0.95,0.90,0.92,0.89,0.93,0.95,1.02],
+          borderColor: '#2ec4a0',
+          backgroundColor: 'rgba(46,196,160,0.08)',
+          tension: 0.45,
+          fill: true,
+          pointBackgroundColor: '#2ec4a0',
+          pointBorderColor: '#0b0e14',
+          pointRadius: 3,
+          borderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { min: 0.7, max: 1.1, grid: { color: '#1f2538' }, ticks: { color: '#7a8198', font: { family: '"JetBrains Mono", monospace', size: 9 } } },
+          x: { grid: { display: false }, ticks: { color: '#7a8198', font: { family: '"DM Sans", system-ui', size: 9 } } }
+        }
+      }
+    });
+
+    // === ALLOCATION CHART ===
+    const allocCtx = document.getElementById('allocChart').getContext('2d');
+    new Chart(allocCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Technology','Energy','Healthcare','Finance','Industrials','Consumer'],
+        datasets: [{
+          data: [38,18,14,12,10,8],
+          backgroundColor: ['#2ec4a0','#d4a843','#e87a5d','#5b8ee0','#8b6bd6','#2bc4b8'],
+          borderColor: '#131620',
+          borderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#181b28',
+            titleColor: '#f0e6c8',
+            bodyColor: '#c2c8dc',
+            borderColor: '#1f2538',
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
+          }
+        }
+      }
+    });
+
+    // === DATA ===
+    const holdings = [
+      { ticker: 'NVDA', name: 'NVIDIA Corp.', sector: 'Technology', weight: 4.35, value: 124200, pl: 18.4, region: 'Americas', revenuePct: 55 },
+      { ticker: 'AAPL', name: 'Apple Inc.', sector: 'Technology', weight: 3.95, value: 112300, pl: -3.4, region: 'Americas', revenuePct: 45 },
+      { ticker: 'MSFT', name: 'Microsoft Corp.', sector: 'Technology', weight: 3.45, value: 98400, pl: 7.2, region: 'Americas', revenuePct: 52 },
+      { ticker: 'TSLA', name: 'Tesla Inc.', sector: 'Consumer', weight: 2.55, value: 72300, pl: 11.2, region: 'Americas', revenuePct: 48 },
+      { ticker: 'AVGO', name: 'Broadcom Inc.', sector: 'Technology', weight: 3.08, value: 87500, pl: 14.1, region: 'Americas', revenuePct: 60 },
+      { ticker: 'META', name: 'Meta Platforms', sector: 'Technology', weight: 2.70, value: 76800, pl: 5.3, region: 'Americas', revenuePct: 58 },
+      { ticker: 'AMZN', name: 'Amazon.com Inc.', sector: 'Consumer', weight: 2.30, value: 65400, pl: 9.1, region: 'Americas', revenuePct: 57 },
+      { ticker: 'TSMC', name: 'Taiwan Semi.', sector: 'Technology', weight: 2.12, value: 60200, pl: 6.8, region: 'APAC', revenuePct: 100 },
+      { ticker: 'AMD', name: 'AMD Inc.', sector: 'Technology', weight: 1.45, value: 41200, pl: -2.1, region: 'Americas', revenuePct: 62 },
+      { ticker: 'JPM', name: 'JPMorgan Chase', sector: 'Finance', weight: 3.20, value: 91000, pl: 12.5, region: 'Americas', revenuePct: 75 },
+      { ticker: 'XOM', name: 'Exxon Mobil', sector: 'Energy', weight: 1.85, value: 52600, pl: 4.3, region: 'Americas', revenuePct: 72 },
+      { ticker: 'UNH', name: 'UnitedHealth', sector: 'Healthcare', weight: 2.95, value: 83900, pl: -1.2, region: 'Americas', revenuePct: 98 },
+      { ticker: 'BA', name: 'Boeing Co.', sector: 'Industrials', weight: 1.60, value: 45600, pl: -6.3, region: 'Americas', revenuePct: 55 },
+      { ticker: 'INTC', name: 'Intel Corp.', sector: 'Technology', weight: 1.34, value: 38100, pl: -9.7, region: 'Americas', revenuePct: 50 },
+      { ticker: 'V', name: 'Visa Inc.', sector: 'Finance', weight: 2.42, value: 68800, pl: 3.8, region: 'Americas', revenuePct: 55 },
+      { ticker: 'LLY', name: 'Eli Lilly', sector: 'Healthcare', weight: 1.78, value: 50600, pl: -0.8, region: 'Americas', revenuePct: 42 },
+    ];
+
+    // === TREEMAP ===
+    function renderTreemap() {
+      const box = document.getElementById('treemap');
+      box.innerHTML = '';
+      const total = holdings.reduce((s,h)=>s+h.value,0);
+      // Simple squarified layout approximation with fixed grid
+      // We'll use a 5x4 grid approximation for aesthetics
+      let grid = [];
+      let row = 0, col = 0, maxRow = 3, maxCol = 5;
+      // Sort descending to fill top-left
+      const sorted = [...holdings].sort((a,b)=>b.value-a.value);
+      sorted.forEach((h,i) => {
+        const cell = document.createElement('a');
+        cell.href = '#';
+        cell.className = 'treemap-cell absolute rounded-xl flex flex-col justify-end p-3 md:p-4 border border-white/[0.04] bg-gradient-to-br from-surface2/80 to-ink/60 hover:from-surface3/90 hover:to-ink/90';
+        // Size approximation by value
+        const area = Math.round((h.value/total)*500);
+        // Position by index
+        const r = Math.floor(i/4);
+        const c = i%4;
+        // Actual grid positions spread out
+        cell.style.gridArea = `auto / auto / span 1 / span 1`;
+        cell.innerHTML = `
+          <div class="flex-1"></div>
+          <div class="text-[10px] font-mono text-slateMuted">${h.ticker}</div>
+          <div class="text-xs font-medium text-frost truncate">${h.name}</div>
+          <div class="text-[10px] font-mono ${h.pl>=0?'text-emerald':'text-coral'}">${h.pl>=0?'+':''}${h.pl}%</div>
+        `;
+        // Size by value - using CSS grid sizing
+        const wPct = Math.max(15, (h.value/total)*45);
+        const hPct = Math.max(25, (h.value/total)*40);
+        cell.style.width = wPct + '%';
+        cell.style.height = hPct + '%';
+        cell.style.margin = '0.2%';
+        box.appendChild(cell);
+      });
+      // Reorder using CSS flex-wrap with custom sizing
+      box.className = 'w-full h-[420px] rounded-2xl overflow-hidden border border-white/[0.03] bg-gradient-to-br from-ink via-surface3 to-ink flex flex-wrap content-start p-1';
+    }
+
+    // === WEIGHT RIBBON ===
+    function renderWeightRibbon() {
+      const ribbon = document.getElementById('weightRibbon');
+      const labels = document.getElementById('weightLabels');
+      ribbon.innerHTML = '';
+      labels.innerHTML = '';
+      const colors = ['#2ec4a0','#d4a843','#e87a5d','#5b8ee0','#8b6bd6','#2bc4b8','#4aa88f','#e0a63a','#cf765a','#3f7bd0','#6b5aa7','#3eb5b0'];
+      holdings.forEach((h,i) => {
+        const seg = document.createElement('div');
+        seg.className = 'h-full transition-all hover:brightness-125';
+        seg.style.width = (h.weight*0.95)+'%';
+        seg.style.backgroundColor = colors[i%colors.length];
+        seg.title = `${h.ticker} · ${h.weight}%`;
+        ribbon.appendChild(seg);
+        const lbl = document.createElement('div');
+        lbl.className = 'flex items-center gap-1';
+        lbl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full" style="background:${colors[i%colors.length]}"></span>${h.ticker}`;
+        labels.appendChild(lbl);
+      });
+    }
+
+    // === FULL HOLDINGS TABLE ===
+    function renderTable() {
+      const tbody = document.getElementById('holdingsTable');
+      tbody.innerHTML = holdings.map(h => {
+        const plColor = h.pl>=0 ? 'text-emerald' : 'text-coral';
+        const plSign = h.pl>=0 ? '+' : '';
+        return `<tr class="hover:bg-white/[0.015] transition-colors group">
+          <td class="py-3 font-mono text-xs font-semibold">${h.ticker}</td>
+          <td class="py-3"><span class="font-medium text-frost">${h.name}</span></td>
+          <td class="py-3 text-[10px] text-slateMuted uppercase tracking-wide">${h.sector}</td>
+          <td class="py-3 font-mono text-xs">${h.weight}%</td>
+          <td class="py-3 text-right font-mono text-xs">$${h.value.toLocaleString()}</td>
+          <td class="py-3 text-right font-mono text-xs ${plColor}">${plSign}${h.pl}%</td>
+          <td class="py-3 text-xs text-slateMuted">${h.region}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // === WORLD MAP / GLOBE ===
+    function initGlobe() {
+      const canvas = document.getElementById('globeCanvas');
+      const ctx = canvas.getContext('2d');
+      let W, H, cx, cy;
+      let time = 0;
+      const dots = [];
+      for(let i=0;i<60;i++){
+        dots.push({
+          lng: Math.random()*360-180,
+          lat: Math.random()*180-90,
+          val: Math.random()*0.8+0.2,
+          phase: Math.random()*Math.PI*2,
+        });
+      }
+      function resize() {
+        const parent = canvas.parentElement;
+        W = parent.clientWidth;
+        H = parent.clientHeight;
+        canvas.width = W*2; canvas.height = H*2;
+        cx = W; cy = H;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function project(lng, lat, r) {
+        const x = cx + r * Math.cos(Math.toRadians(lat)) * Math.sin(Math.toRadians(lng));
+        const y = cy + r * Math.sin(Math.toRadians(lat));
+        return [x*2, y*2]; // scale for retina
+      }
+
+      function draw() {
+        time += 0.004;
+        ctx.save();
+        ctx.scale(2,2); // retina
+        ctx.clearRect(0,0,W,H);
+        const r = Math.min(W,H)*0.42;
+
+        // Globe circle with subtle gradient
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+        grad.addColorStop(0, '#0f1a30');
+        grad.addColorStop(0.7, '#09102a');
+        grad.addColorStop(1, '#03050e');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI*2);
+        ctx.fill();
+
+        // Grid lines
+        ctx.strokeStyle = 'rgba(46,196,160,0.12)';
+        ctx.lineWidth = 0.5;
+        for(let lat=-80; lat<=80; lat+=20) {
+          ctx.beginPath();
+          for(let lng=-180; lng<=180; lng+=10) {
+            const [x,y] = project(lng, lat, r);
+            if(lng===-180) ctx.moveTo(x/2,y/2); else ctx.lineTo(x/2,y/2);
+          }
+          ctx.stroke();
+        }
+        for(let lng=-180; lng<=180; lng+=30) {
+          ctx.beginPath();
+          for(let lat=-90; lat<=90; lat+=5) {
+            const [x,y] = project(lng, lat, r);
+            if(lat===-90) ctx.moveTo(x/2,y/2); else ctx.lineTo(x/2,y/2);
+          }
+          ctx.stroke();
+        }
+
+        // Dots
+        dots.forEach(dot => {
+          const rotLng = dot.lng + (time*25);
+          const [x,y] = project(rotLng, dot.lat, r);
+          if(x>0 && x<W*2 && y>0 && y<H*2) {
+            const pulse = 0.5 + 0.5*Math.sin(time*3 + dot.phase);
+            const alpha = dot.val * (0.4 + 0.4*pulse);
+            ctx.beginPath();
+            ctx.arc(x/2, y/2, 2 + 2*pulse, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(46,196,160,${alpha})`;
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x/2, y/2, 4 + 3*pulse, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(46,196,160,${alpha*0.2})`;
+            ctx.fill();
+          }
+        });
+        ctx.restore();
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    // === PERFORMANCE CHARTS ===
+    const waterfallCtx = document.getElementById('waterfallChart').getContext('2d');
+    new Chart(waterfallCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Start','Tech','Energy','Health','Finance','Consumer','End'],
+        datasets: [{ data: [0, 2.1, 0.8, -0.5, 1.2, 1.1, 0], backgroundColor: ['#181b28','#2ec4a0','#d4a843','#e87a5d','#5b8ee0','#2bc4b8','#181b28'], borderRadius: 6 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#1f2538' } }, x: { grid: { display: false } } } }
+    });
+
+    const benchmarkCtx = document.getElementById('benchmarkChart').getContext('2d');
+    new Chart(benchmarkCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'],
+        datasets: [
+          { label: 'Portfolio', data: [100,103,105,104,108,112,115,116,113,119,124], borderColor: '#d4a843', tension: 0.4, fill: false, pointRadius: 2 },
+          { label: 'S&P 500', data: [100,101,100,102,101,104,106,107,108,109,111], borderColor: '#2ec4a0', tension: 0.4, fill: false, pointRadius: 2, borderDash: [4,4] },
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#c2c8dc', font: { family: '"DM Sans"' } } } }, scales: { y: { beginAtZero: false, grid: { color: '#1f2538' } }, x: { grid: { display: false } } } }
+    });
+
+    // === HEATMAP ===
+    const heatmapData = [
+      [0.2,0.5,0.8,0.9,0.4,0.2,-0.1,0.3,0.6,0.8,1.1,0.5],
+      [0.4,0.6,0.9,1.0,0.5,0.3,0.0,0.4,0.7,0.9,1.2,0.6],
+      [0.1,0.3,0.7,0.8,0.3,0.1,-0.2,0.2,0.5,0.7,1.0,0.4],
+      [0.3,0.4,0.6,0.7,0.4,0.2,-0.1,0.3,0.6,0.8,1.1,0.5],
+    ];
+    const heatmapLabels = ['Tech','Energy','Health','Finance'];
+    function renderHeatmap() {
+      const box = document.getElementById('heatmap');
+      box.innerHTML = '';
+      heatmapData.forEach((row,rowIdx) => {
+        row.forEach((val,colIdx) => {
+          const cell = document.createElement('a');
+          cell.href = '#';
+          const intensity = Math.abs(val);
+          const hue = val>=0 ? 145 : 0;
+          const light = 15 + intensity*45;
+          cell.className = 'aspect-square rounded-md transition-transform hover:scale-105 hover:z-10 hover:shadow-lg';
+          cell.style.backgroundColor = `hsl(${hue}, 60%, ${light}%)`;
+          cell.title = `${heatmapLabels[rowIdx]} · Month ${colIdx+1} · ${val>=0?'+':''}${(val*100).toFixed(1)}%`;
+          box.appendChild(cell);
+        });
+      });
+    }
+    renderHeatmap();
+
+    // === CORRELATION MATRIX ===
+    function renderCorr() {
+      const tbody = document.getElementById('corrMatrix');
+      const assets = ['NVDA','AAPL','MSFT','TSLA','AVGO','S&P 500'];
+      const corr = [
+        [1.00,0.72,0.68,0.42,0.85,0.78],
+        [0.72,1.00,0.75,0.28,0.61,0.82],
+        [0.68,0.75,1.00,0.31,0.64,0.81],
+        [0.42,0.28,0.31,1.00,0.45,0.54],
+        [0.85,0.61,0.64,0.45,1.00,0.70],
+        [0.78,0.82,0.81,0.54,0.70,1.00]
+      ];
+      tbody.innerHTML = corr.map((row,r) => {
+        return `<tr>
+          <td class="py-2 px-1 text-left font-mono text-[10px] text-slateMuted">${assets[r]}</td>
+          ${row.map((val,c) => {
+            const opacity = Math.abs(val)*0.5+0.05;
+            const color = val>0.7 ? '#2ec4a0' : val>0.3 ? '#d4a843' : '#e87a5d';
+            return `<td class="py-2 px-1" style="color:${color}; opacity:${opacity};">${val.toFixed(2)}</td>`;
+          }).join('')}
+        </tr>`;
+      }).join('');
+    }
+    renderCorr();
+
+    // === NEWS SENTIMENT ===
+    function renderNews() {
+      const box = document.getElementById('newsSentiment');
+      const news = [
+        { title: 'AI Demand Surge Boosts Semiconductor Outlook', ticker: 'NVDA', sentiment: 'positive', impact: 'High', summary: 'Analysts raise price targets across chip sector citing unprecedented data center orders.' },
+        { title: 'Fed Signals Extended Hold on Rates', ticker: 'SPY', sentiment: 'neutral', impact: 'Medium', summary: 'Market pricing stable rate environment through Q1 2025, supporting growth equities.' },
+        { title: 'iPhone Sales Miss Quarterly Estimate', ticker: 'AAPL', sentiment: 'negative', impact: 'Medium', summary: 'Soft demand in Greater China weighs on premium handset segment; services offset partly.' },
+        { title: 'EV Subsidy Extension Confirmed', ticker: 'TSLA', sentiment: 'positive', impact: 'Medium', summary: 'Federal incentives extended for battery manufacturing; direct impact on Tesla cost structure.' },
+      ];
+      box.innerHTML = news.map(n => {
+        const color = n.sentiment==='positive'?'text-emerald':n.sentiment==='negative'?'text-coral':'text-gold';
+        return `<div class="group rounded-2xl bg-surface2/30 border border-white/[0.03] p-5 hover:border-white/[0.06] transition-all hover:-translate-y-0.5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-surface3 text-slateMuted border border-white/[0.03]">${n.ticker}</span>
+                <span class="text-[10px] text-slateMuted">· ${n.impact} impact</span>
+              </div>
+              <h4 class="font-medium text-frost text-sm leading-snug mb-1">${n.title}</h4>
+              <p class="text-xs text-slateMuted">${n.summary}</p>
+            </div>
+            <span class="font-mono text-xs ${color} font-semibold whitespace-nowrap">${n.sentiment.toUpperCase()}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    renderNews();
+
+    // === INITIAL BUILD ===
+    renderTreemap();
+    renderWeightRibbon();
+    renderTable();
+    initGlobe();
+    renderHeatmap();
+    renderCorr();
+    renderNews();
+
+    // Theme toggle (placeholder visual effect)
+    function toggleTheme() {
+      document.body.classList.toggle('brightness-125');
+      alert('Theme toggle simulated. In a full app, this would switch to light mode with full palette swap.');
+    }
+  </script>
+</body>
+</html>
